@@ -1,0 +1,179 @@
+---
+// A big-screen CRT TV that plays a YouTube video. Used by the CH03 Xephos
+// page and by project showcase pages (e.g. A Way End).
+//
+//   <ShowcaseTv video="https://youtu.be/..." title="Xephos (short film)" brand={['XPH', 'VISION']}>
+//     <span slot="badge">...optional sticker on the corner...</span>
+//   </ShowcaseTv>
+//
+// The speaker strip shows sound-wave bars that bounce while the video plays.
+// Classes use an `stv-` prefix because the homepage TV (Tv.astro) already
+// owns `.tv`, `.tv-screen` etc. in global.css.
+// Colours can be tuned from the page with CSS variables on a parent:
+//   --tv-accent (bars + light while playing), --tv-brand-font
+interface Props {
+  video: string; // any YouTube link: watch?v=, youtu.be/, shorts/
+  title: string; // accessible name of the video
+  brand?: [string, string]; // the little logo under the screen, e.g. ['XPH', 'VISION']
+}
+const { video, title, brand = ['FRUS', 'VISION'] } = Astro.props;
+const youtubeId = video.match(/(?:v=|youtu\.be\/|shorts\/|embed\/)([\w-]{11})/)?.[1];
+
+// Sound-wave bars. Each bar gets its own height, speed and start offset so
+// they don't move in sync. sin() is used as a cheap "random" number
+// generator that gives the same result every build.
+const rand = (n: number) => Math.abs((Math.sin(n * 12.9898) * 43758.5453) % 1);
+const eqBars = Array.from({ length: 72 }, (_, i) => {
+  const envelope = 0.45 + 0.55 * Math.sin((Math.PI * i) / 71); // taller in the middle
+  return {
+    peak: (0.25 + 0.75 * rand(i + 1)) * envelope + 0.12,
+    speed: 0.28 + 0.5 * rand(i + 101),
+    offset: -1.2 * rand(i + 202),
+  };
+});
+---
+
+{youtubeId && (
+  <div class="stv-wrap">
+    <div class="stv" data-showcase-tv>
+      <slot name="badge" />
+      <div class="stv-screen">
+        {/* youtube-nocookie = no tracking cookies until the visitor presses play */}
+        <iframe
+          src={`https://www.youtube-nocookie.com/embed/${youtubeId}?enablejsapi=1`}
+          data-showcase-video
+          title={title}
+          loading="lazy"
+          allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+          allowfullscreen
+        ></iframe>
+        {/* glass: scanlines + vignette + glare. pointer-events: none lets clicks reach the video */}
+        <span class="stv-glass" aria-hidden="true"></span>
+      </div>
+      <div class="stv-panel" aria-hidden="true">
+        <span class="stv-brand">{brand[0]}<b>·</b>{brand[1]}</span>
+        <span class="stv-eq">
+          {eqBars.map((b) => (
+            <i style={`--p:${b.peak.toFixed(2)};--d:${b.speed.toFixed(2)}s;--o:${b.offset.toFixed(2)}s`}></i>
+          ))}
+        </span>
+        <span class="stv-knobs"><i></i><i></i><em></em></span>
+      </div>
+    </div>
+    <div class="stv-feet" aria-hidden="true"><i></i><i></i></div>
+  </div>
+)}
+
+<script>
+  // ---- sound-wave bars: animate only while the video is playing ----
+  // The video lives in a YouTube iframe (another website), so we can't read
+  // its audio. But with ?enablejsapi=1 the player will *tell* us its state
+  // through postMessage: 1 = playing, 2 = paused, 0 = ended, 3 = buffering.
+  // We say "I'm listening", then toggle .is-playing from the replies.
+  document.querySelectorAll<HTMLElement>('[data-showcase-tv]').forEach((tv, n) => {
+    const film = tv.querySelector<HTMLIFrameElement>('[data-showcase-video]');
+    if (!film) return;
+    let heard = false;
+    const hello = () =>
+      film.contentWindow?.postMessage(JSON.stringify({ event: 'listening', id: `tv-${n}`, channel: 'widget' }), '*');
+    // keep saying hello until the player answers (it can take a moment to boot)
+    const greet = () => {
+      let tries = 0;
+      const timer = window.setInterval(() => {
+        if (heard || ++tries > 40) return window.clearInterval(timer);
+        hello();
+      }, 250);
+    };
+    film.addEventListener('load', greet);
+    greet(); // in case the iframe already loaded before this script ran
+
+    window.addEventListener('message', (e) => {
+      if (e.source !== film.contentWindow) return; // only trust our own video
+      let data: { event?: string; info?: unknown };
+      try {
+        data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
+      } catch {
+        return;
+      }
+      heard = true;
+      let state: number | undefined;
+      if (data.event === 'onStateChange' && typeof data.info === 'number') state = data.info;
+      const info = data.info as { playerState?: unknown } | null;
+      if (data.event === 'infoDelivery' && typeof info?.playerState === 'number') state = info.playerState;
+      if (state !== undefined) tv.classList.toggle('is-playing', state === 1);
+    });
+  });
+</script>
+
+<style>
+  .stv {
+    position: relative; max-width: 1080px; margin: 0 auto;
+    padding: clamp(12px, 2.6vw, 30px) clamp(12px, 2.6vw, 30px) 0;
+    border-radius: clamp(14px, 2.4vw, 30px);
+    background: linear-gradient(180deg, #2e2b27, #1c1a17 70%, #151310);
+    box-shadow:
+      inset 0 2px 0 rgba(255, 255, 255, 0.08), inset 0 -3px 0 rgba(0, 0, 0, 0.5),
+      0 0 0 2px #0b0a08, 0 30px 70px rgba(0, 0, 0, 0.65);
+  }
+  .stv-screen {
+    position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: #000;
+    border-radius: clamp(8px, 1.6vw, 20px) / clamp(10px, 2vw, 26px); /* slightly bulged CRT corners */
+    box-shadow: 0 0 0 clamp(4px, 0.8vw, 8px) #0c0b09, 0 0 0 clamp(6px, 1vw, 10px) rgba(255, 255, 255, 0.05);
+  }
+  .stv-screen iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .stv-glass {
+    position: absolute; inset: 0; z-index: 1; pointer-events: none; border-radius: inherit;
+    background:
+      linear-gradient(122deg, rgba(255, 255, 255, 0.07) 0 22%, transparent 34%),
+      repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.13) 0 1px, transparent 1px 3px);
+    box-shadow: inset 0 0 clamp(30px, 6vw, 80px) rgba(0, 0, 0, 0.75);
+  }
+  .stv-panel {
+    display: flex; align-items: center; gap: clamp(10px, 2vw, 24px);
+    height: clamp(44px, 6vw, 68px); padding: 0 4px;
+  }
+  .stv-brand {
+    font-family: var(--tv-brand-font, var(--font-display)); font-size: clamp(12px, 1.6vw, 18px);
+    letter-spacing: 0.08em; color: #ece5d6; white-space: nowrap;
+  }
+  .stv-brand b { color: #8c867a; font-weight: 400; }
+  /* speaker strip = sound-wave bars. Flat while the video is paused/stopped;
+     when it plays (.is-playing, set by the script), each bar bounces between
+     flat and its own peak height. steps() makes the motion choppy and
+     low-framerate, like a cheap old LED meter. */
+  .stv-eq {
+    flex: 1; min-width: 40px; height: 62%; overflow: hidden;
+    display: flex; align-items: center; gap: 2px; padding: 0 6px;
+    background: #0d0c0a; border-radius: 3px;
+  }
+  .stv-eq i {
+    flex: 1 0 2px; height: 100%;
+    background: #3a3631; transform: scaleY(0.1);
+    animation: stv-eq var(--d) steps(5, end) var(--o) infinite alternate;
+  }
+  .stv:not(.is-playing) .stv-eq i { animation: none; }
+  .stv.is-playing .stv-eq i { background: var(--tv-accent, #b9b2a3); }
+  @keyframes stv-eq {
+    from { transform: scaleY(0.1); }
+    to { transform: scaleY(var(--p)); }
+  }
+  .stv-knobs { display: flex; align-items: center; gap: 10px; }
+  .stv-knobs i {
+    width: clamp(16px, 2vw, 24px); aspect-ratio: 1; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #57524a, #1b1916 70%);
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.6);
+  }
+  /* power LED: glows brighter while the video plays */
+  .stv-knobs em {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #d9cfb6; box-shadow: 0 0 8px 2px rgba(217, 207, 182, 0.45);
+  }
+  .stv.is-playing .stv-knobs em {
+    background: var(--tv-accent, #fff4dc); box-shadow: 0 0 10px 3px var(--tv-accent, rgba(255, 240, 210, 0.7));
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .stv.is-playing .stv-eq i { animation: none; transform: scaleY(var(--p)); }
+  }
+  .stv-feet { display: flex; justify-content: space-between; max-width: 1080px; margin: 0 auto; padding: 0 14%; }
+  .stv-feet i { width: clamp(50px, 9vw, 110px); height: 12px; background: #0f0e0c; border-radius: 0 0 6px 6px; }
+</style>

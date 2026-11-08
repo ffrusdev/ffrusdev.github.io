@@ -19,6 +19,18 @@ const projects = defineCollection({
     tags: z.array(z.string()).default([]),
     order: z.number().default(99), // lower = shown first
     link: z.string().optional(), // Steam / itch / trailer URL
+
+    // ---- optional "showcase" page (title card + TV + art gallery) ----
+    // Fill in `video` and/or `poster` and the project page switches from the
+    // plain text layout to the showcase layout. See a-way-end.md.
+    video: z.string().optional(), // YouTube link, plays on the big-screen TV
+    poster: z.string().optional(), // key art, e.g. /projects/a-way-end/poster.webp
+    context: z.string().optional(), // e.g. "Semester 2 project"
+    stamp: z.string().optional(), // short text in the round stamp, e.g. "SEM 02"
+    tools: z.array(z.string()).default([]),
+    gallery: z
+      .array(z.object({ src: z.string(), caption: z.string(), alt: z.string() }))
+      .default([]),
   }),
 });
 

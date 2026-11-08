@@ -1,0 +1,269 @@
+---
+// Showcase layout for a project page: a title card with a stamp and the key
+// art, the gameplay video on the big-screen TV, a pixel-art gallery, then the
+// markdown dev notes. Same structure as the CH03 Xephos page, but themed after
+// the game's own poster: black-to-ember-red glow, cream pixel title with a
+// brown outline, drifting embers.
+//
+// Used by src/pages/projects/[id].astro when a project has `video` or `poster`.
+import type { CollectionEntry } from 'astro:content';
+import ShowcaseTv from './ShowcaseTv.astro';
+
+interface Props {
+  entry: CollectionEntry<'projects'>;
+}
+const { entry } = Astro.props;
+const d = entry.data;
+const statusLabel = { active: 'IN DEVELOPMENT', shipped: 'FINISHED', paused: 'ON HOLD', 'day-job': 'DAY SHIFT' } as const;
+const shelfLabel = { '3d': '3D GAME', '2d': '2D GAME', work: 'DAY SHIFT' } as const;
+const pad = (n: number) => String(n).padStart(2, '0');
+
+// Number the sections in the order they appear (skipping missing ones).
+let n = 0;
+const num = { video: d.video ? pad(++n) : '', art: d.gallery.length ? pad(++n) : '', notes: pad(++n) };
+const code = d.title.split(/\s+/).map((w) => w[0]).join('').toUpperCase(); // "A Way End" -> "AWE"
+---
+
+<div class="screen-page sc">
+  <p class="sc-crumb">
+    <a href="/projects/" data-channel-link>◄ ALL PROJECTS</a>
+    <span aria-hidden="true">&nbsp;/&nbsp; CH01 // {shelfLabel[d.section]}S</span>
+  </p>
+
+  <!-- ===== title card ===== -->
+  <header class="sc-hero">
+    {/* drifting embers, like the poster */}
+    <span class="sc-embers" aria-hidden="true">{Array.from({ length: 9 }, () => <i></i>)}</span>
+
+    <div class="sc-hero-text">
+      <p class="sc-file">FILE № {pad(d.order)} &nbsp;/&nbsp; {shelfLabel[d.section]}</p>
+      <h1 class="sc-title">{d.title}</h1>
+      <p class="sc-summary">{d.summary}</p>
+      <dl class="sc-meta">
+        {d.context && <div><dt>CONTEXT</dt><dd>{d.context}</dd></div>}
+        <div><dt>ROLE</dt><dd>{d.role}</dd></div>
+        <div><dt>STATUS</dt><dd>{statusLabel[d.status]}</dd></div>
+        {d.tools.length > 0 && <div><dt>TOOLS</dt><dd>{d.tools.join(' · ')}</dd></div>}
+      </dl>
+      {d.link && <p class="sc-link"><a class="btn" href={d.link}>▶ PLAY / WATCH</a></p>}
+      <div class="sc-hero-foot" aria-hidden="true">
+        <span class="sc-barcode"></span>
+        <span>{code} / {d.tags.join(' / ').toUpperCase()}</span>
+      </div>
+    </div>
+
+    {d.poster && (
+      <figure class="sc-poster">
+        <span class="sc-tape" aria-hidden="true"></span>
+        <img src={d.poster} width="900" height="1284" alt={`${d.title} key art`} />
+      </figure>
+    )}
+    {d.stamp && <span class="sc-stamp" aria-hidden="true">{d.stamp}</span>}
+  </header>
+
+  <!-- ===== gameplay on the big-screen TV ===== -->
+  {d.video && (
+    <section class="sc-sec" aria-labelledby="sc-video">
+      <header class="sc-sec-head">
+        <span class="sc-num" aria-hidden="true">{num.video}</span>
+        <div>
+          <h2 id="sc-video">GAMEPLAY</h2>
+          <p class="sc-sub">NOW SHOWING · {d.title}</p>
+        </div>
+      </header>
+      <ShowcaseTv video={d.video} title={`${d.title} gameplay video`} brand={[code, 'VISION']} />
+    </section>
+  )}
+
+  <!-- ===== pixel art gallery ===== -->
+  {d.gallery.length > 0 && (
+    <section class="sc-sec" aria-labelledby="sc-art">
+      <header class="sc-sec-head">
+        <span class="sc-num" aria-hidden="true">{num.art}</span>
+        <div>
+          <h2 id="sc-art">PIXEL ART</h2>
+          <p class="sc-sub">SPRITES · TILES · PROPS</p>
+        </div>
+      </header>
+      <div class="sc-gallery">
+        {d.gallery.map((g) => (
+          <figure class="sc-sheet">
+            <div class="sc-sheet-img"><img src={g.src} alt={g.alt} loading="lazy" /></div>
+            <figcaption><span aria-hidden="true">■</span> {g.caption}</figcaption>
+          </figure>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <!-- ===== dev notes (the markdown body) ===== -->
+  <section class="sc-sec" aria-labelledby="sc-notes">
+    <header class="sc-sec-head">
+      <span class="sc-num" aria-hidden="true">{num.notes}</span>
+      <div>
+        <h2 id="sc-notes">DEV NOTES</h2>
+        <p class="sc-sub">{d.role} · {d.year}</p>
+      </div>
+    </header>
+    <div class="prose sc-notes"><slot /></div>
+  </section>
+</div>
+
+<style>
+  .sc {
+    --e-cream: #fff3d6;
+    --e-brown: #5a1e0e;
+    --e-ember: #ff8a2a;
+    --e-red: #8e1b0f;
+    --e-ink: #0d0908;
+    --e-steel: #3a2f2c;
+    --e-grey: #9a8c86;
+    --tv-accent: var(--e-ember); /* sound bars glow ember while the video plays */
+    color: var(--e-cream);
+    text-shadow: none;
+  }
+  /* same PS2-style dither as CH03, warmed up */
+  :global(body:has(.sc)) {
+    background: repeating-conic-gradient(#171010 0 25%, #120c0c 0 50%) 0 0 / 4px 4px;
+  }
+
+  .sc-crumb { margin: 0 0 14px; font-family: var(--font-display); font-size: 13px; letter-spacing: 2px; color: var(--e-grey); }
+  .sc-crumb a { color: var(--e-cream); text-decoration: none; }
+  .sc-crumb a:hover { color: var(--e-ember); }
+
+  /* ---------- title card ---------- */
+  .sc-hero {
+    position: relative; overflow: hidden;
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(200px, 300px); gap: clamp(20px, 4vw, 48px);
+    align-items: center; padding: clamp(20px, 4vw, 44px);
+    border: 2px solid #2a1a16;
+    background:
+      radial-gradient(ellipse 70% 90% at 15% 110%, rgba(190, 40, 15, 0.75), transparent 70%),
+      radial-gradient(ellipse at 80% -10%, rgba(255, 120, 40, 0.12), transparent 60%),
+      repeating-conic-gradient(rgba(0, 0, 0, 0.18) 0 25%, transparent 0 50%) 0 0 / 4px 4px,
+      linear-gradient(180deg, #0b0707, #1c0a07);
+    box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.5);
+  }
+  .sc-hero-text { position: relative; z-index: 1; container-type: inline-size; }
+  .sc-file { margin: 0 0 12px; font-family: var(--font-display); font-size: 12px; letter-spacing: 3px; color: var(--e-ember); }
+  .sc-title {
+    margin: 0; font-family: var(--font-display); font-weight: 700; line-height: 0.95;
+    font-size: clamp(36px, 13cqi, 104px); letter-spacing: 0.02em; color: var(--e-cream);
+    /* chunky brown outline (four hard shadows) + warm glow, like the poster's logo */
+    text-shadow:
+      3px 0 0 var(--e-brown), -3px 0 0 var(--e-brown), 0 3px 0 var(--e-brown), 0 -3px 0 var(--e-brown),
+      3px 3px 0 var(--e-brown), 0 0 24px rgba(255, 110, 30, 0.55);
+  }
+  .sc-summary { margin: 22px 0 0; max-width: 52ch; font-size: 24px; line-height: 1.15; color: #f1e2cc; }
+  .sc-meta {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px 24px;
+    margin: 24px 0 0; padding-top: 16px; border-top: 2px solid rgba(255, 243, 214, 0.25);
+  }
+  .sc-meta dt { font-family: var(--font-display); font-size: 11px; letter-spacing: 2px; color: var(--e-grey); }
+  .sc-meta dd { margin: 2px 0 0; font-size: 22px; }
+  .sc-link { margin: 20px 0 0; }
+  .sc .btn {
+    border-radius: 0; border: 2px solid var(--e-ember); background: var(--e-ember); color: var(--e-ink);
+    font-family: var(--font-display); font-size: 13px; letter-spacing: 1px;
+  }
+  .sc .btn:hover { background: var(--e-cream); border-color: var(--e-cream); color: var(--e-ink); }
+  .sc-hero-foot {
+    display: flex; align-items: center; gap: 14px; margin-top: 24px;
+    font-family: var(--font-display); font-size: 11px; letter-spacing: 2px; color: var(--e-grey);
+  }
+  .sc-barcode {
+    width: 120px; height: 30px; flex: none; opacity: 0.8;
+    background: repeating-linear-gradient(90deg,
+      var(--e-cream) 0 2px, transparent 2px 4px, var(--e-cream) 4px 5px, transparent 5px 8px,
+      var(--e-cream) 8px 11px, transparent 11px 12px);
+  }
+
+  /* key art, pinned to the card with tape */
+  .sc-poster { position: relative; z-index: 1; margin: 0; transform: rotate(2.5deg); }
+  .sc-poster img {
+    display: block; width: 100%; height: auto;
+    border: 3px solid var(--e-ink); box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.55);
+  }
+  .sc-tape {
+    position: absolute; z-index: 1; top: -10px; left: 50%; width: 86px; height: 22px; margin-left: -43px;
+    background: rgba(255, 243, 214, 0.45); transform: rotate(-4deg);
+  }
+
+  .sc-stamp {
+    position: absolute; z-index: 2; right: clamp(250px, 27vw, 330px); bottom: 22px;
+    display: grid; place-items: center; width: 88px; height: 88px; border-radius: 50%;
+    border: 3px solid var(--e-ember); color: var(--e-ember);
+    font-family: var(--font-display); font-size: 14px; letter-spacing: 1px; text-align: center;
+    transform: rotate(-14deg); opacity: 0.85;
+  }
+
+  /* embers: tiny square sparks floating up, choppy like low-fps sprites.
+     The container is an overlay, so it doesn't take a slot in the grid. */
+  .sc-embers { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+  .sc-embers i {
+    position: absolute; bottom: -10px; width: 4px; height: 4px; background: var(--e-ember);
+    box-shadow: 0 0 6px 1px rgba(255, 120, 30, 0.8); opacity: 0;
+    animation: sc-ember 6s steps(24, end) infinite;
+  }
+  .sc-embers i:nth-child(1) { left: 8%; animation-delay: 0s; }
+  .sc-embers i:nth-child(2) { left: 18%; animation-delay: -1.4s; animation-duration: 7s; }
+  .sc-embers i:nth-child(3) { left: 27%; animation-delay: -3.1s; }
+  .sc-embers i:nth-child(4) { left: 39%; animation-delay: -4.6s; animation-duration: 8s; }
+  .sc-embers i:nth-child(5) { left: 47%; animation-delay: -2.2s; }
+  .sc-embers i:nth-child(6) { left: 58%; animation-delay: -5.3s; animation-duration: 7s; }
+  .sc-embers i:nth-child(7) { left: 66%; animation-delay: -0.8s; }
+  .sc-embers i:nth-child(8) { left: 78%; animation-delay: -3.8s; animation-duration: 9s; }
+  .sc-embers i:nth-child(9) { left: 90%; animation-delay: -2.7s; }
+  @keyframes sc-ember {
+    0% { transform: translate(0, 0); opacity: 0; }
+    10% { opacity: 1; }
+    100% { transform: translate(24px, -460px); opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sc-embers { display: none; }
+  }
+
+  /* ---------- section headers ---------- */
+  .sc-sec { margin-top: clamp(40px, 6vw, 72px); }
+  .sc-sec-head {
+    display: flex; align-items: flex-end; gap: 16px; padding-bottom: 12px; margin-bottom: 18px;
+    border-bottom: 3px solid var(--e-steel);
+    background: repeating-linear-gradient(90deg, var(--e-steel) 0 1px, transparent 1px 16px) bottom / 100% 8px no-repeat;
+  }
+  .sc-num {
+    font-family: var(--font-display); font-weight: 700; font-size: clamp(44px, 8vw, 92px); line-height: 0.8;
+    color: transparent; -webkit-text-stroke: 2px var(--e-ember);
+  }
+  .sc-sec-head h2 {
+    margin: 0; font-family: var(--font-display); font-weight: 700;
+    font-size: clamp(24px, 5.6vw, 48px); color: var(--e-cream); letter-spacing: 0.04em;
+    text-shadow: 3px 3px 0 var(--e-brown);
+  }
+  .sc-sub { margin: 4px 0 0; color: var(--e-grey); font-size: 22px; }
+
+  /* ---------- pixel art gallery ---------- */
+  .sc-gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 20px; }
+  .sc-sheet { margin: 0; }
+  .sc-sheet-img {
+    display: grid; place-items: center; aspect-ratio: 16 / 10; padding: 18px;
+    border: 2px solid var(--e-steel); box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.45);
+    /* dark checkerboard = "transparent background" like in a pixel-art editor */
+    background: repeating-conic-gradient(#241918 0 25%, #1b1312 0 50%) 0 0 / 16px 16px;
+  }
+  /* no image-rendering: pixelated here: these sheets are shown SMALLER than
+     their file, and shrinking with 'pixelated' drops whole rows of pixels */
+  .sc-sheet-img img { max-width: 100%; max-height: 100%; width: auto; height: auto; }
+  .sc-sheet figcaption { margin-top: 10px; font-family: var(--font-display); font-size: 11px; letter-spacing: 2px; color: var(--e-grey); }
+  .sc-sheet figcaption span { color: var(--e-ember); }
+
+  .sc-notes { color: #f1e2cc; }
+  .sc-notes :global(h2) { color: var(--e-ember); }
+
+  /* ---------- narrow screens ---------- */
+  @media (max-width: 760px) {
+    .sc-hero { grid-template-columns: minmax(0, 1fr); }
+    .sc-poster { max-width: 260px; justify-self: center; }
+    /* stamped on the poster's bottom corner, clear of the title */
+    .sc-stamp { right: 14px; bottom: 26px; width: 70px; height: 70px; font-size: 12px; }
+  }
+</style>

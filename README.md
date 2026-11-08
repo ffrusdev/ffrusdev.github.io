@@ -18,6 +18,7 @@ npm run build      # makes the production site in /dist
 | I want to… | Do this |
 |---|---|
 | Add / edit a project | Add a `.md` file in `src/data/projects/` (copy an existing one). Set `section: 3d` (3D + multiplayer games), `2d`, or `work` to pick its shelf on CH01 |
+| Give a project a showcase page | In its `.md`, fill in `video:` (YouTube) and/or `poster:`, plus optional `context`, `stamp`, `tools` and `gallery` (see `src/data/projects/a-way-end.md`). Put its images in `public/projects/<name>/` |
 | Add / edit a VR/MR project | Add a `.md` file in `src/data/xr/` (copy an existing one). Paste a YouTube link in `video:` and it embeds itself |
 | Post a dev log | Add a `.md` file in `src/data/devlog/` (name it `YYYY-MM-DD-title.md`) |
 | Add a 3D model | Export from Blender as `.glb` with **Limit to → Selected Objects** (keep it under ~10 MB), put it in `public/models/` and its render in `public/xephos/`, then add an entry in `src/data/models.ts`. Each model gets its own section on CH03 |

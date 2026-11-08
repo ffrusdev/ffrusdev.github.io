@@ -1,6 +1,9 @@
 ---
 // [id] in the filename = one page per project, generated at build time.
+// Projects with a `video` or `poster` get the showcase layout (title card +
+// TV + art gallery); the rest get the simple text page.
 import Base from '../../layouts/Base.astro';
+import ProjectShowcase from '../../components/ProjectShowcase.astro';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -10,16 +13,23 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
+const showcase = Boolean(entry.data.video || entry.data.poster);
 ---
 
 <Base title={entry.data.title} channel={1} description={entry.data.summary}>
-  <article class="screen-page">
-    <a href="/projects/" data-channel-link>◄ ALL PROJECTS</a>
-    <h1 style="margin-top: 16px">{entry.data.title}</h1>
-    <p class="dim">{entry.data.role} · {entry.data.year}</p>
-    {entry.data.link && <p><a href={entry.data.link}>▶ play / watch</a></p>}
-    <div class="prose">
+  {showcase ? (
+    <ProjectShowcase entry={entry}>
       <Content />
-    </div>
-  </article>
+    </ProjectShowcase>
+  ) : (
+    <article class="screen-page">
+      <a href="/projects/" data-channel-link>◄ ALL PROJECTS</a>
+      <h1 style="margin-top: 16px">{entry.data.title}</h1>
+      <p class="dim">{entry.data.role} · {entry.data.year}</p>
+      {entry.data.link && <p><a href={entry.data.link}>▶ play / watch</a></p>}
+      <div class="prose">
+        <Content />
+      </div>
+    </article>
+  )}
 </Base>
