@@ -188,6 +188,7 @@ const firstModelNum = youtubeId ? 2 : 1; // the film is section 01 when it's the
   /* Everything here only applies to this page (Astro scopes <style> blocks). */
   .xph {
     --x-red: #d8232a; /* ONLY for the XEPHOS title */
+    --x-blue: #2347d6; /* ONLY for the XEPHOS title's offset shadow */
     --x-stamp: #2347d6; /* the SOLO PROD. stamp */
     --x-accent: #b9b2a3; /* muted bone-grey for every other highlight */
     --x-cream: #ece5d6;
@@ -238,8 +239,8 @@ const firstModelNum = youtubeId ? 2 : 1; // the film is section 01 when it's the
     display: block; color: var(--x-red);
     /* "XEPHOS" is ~5.4x as wide as the font size, so 17cqi always fits the box */
     font-size: clamp(36px, 17cqi, 184px); letter-spacing: -0.01em;
-    /* dark offset = cheap print slightly out of register */
-    text-shadow: 4px 4px 0 rgba(21, 19, 15, 0.9);
+    /* blue offset = cheap two-colour print slightly out of register */
+    text-shadow: 5px 5px 0 var(--x-blue);
   }
   .xph-title-sub {
     display: block; margin-top: 10px; color: var(--x-ink);
