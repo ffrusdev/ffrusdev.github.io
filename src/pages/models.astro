@@ -1,8 +1,8 @@
 ---
 // CH03: the Xephos: Starbound showcase. This channel gets its own "signal":
-// a retro-future sci-fi poster look (cream, signal red and cobalt blue, heavy
-// display type, hazard stripes) roughed up with a dystopian PS2 finish
-// (dither pattern, low-res viewers, grime). The rest of the site stays green CRT.
+// a retro-future sci-fi title card (cream paper, heavy display type, one red
+// word) over a muted, dystopian PS2 finish (dither, low-res viewers, grime,
+// greys). Red is reserved for the XEPHOS title so it's the one loud thing. The rest of the site stays green CRT.
 //
 // Page order: title card → the film on a big-screen TV → the 3D models.
 import Base from '../layouts/Base.astro';
@@ -28,7 +28,6 @@ const firstModelNum = youtubeId ? 2 : 1; // the film is section 01 when it's the
 
     <!-- ===== title card ===== -->
     <header class="xph-hero">
-      <div class="xph-hazard" aria-hidden="true"></div>
       <div class="xph-hero-inner">
         <p class="xph-file">FILE № 03 &nbsp;/&nbsp; {film.kind.toUpperCase()}</p>
         <h1 class="xph-title">
@@ -188,11 +187,9 @@ const firstModelNum = youtubeId ? 2 : 1; // the film is section 01 when it's the
 <style>
   /* Everything here only applies to this page (Astro scopes <style> blocks). */
   .xph {
-    --x-red: #d8232a;
-    --x-red-dk: #9a161c;
-    --x-blue: #2347d6;
-    --x-blue-dk: #182f94;
-    --x-blue-lt: #5b78ff; /* brighter blue for lines on the dark background */
+    --x-red: #d8232a; /* ONLY for the XEPHOS title */
+    --x-stamp: #2347d6; /* the SOLO PROD. stamp */
+    --x-accent: #b9b2a3; /* muted bone-grey for every other highlight */
     --x-cream: #ece5d6;
     --x-paper: #dcd3c1;
     --x-ink: #15130f;
@@ -208,8 +205,8 @@ const firstModelNum = youtubeId ? 2 : 1; // the film is section 01 when it's the
      trick the hardware used to fake extra colours, plus a blueprint grid. */
   :global(body[data-channel='3']) {
     background:
-      linear-gradient(rgba(35, 71, 214, 0.08) 1px, transparent 1px) 0 0 / 48px 48px,
-      linear-gradient(90deg, rgba(35, 71, 214, 0.08) 1px, transparent 1px) 0 0 / 48px 48px,
+      linear-gradient(rgba(185, 178, 163, 0.05) 1px, transparent 1px) 0 0 / 48px 48px,
+      linear-gradient(90deg, rgba(185, 178, 163, 0.05) 1px, transparent 1px) 0 0 / 48px 48px,
       repeating-conic-gradient(#191713 0 25%, #14120e 0 50%) 0 0 / 4px 4px;
   }
 
@@ -228,25 +225,21 @@ const firstModelNum = youtubeId ? 2 : 1; // the film is section 01 when it's the
       repeating-conic-gradient(rgba(0, 0, 0, 0.05) 0 25%, transparent 0 50%);
     background-size: auto, 4px 4px;
   }
-  .xph-hazard {
-    height: 14px;
-    background: repeating-linear-gradient(-45deg, var(--x-red) 0 12px, var(--x-ink) 12px 16px, var(--x-blue) 16px 28px, var(--x-ink) 28px 32px);
-  }
   .xph-hero-inner {
     padding: clamp(20px, 4vw, 44px);
     container-type: inline-size; /* lets the title size itself to this box (cqi units) */
   }
   .xph-file {
     margin: 0 0 10px;
-    font-family: var(--font-display); font-size: 12px; letter-spacing: 3px; color: var(--x-blue-dk);
+    font-family: var(--font-display); font-size: 12px; letter-spacing: 3px; color: var(--x-steel);
   }
   .xph-title { margin: 0; font-family: var(--x-display); font-weight: 400; line-height: 0.86; }
   .xph-title-main {
     display: block; color: var(--x-red);
     /* "XEPHOS" is ~5.4x as wide as the font size, so 17cqi always fits the box */
     font-size: clamp(36px, 17cqi, 184px); letter-spacing: -0.01em;
-    /* blue offset = cheap two-colour print slightly out of register */
-    text-shadow: 5px 5px 0 var(--x-blue);
+    /* dark offset = cheap print slightly out of register */
+    text-shadow: 4px 4px 0 rgba(21, 19, 15, 0.9);
   }
   .xph-title-sub {
     display: block; margin-top: 10px; color: var(--x-ink);
@@ -258,7 +251,7 @@ const firstModelNum = youtubeId ? 2 : 1; // the film is section 01 when it's the
     display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px 24px;
     margin: 24px 0 0; padding-top: 16px; border-top: 2px solid var(--x-ink);
   }
-  .xph-meta dt { font-family: var(--font-display); font-size: 11px; letter-spacing: 2px; color: var(--x-red-dk); }
+  .xph-meta dt { font-family: var(--font-display); font-size: 11px; letter-spacing: 2px; color: var(--x-grey); }
   .xph-meta dd { margin: 2px 0 0; font-size: 22px; }
 
   .xph-hero-foot {
@@ -274,7 +267,7 @@ const firstModelNum = youtubeId ? 2 : 1; // the film is section 01 when it's the
   .xph-stamp {
     position: absolute; right: clamp(20px, 5vw, 60px); bottom: 26px;
     display: grid; place-items: center; width: 92px; height: 92px; border-radius: 50%;
-    border: 3px solid var(--x-blue); color: var(--x-blue);
+    border: 3px solid var(--x-stamp); color: var(--x-stamp);
     font-family: var(--font-display); font-size: 13px; letter-spacing: 1px; text-align: center; line-height: 1.3;
     transform: rotate(-14deg); opacity: 0.85;
   }
@@ -284,13 +277,13 @@ const firstModelNum = youtubeId ? 2 : 1; // the film is section 01 when it's the
   .xph-spec-head {
     display: flex; align-items: flex-end; gap: 16px;
     padding-bottom: 12px; margin-bottom: 18px;
-    border-bottom: 3px solid var(--x-red);
-    /* ruler ticks under the red line */
+    border-bottom: 3px solid var(--x-steel);
+    /* ruler ticks under the line */
     background: repeating-linear-gradient(90deg, var(--x-steel) 0 1px, transparent 1px 16px) bottom / 100% 8px no-repeat;
   }
   .xph-num {
     font-family: var(--x-display); font-size: clamp(44px, 9vw, 104px); line-height: 0.8;
-    color: transparent; -webkit-text-stroke: 2px var(--x-blue-lt);
+    color: transparent; -webkit-text-stroke: 2px var(--x-grey);
   }
   .xph-spec-head h2 {
     margin: 0; font-family: var(--x-display); font-weight: 400;
@@ -307,11 +300,6 @@ const firstModelNum = youtubeId ? 2 : 1; // the film is section 01 when it's the
     box-shadow:
       inset 0 2px 0 rgba(255, 255, 255, 0.08), inset 0 -3px 0 rgba(0, 0, 0, 0.5),
       0 0 0 2px #0b0a08, 0 30px 70px rgba(0, 0, 0, 0.65);
-  }
-  /* red + blue trim along the top edge of the casing */
-  .xph-tv::before {
-    content: ''; position: absolute; left: 12%; right: 12%; top: 0; height: 4px;
-    background: linear-gradient(90deg, var(--x-red) 0 50%, var(--x-blue) 50% 100%);
   }
   .xph-tv-screen {
     position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: #000;
@@ -333,7 +321,7 @@ const firstModelNum = youtubeId ? 2 : 1; // the film is section 01 when it's the
   .xph-tv-brand {
     font-family: var(--x-display); font-size: clamp(12px, 1.6vw, 18px); letter-spacing: 0.08em; color: var(--x-cream);
   }
-  .xph-tv-brand b { color: var(--x-red); font-weight: 400; }
+  .xph-tv-brand b { color: var(--x-grey); font-weight: 400; }
   .xph-tv-grille {
     flex: 1; height: 45%; min-width: 40px;
     background: repeating-linear-gradient(90deg, #0d0c0a 0 3px, #2a2723 3px 6px);
@@ -348,7 +336,7 @@ const firstModelNum = youtubeId ? 2 : 1; // the film is section 01 when it's the
   /* power LED */
   .xph-tv-knobs em {
     width: 8px; height: 8px; border-radius: 50%;
-    background: #5b7bff; box-shadow: 0 0 8px 2px rgba(91, 123, 255, 0.7);
+    background: #d9cfb6; box-shadow: 0 0 8px 2px rgba(217, 207, 182, 0.45);
   }
   .xph-tv-feet { display: flex; justify-content: space-between; max-width: 1080px; margin: 0 auto; padding: 0 14%; }
   .xph-tv-feet i { width: clamp(50px, 9vw, 110px); height: 12px; background: #0f0e0c; border-radius: 0 0 6px 6px; }
@@ -359,14 +347,14 @@ const firstModelNum = youtubeId ? 2 : 1; // the film is section 01 when it's the
     align-items: start;
   }
 
-  /* the 3D stage: square-cut steel housing with red viewfinder corners */
+  /* the 3D stage: square-cut steel housing with viewfinder corners */
   .xph-stage {
     border: 2px solid var(--x-steel); border-radius: 0; background: #1a1814;
     box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.7), 6px 6px 0 rgba(0, 0, 0, 0.45);
   }
   .xph-frame {
     position: absolute; inset: 12px; z-index: 2; pointer-events: none;
-    --c: var(--x-red);
+    --c: var(--x-accent);
     background:
       linear-gradient(var(--c), var(--c)) top left / 26px 3px no-repeat,
       linear-gradient(var(--c), var(--c)) top left / 3px 26px no-repeat,
@@ -378,18 +366,18 @@ const firstModelNum = youtubeId ? 2 : 1; // the film is section 01 when it's the
       linear-gradient(var(--c), var(--c)) bottom right / 3px 26px no-repeat;
   }
   .xph-stage .rec { left: 28px; top: 20px; color: var(--x-cream); }
-  .xph-stage .rec b { color: var(--x-red); font-weight: 400; }
+  .xph-stage .rec b { color: var(--x-accent); font-weight: 400; }
   .xph-stage .hint { right: 28px; bottom: 18px; color: var(--x-grey); }
 
   .xph .btn {
     border-radius: 0; border: 2px solid var(--x-steel); background: var(--x-ink); color: var(--x-cream);
     font-family: var(--font-display); font-size: 13px; letter-spacing: 1px;
   }
-  .xph .btn:hover:not(:disabled) { border-color: var(--x-blue); color: var(--x-cream); }
-  .xph .btn[aria-pressed='true'] { background: var(--x-red); border-color: var(--x-red); color: var(--x-cream); }
+  .xph .btn:hover:not(:disabled) { border-color: var(--x-accent); color: var(--x-cream); }
+  .xph .btn[aria-pressed='true'] { background: var(--x-cream); border-color: var(--x-cream); color: var(--x-ink); }
   .xph .btn:disabled { opacity: 0.45; cursor: default; }
-  .xph-stage .insert { background: var(--x-blue); border-color: var(--x-blue); color: var(--x-cream); }
-  .xph-stage .insert:hover:not(:disabled) { background: var(--x-red); border-color: var(--x-red); }
+  .xph-stage .insert { background: var(--x-cream); border-color: var(--x-cream); color: var(--x-ink); }
+  .xph-stage .insert:hover:not(:disabled) { background: var(--x-accent); border-color: var(--x-accent); }
 
   .xph-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; }
   .xph-status { margin: 0 0 0 6px; color: var(--x-cream); min-height: 1.2em; }
@@ -398,14 +386,14 @@ const firstModelNum = youtubeId ? 2 : 1; // the film is section 01 when it's the
   .xph-sheet { background: var(--x-paper); color: var(--x-ink); padding: 0 0 16px; box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.45); }
   .xph-sheet h3 {
     margin: 0 0 6px; padding: 8px 14px; background: var(--x-ink); color: var(--x-cream);
-    font-size: 13px; letter-spacing: 3px; border-left: 8px solid var(--x-blue);
+    font-size: 13px; letter-spacing: 3px; border-left: 8px solid var(--x-steel);
   }
   .xph-sheet dl { margin: 0; padding: 0 14px; }
   .xph-sheet dl div {
     display: flex; justify-content: space-between; gap: 12px; padding: 7px 0;
     border-bottom: 1px dashed rgba(21, 19, 15, 0.35);
   }
-  .xph-sheet dt { font-family: var(--font-display); font-size: 11px; letter-spacing: 1px; color: var(--x-red-dk); padding-top: 4px; }
+  .xph-sheet dt { font-family: var(--font-display); font-size: 11px; letter-spacing: 1px; color: var(--x-steel); padding-top: 4px; }
   .xph-sheet dd { margin: 0; font-size: 21px; text-align: right; }
   .xph-sheet p { margin: 12px 14px 0; font-size: 21px; line-height: 1.15; }
 
@@ -417,7 +405,7 @@ const firstModelNum = youtubeId ? 2 : 1; // the film is section 01 when it's the
   .xph-render figcaption {
     margin-top: 10px; font-family: var(--font-display); font-size: 11px; letter-spacing: 2px; color: var(--x-grey);
   }
-  .xph-render figcaption span { color: var(--x-red); }
+  .xph-render figcaption span { color: var(--x-accent); }
 
   /* ---------- narrow screens: stack everything ---------- */
   @media (max-width: 900px) {
