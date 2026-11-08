@@ -14,7 +14,7 @@ poster: "/projects/a-way-end/poster.webp"
 context: "Semester 2 project · built in ~2 months"
 stamp: "SEM 02"
 tools: ["Unity 6", "Aseprite"]
-engine: { mark: "U6", name: "UNITY 6" }
+engine: { mark: "U6", logo: "/logos/unity-6.png", name: "UNITY 6" }
 gallery:
   - src: "/projects/a-way-end/character.png"
     caption: "HERO · walk, idle and death animations"

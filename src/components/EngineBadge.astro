@@ -6,19 +6,24 @@
 // Built at the classic 88x31 size with an 8px pixel font, then scaled up 2x
 // so it stays readable. It hangs off the TV's top-right corner (above the
 // screen, so it never covers YouTube's own buttons) with a strip of tape.
-// The round mark is plain text on purpose: engine logos are trademarks.
+// The mark is either short text in a circle ("UE5") or, if `logo` is set,
+// a tiny pixel-art logo from public/logos/ (made with scripts/pixel-logo.mjs),
+// shown with crisp square pixels.
 interface Props {
-  mark: string; // short text in the circle, e.g. "UE5", "U6"
+  mark: string; // short text in the circle, e.g. "UE5", "U6" (fallback when there's no logo)
+  logo?: string; // optional logo image path; replaces the circle
   name: string; // bold line, e.g. "UNREAL", "UNITY 6"
   sub?: string; // optional last line, e.g. "ENGINE 5"
 }
-const { mark, name, sub } = Astro.props;
+const { mark, logo, name, sub } = Astro.props;
 const label = ['Powered by', name, sub].filter(Boolean).join(' ');
 ---
 
 <span class="eb" role="img" aria-label={label}>
   <span class="eb-face" aria-hidden="true">
-    <span class="eb-mark">{mark}</span>
+    {logo
+      ? <img class="eb-logo" src={logo} alt="" height="18" />
+      : <span class="eb-mark">{mark}</span>}
     <span class="eb-text"><small>POWERED BY</small><b>{name}</b>{sub && <span>{sub}</span>}</span>
   </span>
 </span>
@@ -43,6 +48,10 @@ const label = ['Powered by', name, sub].filter(Boolean).join(' ');
     background: #f2eee6; color: #0e0d0b; border-radius: 50%; font-size: 7px; font-weight: 700;
     letter-spacing: -0.5px; white-space: nowrap;
     box-shadow: inset 0 0 0 2px #0e0d0b, 0 0 0 1px #f2eee6;
+  }
+  .eb-logo {
+    flex: none; width: auto; height: 18px; margin: 0 1px 0 2px;
+    image-rendering: pixelated; /* keep the pixels square when the badge is scaled up */
   }
   .eb-text { display: flex; flex-direction: column; white-space: nowrap; color: #a9a397; }
   .eb-text small { font-size: 6px; letter-spacing: 0.3px; }
