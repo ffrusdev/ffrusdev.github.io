@@ -28,6 +28,8 @@ const projects = defineCollection({
     context: z.string().optional(), // e.g. "Semester 2 project"
     stamp: z.string().optional(), // short text in the round stamp, e.g. "SEM 02"
     tools: z.array(z.string()).default([]),
+    // "POWERED BY" sticker on the TV, e.g. { mark: "U6", name: "UNITY 6" }
+    engine: z.object({ mark: z.string(), name: z.string(), sub: z.string().optional() }).optional(),
     gallery: z
       .array(z.object({ src: z.string(), caption: z.string(), alt: z.string() }))
       .default([]),

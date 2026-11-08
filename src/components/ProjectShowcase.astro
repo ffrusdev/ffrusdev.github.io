@@ -8,6 +8,7 @@
 // Used by src/pages/projects/[id].astro when a project has `video` or `poster`.
 import type { CollectionEntry } from 'astro:content';
 import ShowcaseTv from './ShowcaseTv.astro';
+import EngineBadge from './EngineBadge.astro';
 
 interface Props {
   entry: CollectionEntry<'projects'>;
@@ -71,7 +72,9 @@ const code = d.title.split(/\s+/).map((w) => w[0]).join('').toUpperCase(); // "A
           <p class="sc-sub">NOW SHOWING · {d.title}</p>
         </div>
       </header>
-      <ShowcaseTv video={d.video} title={`${d.title} gameplay video`} brand={[code, 'VISION']} />
+      <ShowcaseTv video={d.video} title={`${d.title} gameplay video`} brand={[code, 'VISION']}>
+        {d.engine && <EngineBadge slot="badge" {...d.engine} />}
+      </ShowcaseTv>
     </section>
   )}
 
@@ -258,6 +261,9 @@ const code = d.title.split(/\s+/).map((w) => w[0]).join('').toUpperCase(); // "A
 
   .sc-notes { color: #f1e2cc; }
   .sc-notes :global(h2) { color: var(--e-ember); }
+  /* VT323 has no bold, so the browser smears a fake one. Use colour for emphasis instead. */
+  .sc-notes :global(strong) { font-weight: 400; color: #ffc98a; }
+  .sc-notes :global(em) { color: var(--e-cream); }
 
   /* ---------- narrow screens ---------- */
   @media (max-width: 760px) {
