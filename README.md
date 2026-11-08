@@ -51,9 +51,11 @@ The homepage "NOW PLAYING" box picks the first project with `status: active` aut
 
 ## Deploy (free)
 
-1. Push this folder to a GitHub repo.
-2. Go to vercel.com (or netlify.com) → New Project → import the repo. It auto-detects Astro.
-3. Every `git push` redeploys. Add a custom domain later (e.g. `frus.dev`).
+The site is hosted on GitHub Pages at https://ffrusdev.github.io/.
+
+1. Every `git push` to `main` runs `.github/workflows/deploy.yml`, which builds the site and publishes it.
+2. Watch a deploy in the repo's **Actions** tab; it takes about a minute.
+3. For a custom domain later (e.g. `frus.dev`), add it under **Settings → Pages** and update `site` in `astro.config.mjs`.
 
 ## TODO
 

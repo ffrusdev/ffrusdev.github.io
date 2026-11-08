@@ -1,7 +1,7 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 
-// Set `site` to your real domain once you have one (used for canonical URLs / sitemap).
+// Hosted on GitHub Pages at the user-site address (repo: ffrusdev/ffrusdev.github.io).
 export default defineConfig({
-  // site: 'https://frus.dev',
+  site: 'https://ffrusdev.github.io',
 });
