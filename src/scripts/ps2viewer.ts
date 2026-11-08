@@ -10,6 +10,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 export type Viewer = {
   load(file: string | null): Promise<void>;
@@ -22,20 +23,42 @@ const PIXEL_SCALE = 3; // 1 rendered pixel = 3x3 screen pixels
 const SNAP_ON = 140; // smaller = more wobble
 const SNAP_OFF = 100000;
 
-export function createViewer(stage: HTMLElement): Viewer {
+// Colours of the virtual "room" the model sits in. The defaults match the
+// green CRT; a page can pass its own (the Xephos page uses neutral greys so
+// the ship's real orange paint isn't tinted green).
+export type ViewerLook = {
+  background: string; // also the fog colour, so far-away parts fade into it
+  sky: number; // hemisphere light from above
+  ground: number; // hemisphere light from below
+  key: number; // main directional light
+  // Strength of a soft fake "studio room" that shiny/metal surfaces reflect.
+  // Without it, PBR metal from Substance/Blender renders almost black,
+  // because real metal shows its surroundings, not its own colour.
+  reflections?: number;
+  size?: number; // how big the model is framed (default 2 units)
+};
+const DEFAULT_LOOK: ViewerLook = { background: '#0e140d', sky: 0xd8f0c8, ground: 0x101410, key: 0xffd9a0 };
+
+export function createViewer(stage: HTMLElement, look: ViewerLook = DEFAULT_LOOK): Viewer {
   const renderer = new THREE.WebGLRenderer({ antialias: false });
   renderer.setPixelRatio(1);
   stage.appendChild(renderer.domElement);
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color('#0e140d');
-  scene.fog = new THREE.Fog('#0e140d', 4, 12);
+  scene.background = new THREE.Color(look.background);
+  scene.fog = new THREE.Fog(look.background, 4, 12);
+  if (look.reflections) {
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    scene.environmentIntensity = look.reflections;
+    pmrem.dispose();
+  }
 
   const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
   camera.position.set(0, 1.1, 3.6);
 
-  scene.add(new THREE.HemisphereLight(0xd8f0c8, 0x101410, 1.2));
-  const key = new THREE.DirectionalLight(0xffd9a0, 1.6);
+  scene.add(new THREE.HemisphereLight(look.sky, look.ground, 1.2));
+  const key = new THREE.DirectionalLight(look.key, 1.6);
   key.position.set(2, 3, 2);
   scene.add(key);
 
@@ -91,12 +114,12 @@ export function createViewer(stage: HTMLElement): Viewer {
     return new THREE.Mesh(geo, mat);
   }
 
-  // Scale any model to ~2 units and centre it, so every .glb frames the same.
+  // Scale any model to the same size and centre it, so every .glb frames the same.
   function normalize(obj: THREE.Object3D) {
     const box = new THREE.Box3().setFromObject(obj);
     const size = box.getSize(new THREE.Vector3());
     const maxDim = Math.max(size.x, size.y, size.z) || 1;
-    obj.scale.setScalar(2 / maxDim);
+    obj.scale.setScalar((look.size ?? 2) / maxDim);
     const centre = new THREE.Box3().setFromObject(obj).getCenter(new THREE.Vector3());
     obj.position.sub(centre);
   }

@@ -1,104 +1,373 @@
 ---
+// CH03: the Xephos: Starbound showcase. This channel gets its own "signal":
+// a retro-future, sci-fi poster look (cream + signal red, heavy display type,
+// katakana labels, hazard stripes) roughed up with a dystopian PS2 finish
+// (dither pattern, low-res viewers, grime). The rest of the site stays green CRT.
 import Base from '../layouts/Base.astro';
-import { specimens } from '../data/models';
-const first = specimens[0];
+import { film, specimens } from '../data/models';
+
+const youtubeId = film.video.match(/(?:v=|youtu\.be\/|shorts\/|embed\/)([\w-]{11})/)?.[1];
+const pad = (n: number) => String(n).padStart(2, '0');
 ---
 
-<Base title="3D Models" channel={3} description="Low-poly 3D models by frus, viewable in the browser.">
-  <div class="screen-page" data-viewer-root data-models={JSON.stringify(specimens)}>
-    <h1>CH03 // SPECIMEN VIEWER</h1>
-    <p class="dim">{specimens.length} specimen{specimens.length === 1 ? '' : 's'} on file. 3D loads only when you insert the tape.</p>
+<Base
+  title="3D Models"
+  channel={3}
+  description="3D models by Nabil Luqman (frus) from his short film Xephos: Starbound, viewable in the browser with a PS2 filter."
+>
+  <Fragment slot="head">
+    <!-- Dela Gothic One: a heavy display face with Latin + Japanese glyphs.
+         Google only sends the characters a page actually uses. -->
+    <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap" rel="stylesheet" />
+  </Fragment>
 
-    <div class="viewer-layout">
-      <section class="viewer-main" aria-label="Model preview">
-        <div class="stage" data-stage data-no-channel-keys>
-          <span class="rec" aria-live="polite">REC ● <span data-code>{first?.code}</span></span>
-          <button type="button" class="btn insert" data-insert>▶ INSERT TAPE (load 3D)</button>
-          <span class="hint">drag: rotate · scroll: zoom</span>
+  <div class="screen-page xph">
+    <p class="xph-crumb">CH03 // SPECIMEN VIEWER</p>
+
+    <!-- ===== title card ===== -->
+    <header class="xph-hero">
+      <div class="xph-hazard" aria-hidden="true"></div>
+      <div class="xph-hero-inner">
+        <p class="xph-file">FILE № 03 &nbsp;/&nbsp; {film.kind.toUpperCase()}</p>
+        <h1 class="xph-title">
+          <span class="xph-title-main">{film.title}</span>
+          <span class="xph-title-sub">: {film.subtitle}</span>
+        </h1>
+        <p class="xph-summary">{film.summary}</p>
+        <dl class="xph-meta">
+          <div><dt>CONTEXT</dt><dd>{film.context}</dd></div>
+          <div><dt>CREDIT</dt><dd>{film.credit}</dd></div>
+          <div><dt>TOOLS</dt><dd>{film.tools.join(' · ')}</dd></div>
+        </dl>
+        <div class="xph-hero-foot" aria-hidden="true">
+          <span class="xph-barcode"></span>
+          <span>XPH-STB / {pad(specimens.length)} SPECIMENS ON FILE</span>
         </div>
-        <div style="display: flex; flex-wrap: wrap; gap: 8px">
-          <button type="button" class="btn" data-wire aria-pressed="false" disabled>WIREFRAME</button>
-          <button type="button" class="btn" data-ps2 aria-pressed="true" disabled>PS2 FILTER</button>
+      </div>
+      <p class="xph-kana xph-kana--hero" lang="ja" aria-hidden="true">{film.kana}</p>
+      <span class="xph-stamp" aria-hidden="true">SOLO<br />PROD.</span>
+    </header>
+
+    <!-- ===== one section per model, stacked ===== -->
+    {specimens.map((s, i) => (
+      <section class="xph-spec" data-viewer data-file={s.file ?? ''} data-frame={s.frame ?? 3} aria-labelledby={`spec-${i}`}>
+        <header class="xph-spec-head">
+          <span class="xph-num" aria-hidden="true">{pad(i + 1)}</span>
+          <div>
+            <h2 id={`spec-${i}`}>{s.name}</h2>
+            <p class="xph-role">{s.code} · {s.role}</p>
+          </div>
+        </header>
+
+        <div class="xph-spec-body">
+          <div class="xph-viewer">
+            <div class="stage xph-stage" data-stage data-no-channel-keys>
+              <span class="xph-frame" aria-hidden="true"></span>
+              <span class="rec" aria-live="polite">REC ● {s.code}</span>
+              <button type="button" class="btn insert" data-insert>▶ INSERT TAPE (load 3D)</button>
+              <span class="hint">drag: rotate · scroll: zoom</span>
+            </div>
+            <div class="xph-controls">
+              <button type="button" class="btn" data-wire aria-pressed="false" disabled>WIREFRAME</button>
+              <button type="button" class="btn" data-ps2 aria-pressed="true" disabled>PS2 FILTER</button>
+              <p data-status class="xph-status" aria-live="polite"></p>
+            </div>
+          </div>
+
+          <p class="xph-kana" lang="ja" aria-hidden="true">{s.kana}</p>
+
+          <aside class="xph-sheet" aria-label={`${s.name} spec sheet`}>
+            <h3>SPEC SHEET</h3>
+            <dl>
+              {s.specs.map(([label, value]) => (
+                <div><dt>{label}</dt><dd>{value}</dd></div>
+              ))}
+            </dl>
+            <p>{s.note}</p>
+          </aside>
         </div>
-        <p data-status class="dim" style="margin: 0; min-height: 1.2em" aria-live="polite"></p>
+
+        {s.render && (
+          <figure class="xph-render">
+            <img src={s.render} width="1600" height="900" loading="lazy" alt={`Cycles render of the ${s.name}`} />
+            <figcaption><span aria-hidden="true">■</span> RENDER // CYCLES · {s.name}</figcaption>
+          </figure>
+        )}
       </section>
+    ))}
 
-      <aside class="viewer-side">
-        <h2 class="panel-title">SPECIMENS</h2>
-        {specimens.map((s, i) => (
-          <button type="button" class="specimen" data-pick={i} aria-pressed={i === 0 ? 'true' : 'false'}>
-            <strong>{s.code} · {s.name}</strong>
-            <span>{s.meta}</span>
-          </button>
-        ))}
-        <div class="panel">
-          <h2 class="panel-title">FIELD NOTES</h2>
-          <p style="margin: 0; color: var(--ink)" data-note>{first?.note}</p>
-          <p style="margin: 8px 0 0" data-stats>tris: {first?.tris} · texture: {first?.texture}</p>
+    <!-- ===== the film (shows up once film.video has a YouTube link) ===== -->
+    {youtubeId && (
+      <section class="xph-spec" aria-labelledby="film-title">
+        <header class="xph-spec-head">
+          <span class="xph-num" aria-hidden="true">{pad(specimens.length + 1)}</span>
+          <div>
+            <h2 id="film-title">THE FILM</h2>
+            <p class="xph-role">TRANSMISSION · {film.title}: {film.subtitle}</p>
+          </div>
+        </header>
+        <div class="video-frame">
+          <iframe
+            src={`https://www.youtube-nocookie.com/embed/${youtubeId}`}
+            title={`${film.title}: ${film.subtitle} (short film)`}
+            loading="lazy"
+            allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+            allowfullscreen
+          ></iframe>
         </div>
-      </aside>
-    </div>
+      </section>
+    )}
   </div>
 </Base>
 
 <script>
-  import type { Specimen } from '../data/models';
-  import type { Viewer } from '../scripts/ps2viewer';
+  import type { Viewer, ViewerLook } from '../scripts/ps2viewer';
 
-  const root = document.querySelector<HTMLElement>('[data-viewer-root]')!;
-  const models: Specimen[] = JSON.parse(root.dataset.models ?? '[]');
-  const stage = root.querySelector<HTMLElement>('[data-stage]')!;
-  const insert = root.querySelector<HTMLButtonElement>('[data-insert]')!;
-  const wireBtn = root.querySelector<HTMLButtonElement>('[data-wire]')!;
-  const ps2Btn = root.querySelector<HTMLButtonElement>('[data-ps2]')!;
-  const status = root.querySelector<HTMLElement>('[data-status]')!;
-  const picks = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-pick]'));
+  // Neutral grey "studio" so the orange paint reads true, like the renders.
+  const LOOK: ViewerLook = {
+    background: '#1a1814', sky: 0xf2ece0, ground: 0x2a2620, key: 0xfff1dc,
+    reflections: 0.8, // metal parts need something to reflect (see ps2viewer.ts)
+  };
 
-  let viewer: Viewer | null = null;
-  let current = 0;
+  // Every model section works on its own: its own INSERT TAPE, its own
+  // viewer, its own buttons. Three.js is still downloaded only once.
+  document.querySelectorAll<HTMLElement>('[data-viewer]').forEach((section) => {
+    const stage = section.querySelector<HTMLElement>('[data-stage]')!;
+    const insert = section.querySelector<HTMLButtonElement>('[data-insert]')!;
+    const wireBtn = section.querySelector<HTMLButtonElement>('[data-wire]')!;
+    const ps2Btn = section.querySelector<HTMLButtonElement>('[data-ps2]')!;
+    const status = section.querySelector<HTMLElement>('[data-status]')!;
+    const file = section.dataset.file || null;
+    let viewer: Viewer | null = null;
 
-  async function show(i: number) {
-    current = i;
-    const m = models[i];
-    picks.forEach((b, j) => b.setAttribute('aria-pressed', String(j === i)));
-    root.querySelector('[data-code]')!.textContent = m.code;
-    root.querySelector('[data-note]')!.textContent = m.note;
-    root.querySelector('[data-stats]')!.textContent = `tris: ${m.tris} · texture: ${m.texture}`;
-    if (!viewer) return;
-    status.textContent = 'TRACKING…';
-    try {
-      await viewer.load(m.file);
-      status.textContent = '';
-    } catch (err) {
-      console.error(err);
-      status.textContent = 'SIGNAL LOST: could not load this model.';
-      await viewer.load(null);
-    }
-  }
+    insert.addEventListener('click', async () => {
+      insert.disabled = true;
+      insert.textContent = 'LOADING…';
+      // Dynamic import: Three.js is split into its own file and only
+      // downloaded right now. That's what keeps the rest of the site light.
+      const { createViewer } = await import('../scripts/ps2viewer');
+      viewer = createViewer(stage, { ...LOOK, size: Number(section.dataset.frame) || 3 });
+      insert.remove();
+      status.textContent = 'TRACKING…';
+      try {
+        await viewer.load(file);
+        status.textContent = '';
+      } catch (err) {
+        console.error(err);
+        status.textContent = 'SIGNAL LOST: could not load this model.';
+        await viewer.load(null);
+      }
+      wireBtn.disabled = false;
+      ps2Btn.disabled = false;
+    });
 
-  insert.addEventListener('click', async () => {
-    insert.disabled = true;
-    insert.textContent = 'LOADING…';
-    // Dynamic import: Three.js is split into its own file and only
-    // downloaded right now — that's what keeps the rest of the site light.
-    const { createViewer } = await import('../scripts/ps2viewer');
-    viewer = createViewer(stage);
-    insert.remove();
-    wireBtn.disabled = false;
-    ps2Btn.disabled = false;
-    await show(current);
-  });
-
-  picks.forEach((b, i) => b.addEventListener('click', () => void show(i)));
-
-  wireBtn.addEventListener('click', () => {
-    const on = wireBtn.getAttribute('aria-pressed') !== 'true';
-    wireBtn.setAttribute('aria-pressed', String(on));
-    viewer?.setWireframe(on);
-  });
-  ps2Btn.addEventListener('click', () => {
-    const on = ps2Btn.getAttribute('aria-pressed') !== 'true';
-    ps2Btn.setAttribute('aria-pressed', String(on));
-    viewer?.setPs2(on);
+    wireBtn.addEventListener('click', () => {
+      const on = wireBtn.getAttribute('aria-pressed') !== 'true';
+      wireBtn.setAttribute('aria-pressed', String(on));
+      viewer?.setWireframe(on);
+    });
+    ps2Btn.addEventListener('click', () => {
+      const on = ps2Btn.getAttribute('aria-pressed') !== 'true';
+      ps2Btn.setAttribute('aria-pressed', String(on));
+      viewer?.setPs2(on);
+    });
   });
 </script>
+
+<style>
+  /* Everything here only applies to this page (Astro scopes <style> blocks). */
+  .xph {
+    --x-red: #e4471f;
+    --x-red-dk: #9e2c12;
+    --x-cream: #ece5d6;
+    --x-paper: #dcd3c1;
+    --x-ink: #15130f;
+    --x-steel: #3a352d;
+    --x-grey: #8c867a;
+    --x-yellow: #f2c230;
+    --x-display: 'Dela Gothic One', 'Silkscreen', system-ui, sans-serif;
+
+    color: var(--x-cream);
+    text-shadow: none;
+  }
+
+  /* PS2-era "dither" on the page background: a faint 2x2 checker, the same
+     trick the hardware used to fake extra colours, plus a blueprint grid. */
+  :global(body[data-channel='3']) {
+    background:
+      linear-gradient(rgba(228, 71, 31, 0.05) 1px, transparent 1px) 0 0 / 48px 48px,
+      linear-gradient(90deg, rgba(228, 71, 31, 0.05) 1px, transparent 1px) 0 0 / 48px 48px,
+      repeating-conic-gradient(#191713 0 25%, #14120e 0 50%) 0 0 / 4px 4px;
+  }
+
+  .xph-crumb {
+    margin: 0 0 14px;
+    font-family: var(--font-display); font-size: 13px; letter-spacing: 3px; color: var(--x-grey);
+  }
+
+  /* ---------- title card ---------- */
+  .xph-hero {
+    position: relative; overflow: hidden;
+    background: var(--x-cream); color: var(--x-ink);
+    /* grime: a soft dark vignette + the same dither, very faint */
+    background-image:
+      radial-gradient(ellipse at 70% 30%, transparent 40%, rgba(60, 40, 20, 0.22) 100%),
+      repeating-conic-gradient(rgba(0, 0, 0, 0.05) 0 25%, transparent 0 50%);
+    background-size: auto, 4px 4px;
+  }
+  .xph-hazard {
+    height: 14px;
+    background: repeating-linear-gradient(-45deg, var(--x-ink) 0 12px, var(--x-red) 12px 24px);
+  }
+  .xph-hero-inner {
+    padding: clamp(20px, 4vw, 44px); padding-right: clamp(64px, 10vw, 120px);
+    container-type: inline-size; /* lets the title size itself to this box (cqi units) */
+  }
+  .xph-file {
+    margin: 0 0 10px;
+    font-family: var(--font-display); font-size: 12px; letter-spacing: 3px; color: var(--x-red-dk);
+  }
+  .xph-title { margin: 0; font-family: var(--x-display); font-weight: 400; line-height: 0.86; }
+  .xph-title-main {
+    display: block; color: var(--x-red);
+    /* "XEPHOS" is ~5.4x as wide as the font size, so 18cqi always fits the box */
+    font-size: clamp(36px, 18cqi, 184px); letter-spacing: -0.01em;
+    /* slight print mis-registration, like a cheap sci-fi poster */
+    text-shadow: 4px 4px 0 rgba(21, 19, 15, 0.9);
+  }
+  .xph-title-sub {
+    display: block; margin-top: 8px; color: var(--x-ink);
+    font-size: clamp(18px, 7cqi, 52px); letter-spacing: 0.04em;
+  }
+  .xph-summary { margin: 22px 0 0; max-width: 58ch; font-size: 24px; line-height: 1.15; }
+
+  .xph-meta {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px 24px;
+    margin: 24px 0 0; padding-top: 16px; border-top: 2px solid var(--x-ink);
+  }
+  .xph-meta dt { font-family: var(--font-display); font-size: 11px; letter-spacing: 2px; color: var(--x-red-dk); }
+  .xph-meta dd { margin: 2px 0 0; font-size: 22px; }
+
+  .xph-hero-foot {
+    display: flex; align-items: center; gap: 14px; margin-top: 24px;
+    font-family: var(--font-display); font-size: 11px; letter-spacing: 2px; color: var(--x-steel);
+  }
+  .xph-barcode {
+    width: 120px; height: 30px; flex: none;
+    background: repeating-linear-gradient(90deg,
+      var(--x-ink) 0 2px, transparent 2px 4px, var(--x-ink) 4px 5px, transparent 5px 8px,
+      var(--x-ink) 8px 11px, transparent 11px 12px);
+  }
+
+  /* vertical katakana, read top to bottom like a poster sidebar */
+  .xph-kana {
+    margin: 0; writing-mode: vertical-rl;
+    font-family: var(--x-display); color: var(--x-red); letter-spacing: 0.12em; line-height: 1;
+  }
+  .xph-kana--hero {
+    position: absolute; right: clamp(14px, 3vw, 36px); top: 40px;
+    font-size: clamp(22px, 3.4vw, 40px);
+  }
+  .xph-stamp {
+    position: absolute; right: clamp(70px, 12vw, 150px); bottom: 26px;
+    display: grid; place-items: center; width: 92px; height: 92px; border-radius: 50%;
+    border: 3px solid var(--x-red); color: var(--x-red);
+    font-family: var(--font-display); font-size: 13px; letter-spacing: 1px; text-align: center; line-height: 1.3;
+    transform: rotate(-14deg); opacity: 0.85;
+  }
+
+  /* ---------- model sections ---------- */
+  .xph-spec { margin-top: clamp(40px, 6vw, 72px); }
+  .xph-spec-head {
+    display: flex; align-items: flex-end; gap: 16px;
+    padding-bottom: 12px; margin-bottom: 18px;
+    border-bottom: 3px solid var(--x-red);
+    /* ruler ticks under the red line */
+    background: repeating-linear-gradient(90deg, var(--x-steel) 0 1px, transparent 1px 16px) bottom / 100% 8px no-repeat;
+  }
+  .xph-num {
+    font-family: var(--x-display); font-size: clamp(44px, 9vw, 104px); line-height: 0.8;
+    color: transparent; -webkit-text-stroke: 2px var(--x-red);
+  }
+  .xph-spec-head h2 {
+    margin: 0; font-family: var(--x-display); font-weight: 400;
+    font-size: clamp(24px, 6.4vw, 56px); color: var(--x-cream); letter-spacing: 0.02em;
+  }
+  .xph-role { margin: 4px 0 0; color: var(--x-grey); font-size: 22px; }
+
+  .xph-spec-body {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(240px, 320px); gap: 20px;
+    align-items: start;
+  }
+  .xph-spec-body > .xph-kana { font-size: 30px; padding-top: 6px; }
+
+  /* the 3D stage: square-cut steel housing with red viewfinder corners */
+  .xph-stage {
+    border: 2px solid var(--x-steel); border-radius: 0; background: #1a1814;
+    box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.7), 6px 6px 0 rgba(0, 0, 0, 0.45);
+  }
+  .xph-frame {
+    position: absolute; inset: 12px; z-index: 2; pointer-events: none;
+    --c: var(--x-red);
+    background:
+      linear-gradient(var(--c), var(--c)) top left / 26px 3px no-repeat,
+      linear-gradient(var(--c), var(--c)) top left / 3px 26px no-repeat,
+      linear-gradient(var(--c), var(--c)) top right / 26px 3px no-repeat,
+      linear-gradient(var(--c), var(--c)) top right / 3px 26px no-repeat,
+      linear-gradient(var(--c), var(--c)) bottom left / 26px 3px no-repeat,
+      linear-gradient(var(--c), var(--c)) bottom left / 3px 26px no-repeat,
+      linear-gradient(var(--c), var(--c)) bottom right / 26px 3px no-repeat,
+      linear-gradient(var(--c), var(--c)) bottom right / 3px 26px no-repeat;
+  }
+  .xph-stage .rec { left: 28px; top: 20px; color: var(--x-cream); }
+  .xph-stage .hint { right: 28px; bottom: 18px; color: var(--x-grey); }
+
+  .xph .btn {
+    border-radius: 0; border: 2px solid var(--x-steel); background: var(--x-ink); color: var(--x-cream);
+    font-family: var(--font-display); font-size: 13px; letter-spacing: 1px;
+  }
+  .xph .btn:hover:not(:disabled) { border-color: var(--x-red); color: var(--x-cream); }
+  .xph .btn[aria-pressed='true'] { background: var(--x-red); border-color: var(--x-red); color: var(--x-ink); }
+  .xph .btn:disabled { opacity: 0.45; cursor: default; }
+  .xph-stage .insert { background: var(--x-red); border-color: var(--x-red); color: var(--x-ink); }
+  .xph-stage .insert:hover:not(:disabled) { background: var(--x-cream); color: var(--x-ink); }
+
+  .xph-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; }
+  .xph-status { margin: 0 0 0 6px; color: var(--x-yellow); min-height: 1.2em; }
+
+  /* spec sheet: a cream data card */
+  .xph-sheet { background: var(--x-paper); color: var(--x-ink); padding: 0 0 16px; box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.45); }
+  .xph-sheet h3 {
+    margin: 0 0 6px; padding: 8px 14px; background: var(--x-ink); color: var(--x-cream);
+    font-size: 13px; letter-spacing: 3px; border-left: 8px solid var(--x-red);
+  }
+  .xph-sheet dl { margin: 0; padding: 0 14px; }
+  .xph-sheet dl div {
+    display: flex; justify-content: space-between; gap: 12px; padding: 7px 0;
+    border-bottom: 1px dashed rgba(21, 19, 15, 0.35);
+  }
+  .xph-sheet dt { font-family: var(--font-display); font-size: 11px; letter-spacing: 1px; color: var(--x-red-dk); padding-top: 4px; }
+  .xph-sheet dd { margin: 0; font-size: 21px; text-align: right; }
+  .xph-sheet p { margin: 12px 14px 0; font-size: 21px; line-height: 1.15; }
+
+  .xph-render { margin: 24px 0 0; }
+  .xph-render img {
+    display: block; width: 100%; height: auto;
+    border: 2px solid var(--x-steel); box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.45);
+  }
+  .xph-render figcaption {
+    margin-top: 10px; font-family: var(--font-display); font-size: 11px; letter-spacing: 2px; color: var(--x-grey);
+  }
+  .xph-render figcaption span { color: var(--x-red); }
+
+  /* ---------- narrow screens: stack everything ---------- */
+  @media (max-width: 900px) {
+    .xph-spec-body { grid-template-columns: minmax(0, 1fr); }
+    .xph-spec-body > .xph-kana { writing-mode: horizontal-tb; font-size: 22px; padding: 0; }
+  }
+  @media (max-width: 560px) {
+    .xph-stamp { display: none; }
+    .xph-hero-inner { padding-right: 56px; }
+    .xph-stage .hint { display: none; }
+  }
+</style>

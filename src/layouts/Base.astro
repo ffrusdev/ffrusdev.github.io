@@ -37,6 +37,8 @@ const {
       href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=VT323&display=swap"
       rel="stylesheet"
     />
+    <!-- A page can add extra <head> tags (like its own fonts) with slot="head". -->
+    <slot name="head" />
   </head>
   <body data-channel={channel}>
     <a class="skip" href="#content">Skip to content</a>

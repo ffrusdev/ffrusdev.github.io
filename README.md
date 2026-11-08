@@ -20,7 +20,8 @@ npm run build      # makes the production site in /dist
 | Add / edit a project | Add a `.md` file in `src/data/projects/` (copy an existing one) |
 | Add / edit a VR/MR project | Add a `.md` file in `src/data/xr/` (copy an existing one). Paste a YouTube link in `video:` and it embeds itself |
 | Post a dev log | Add a `.md` file in `src/data/devlog/` (name it `YYYY-MM-DD-title.md`) |
-| Add a 3D model | Put the `.glb` in `public/models/`, add an entry in `src/data/models.ts` |
+| Add a 3D model | Export from Blender as `.glb` with **Limit to → Selected Objects** (keep it under ~10 MB), put it in `public/models/` and its render in `public/xephos/`, then add an entry in `src/data/models.ts`. Each model gets its own section on CH03 |
+| Add the Xephos film | Paste the YouTube link into `video:` in `src/data/models.ts` and the film section appears |
 | Add a CV | Put `cv.pdf` in `public/` |
 | Change the About photo | Replace `src/assets/portrait.jpg` (square works best), then run `node scripts/ps2-image.mjs src/assets/portrait.jpg public/portrait-ps2.png 160` (bigger 160 = less pixelated; add e.g. `55,40,290` at the end to crop a square: left,top,size) |
 | Add a channel/page | New file in `src/pages/` + one line in `src/data/channels.ts` |
