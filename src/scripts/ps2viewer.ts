@@ -10,10 +10,12 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 export type Viewer = {
-  load(file: string | null): Promise<void>;
+  // onProgress gets 0–1 while the file downloads (if the size is known).
+  load(file: string | null, onProgress?: (fraction: number) => void): Promise<void>;
   setWireframe(on: boolean): void;
   setPs2(on: boolean): void;
   dispose(): void;
@@ -136,12 +138,21 @@ export function createViewer(stage: HTMLElement, look: ViewerLook = DEFAULT_LOOK
     current = null;
   }
 
+  // The .glb files are Draco-compressed (about 7x smaller), so the loader
+  // needs the Draco decoder. It lives in public/draco/ (copied from
+  // node_modules/three/examples/jsm/libs/draco/) and only downloads when needed.
+  const draco = new DRACOLoader();
+  draco.setDecoderPath(`${import.meta.env.BASE_URL.replace(/\/$/, '')}/draco/`);
+  draco.setDecoderConfig({ type: 'wasm' });
   const loader = new GLTFLoader();
+  loader.setDRACOLoader(draco);
 
-  async function load(file: string | null) {
+  async function load(file: string | null, onProgress?: (fraction: number) => void) {
     let obj: THREE.Object3D;
     if (file) {
-      const gltf = await loader.loadAsync(file);
+      const gltf = await loader.loadAsync(file, (e) => {
+        if (e.lengthComputable && e.total) onProgress?.(e.loaded / e.total);
+      });
       obj = gltf.scene;
     } else {
       obj = placeholder();
@@ -189,6 +200,7 @@ export function createViewer(stage: HTMLElement, look: ViewerLook = DEFAULT_LOOK
       renderer.setAnimationLoop(null);
       ro.disconnect();
       clear();
+      draco.dispose();
       controls.dispose();
       renderer.dispose();
       renderer.domElement.remove();

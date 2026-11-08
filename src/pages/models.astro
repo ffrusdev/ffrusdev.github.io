@@ -141,12 +141,27 @@ const firstModelNum = youtubeId ? 2 : 1; // the film is section 01 when it's the
       insert.textContent = 'LOADING…';
       // Dynamic import: Three.js is split into its own file and only
       // downloaded right now. That's what keeps the rest of the site light.
-      const { createViewer } = await import('../scripts/ps2viewer');
-      viewer = createViewer(stage, { ...LOOK, size: Number(section.dataset.frame) || 3 });
-      insert.remove();
-      status.textContent = 'TRACKING…';
       try {
-        await viewer.load(file);
+        const { createViewer } = await import('../scripts/ps2viewer');
+        viewer = createViewer(stage, { ...LOOK, size: Number(section.dataset.frame) || 3 });
+      } catch (err) {
+        // No WebGL (old device, or hardware acceleration switched off in the
+        // browser) or the script failed to download. Say so instead of
+        // leaving the button stuck on LOADING….
+        console.error(err);
+        insert.disabled = false;
+        insert.textContent = '▶ RETRY';
+        status.textContent = 'NO SIGNAL: your browser could not start 3D. Try turning on hardware acceleration, or see the render below.';
+        return;
+      }
+      insert.remove();
+      status.textContent = 'TRACKING… 0%';
+      try {
+        await viewer.load(file, (f) => {
+          // Capped at 99: when the server gzips the file the browser can count
+          // more bytes than the header promised, which would show e.g. 130%.
+          status.textContent = `TRACKING… ${Math.min(99, Math.round(f * 100))}%`;
+        });
         status.textContent = '';
       } catch (err) {
         console.error(err);
