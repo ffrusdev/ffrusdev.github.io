@@ -127,7 +127,16 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 700; color: var(--in
   text-decoration: none; color: var(--ink); text-shadow: none;
 }
 .card:hover { border-color: var(--phosphor); color: var(--ink); }
-.card h2 { font-size: 20px; margin: 0; color: var(--phosphor-bright); }
+.card h2, .card h3 { font-size: 20px; margin: 0; color: var(--phosphor-bright); }
+
+/* Projects page "shelves" (3D GAMES / 2D GAMES / DAY SHIFT) */
+.shelf { margin-top: 44px; }
+.shelf-title {
+  margin: 0; padding-bottom: 8px; border-bottom: 1px dashed var(--phosphor-dim);
+  font-size: 22px; letter-spacing: 3px; color: var(--phosphor);
+}
+.shelf-note { margin: 8px 0 0; }
+.shelf .card-grid { margin-top: 16px; }
 .tag { font-size: 18px; color: var(--muted); }
 .status { font-size: 18px; letter-spacing: 1px; }
 .status--active { color: var(--phosphor); }

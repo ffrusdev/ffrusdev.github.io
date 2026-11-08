@@ -4,23 +4,42 @@ import { getCollection } from 'astro:content';
 
 const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
 const statusLabel = { active: '● ACTIVE', shipped: '★ SHIPPED', paused: '‖ PAUSED', 'day-job': '● DAY SHIFT' } as const;
+
+// The page is split into "shelves". Each project's `section:` frontmatter
+// decides which shelf it sits on; empty shelves are hidden.
+const shelves = [
+  { id: '3d', title: '3D GAMES', note: '3D and multiplayer projects.' },
+  { id: '2d', title: '2D GAMES', note: 'sprites, tiles and pixels.' },
+  { id: 'work', title: 'DAY SHIFT', note: 'what I build at work.' },
+] as const;
 ---
 
-<Base title="Projects" channel={1} description="Games and projects by Nabil Luqman (frus).">
+<Base title="Projects" channel={1} description="3D, multiplayer and 2D games by Nabil Luqman (frus).">
   <div class="screen-page">
     <h1>CH01 // PROJECTS</h1>
     <p class="dim">past and current transmissions. pick a tape.</p>
 
-    <div class="card-grid">
-      {projects.map((p) => (
-        <a class="card" href={`/projects/${p.id}/`}>
-          <span class={`status status--${p.data.status}`}>{statusLabel[p.data.status]}</span>
-          <h2>{p.data.title}</h2>
-          <span class="tag">{p.data.role} · {p.data.year}</span>
-          <span>{p.data.summary}</span>
-          {p.data.tags.length > 0 && <span class="tag">{p.data.tags.join(' · ')}</span>}
-        </a>
-      ))}
-    </div>
+    {shelves.map((shelf) => {
+      const items = projects.filter((p) => p.data.section === shelf.id);
+      return (
+        items.length > 0 && (
+          <section class="shelf" aria-labelledby={`shelf-${shelf.id}`}>
+            <h2 id={`shelf-${shelf.id}`} class="shelf-title">▶ {shelf.title}</h2>
+            <p class="dim shelf-note">{shelf.note}</p>
+            <div class="card-grid">
+              {items.map((p) => (
+                <a class="card" href={`/projects/${p.id}/`}>
+                  <span class={`status status--${p.data.status}`}>{statusLabel[p.data.status]}</span>
+                  <h3>{p.data.title}</h3>
+                  <span class="tag">{p.data.role} · {p.data.year}</span>
+                  <span>{p.data.summary}</span>
+                  {p.data.tags.length > 0 && <span class="tag">{p.data.tags.join(' · ')}</span>}
+                </a>
+              ))}
+            </div>
+          </section>
+        )
+      );
+    })}
   </div>
 </Base>

@@ -2,9 +2,10 @@
 title: "[MULTIPLAYER GAME TITLE]"
 role: "Co-developer · design + gameplay"
 status: active
+section: 3d
 year: "2026"
 summary: "Co-developing a multiplayer game with a friend from university."
-tags: ["multiplayer", "co-dev", "[ENGINE]"]
+tags: ["3D", "multiplayer", "co-dev", "[ENGINE]"]
 order: 1
 ---
 

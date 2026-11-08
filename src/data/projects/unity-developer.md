@@ -2,6 +2,7 @@
 title: "Unity Developer @ [STUDIO]"
 role: "Unity developer"
 status: day-job
+section: work
 year: "[START YEAR] – now"
 summary: "[What you build at work, in one line.]"
 tags: ["Unity", "C#"]
