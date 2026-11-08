@@ -21,7 +21,7 @@ npm run build      # makes the production site in /dist
 | Post a dev log | Add a `.md` file in `src/data/devlog/` (name it `YYYY-MM-DD-title.md`) |
 | Add a 3D model | Put the `.glb` in `public/models/`, add an entry in `src/data/models.ts` |
 | Add a CV | Put `cv.pdf` in `public/` |
-| Change the About photo | Replace `src/assets/portrait-original.jpg`, then run `node scripts/ps2-image.mjs src/assets/portrait-original.jpg public/portrait-ps2.png 160 55,40,290` (bigger 160 = less pixelated; `55,40,290` = crop square left,top,size; drop it for a new photo) |
+| Change the About photo | Replace `src/assets/portrait.jpg` (square works best), then run `node scripts/ps2-image.mjs src/assets/portrait.jpg public/portrait-ps2.png 160` (bigger 160 = less pixelated; add e.g. `55,40,290` at the end to crop a square: left,top,size) |
 | Add a channel/page | New file in `src/pages/` + one line in `src/data/channels.ts` |
 
 The homepage "NOW PLAYING" box picks the first project with `status: active` automatically.

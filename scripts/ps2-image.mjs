@@ -1,11 +1,11 @@
 // Bake a PS2 look into a still image (run once, commit the output).
 //
 //   node scripts/ps2-image.mjs <input> <output.png> [width] [left,top,size]
-//   e.g. node scripts/ps2-image.mjs src/assets/portrait-original.jpg public/portrait-ps2.png 160 55,40,290
+//   e.g. node scripts/ps2-image.mjs src/assets/portrait.jpg public/portrait-ps2.png 160
 //
 // The optional last argument crops a square first (in original-image pixels):
-// start `left` px from the left, `top` px from the top, `size` px wide/tall.
-// The portrait uses it to cut a bystander out of the bottom-left corner.
+// start `left` px from the left, `top` px from the top, `size` px wide/tall,
+// e.g. `55,40,290`. Handy for cutting something out of a photo's corner.
 //
 // The PS2 look for a 2D image, step by step:
 //  1. LOW RES: shrink to `width` pixels wide. The page shows it at 2x with
