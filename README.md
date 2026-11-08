@@ -18,6 +18,7 @@ npm run build      # makes the production site in /dist
 | I want to… | Do this |
 |---|---|
 | Add / edit a project | Add a `.md` file in `src/data/projects/` (copy an existing one) |
+| Add / edit a VR/MR project | Add a `.md` file in `src/data/xr/` (copy an existing one). Paste a YouTube link in `video:` and it embeds itself |
 | Post a dev log | Add a `.md` file in `src/data/devlog/` (name it `YYYY-MM-DD-title.md`) |
 | Add a 3D model | Put the `.glb` in `public/models/`, add an entry in `src/data/models.ts` |
 | Add a CV | Put `cv.pdf` in `public/` |

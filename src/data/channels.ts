@@ -3,9 +3,10 @@
 export const channels = [
   { num: 0, label: 'HOME', href: '/' },
   { num: 1, label: 'PROJECTS', href: '/projects/' },
-  { num: 2, label: '3D MODELS', href: '/models/' },
-  { num: 3, label: 'DEV LOG', href: '/devlog/' },
-  { num: 4, label: 'ABOUT', href: '/about/' },
+  { num: 2, label: 'XR', href: '/xr/' },
+  { num: 3, label: '3D MODELS', href: '/models/' },
+  { num: 4, label: 'DEV LOG', href: '/devlog/' },
+  { num: 5, label: 'ABOUT', href: '/about/' },
 ] as const;
 
 export const chLabel = (n: number) => 'CH' + String(n).padStart(2, '0');

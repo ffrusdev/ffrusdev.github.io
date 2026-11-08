@@ -1,0 +1,45 @@
+---
+// One page per XR project, generated at build time (same idea as projects/[id]).
+import Base from '../../layouts/Base.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('xr');
+  return projects.map((entry) => ({ params: { id: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const { title, kind, headset, role, year, summary, video, link } = entry.data;
+
+// Turn any YouTube link (watch?v=, youtu.be/, shorts/) into its 11-char video id,
+// so we can embed it. Anything else just becomes a normal link.
+const youtubeId = video?.match(/(?:v=|youtu\.be\/|shorts\/|embed\/)([\w-]{11})/)?.[1];
+---
+
+<Base title={title} channel={2} description={summary}>
+  <article class="screen-page">
+    <a href="/xr/" data-channel-link>◄ ALL XR</a>
+    <h1 style="margin-top: 16px">{title}</h1>
+    <p class="dim">{kind} · {headset} · {role} · {year}</p>
+
+    {youtubeId && (
+      <div class="video-frame">
+        {/* youtube-nocookie = no tracking cookies until the visitor presses play */}
+        <iframe
+          src={`https://www.youtube-nocookie.com/embed/${youtubeId}`}
+          title={`${title} (video)`}
+          loading="lazy"
+          allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+          allowfullscreen
+        ></iframe>
+      </div>
+    )}
+    {video && !youtubeId && <p><a href={video}>▶ watch the video</a></p>}
+    {link && <p><a href={link}>▶ get it / source</a></p>}
+
+    <div class="prose">
+      <Content />
+    </div>
+  </article>
+</Base>

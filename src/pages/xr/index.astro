@@ -1,0 +1,25 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const projects = (await getCollection('xr')).sort((a, b) => a.data.order - b.data.order);
+---
+
+<Base title="XR" channel={2} description="VR and mixed reality projects by Nabil Luqman (frus).">
+  <div class="screen-page">
+    <h1>CH02 // XR</h1>
+    <p class="dim">signals from other realities. headset not included.</p>
+
+    <div class="card-grid">
+      {projects.map((p) => (
+        <a class="card" href={`/xr/${p.id}/`}>
+          <span class={`status status--${p.data.kind.toLowerCase()}`}>◉ {p.data.kind} · {p.data.headset}</span>
+          <h2>{p.data.title}</h2>
+          <span class="tag">{p.data.role} · {p.data.year}</span>
+          <span>{p.data.summary}</span>
+          {p.data.tags.length > 0 && <span class="tag">{p.data.tags.join(' · ')}</span>}
+        </a>
+      ))}
+    </div>
+  </div>
+</Base>

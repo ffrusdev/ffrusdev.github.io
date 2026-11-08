@@ -20,6 +20,25 @@ const projects = defineCollection({
   }),
 });
 
+// VR / MR / AR projects. Separate from `projects` because XR work needs a few
+// extra fields: which headset it runs on, and a video (visitors can't put on
+// a headset through a web page, so the video IS the demo).
+const xr = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/data/xr' }),
+  schema: z.object({
+    title: z.string(),
+    kind: z.enum(['VR', 'MR', 'AR']), // VR = fully virtual, MR = blends with your room, AR = phone/glasses overlay
+    headset: z.string(), // e.g. "Meta Quest 3"
+    role: z.string(),
+    year: z.string(),
+    summary: z.string(),
+    tags: z.array(z.string()).default([]),
+    order: z.number().default(99), // lower = shown first
+    video: z.string().optional(), // YouTube link (gets embedded) or any video URL (shown as a link)
+    link: z.string().optional(), // itch / Meta store / GitHub URL
+  }),
+});
+
 const devlog = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/data/devlog' }),
   schema: z.object({
@@ -29,4 +48,4 @@ const devlog = defineCollection({
   }),
 });
 
-export const collections = { projects, devlog };
+export const collections = { projects, xr, devlog };

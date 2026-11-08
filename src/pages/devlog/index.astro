@@ -8,9 +8,9 @@ const entries = (await getCollection('devlog')).sort(
 const posts = await Promise.all(entries.map(async (e) => ({ e, Content: (await render(e)).Content })));
 ---
 
-<Base title="Dev Log" channel={3} description="What frus is working on right now.">
+<Base title="Dev Log" channel={4} description="What frus is working on right now.">
   <div class="screen-page">
-    <h1>CH03 // DEV LOG</h1>
+    <h1>CH04 // DEV LOG</h1>
     <p class="dim">transmissions from the workbench, newest first.</p>
 
     {posts.map(({ e, Content }) => (

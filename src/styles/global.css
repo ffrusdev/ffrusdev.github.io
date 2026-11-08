@@ -134,6 +134,18 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 700; color: var(--in
 .status--day-job { color: #ffb000; }
 .status--shipped { color: #9fd8ff; }
 .status--paused { color: var(--muted); }
+/* XR channel: one colour per reality type */
+.status--vr { color: #c9a6ff; }
+.status--mr { color: #9fd8ff; }
+.status--ar { color: #ffb000; }
+
+/* XR project video: 16:9 box in a dark bezel, like a monitor on the TV */
+.video-frame {
+  position: relative; aspect-ratio: 16 / 9; max-width: 860px; margin: 20px 0;
+  border: 1px solid var(--line); background: #000;
+  box-shadow: 0 0 0 6px #141310, 0 0 24px rgba(0, 0, 0, 0.6);
+}
+.video-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 
 .prose { color: var(--ink); text-shadow: none; max-width: 70ch; }
 .prose h2 { font-size: 20px; color: var(--phosphor); margin-top: 32px; }
