@@ -8,13 +8,27 @@ import { channels, chLabel } from '../data/channels';
   <div class="tv">
     <div class="tv-screen">
       <div class="noise" aria-hidden="true"></div>
-      <div class="tv-content">
-        <slot />
+      <!-- Everything in .tv-warp gets bent by the fish-eye filter below.
+           (The moving noise/roll layers stay outside: re-bending them every
+           frame would cost performance, and you can't see bends in noise.) -->
+      <div class="tv-warp">
+        <div class="tv-content">
+          <slot />
+        </div>
+        <div class="scan" aria-hidden="true"></div>
+        <div class="osd" aria-hidden="true">CH 00</div>
       </div>
-      <div class="scan" aria-hidden="true"></div>
       <div class="roll" aria-hidden="true"></div>
-      <div class="osd" aria-hidden="true">CH 00</div>
     </div>
+
+    <!-- The fish-eye filter. src/scripts/crt-warp.ts fills in the map image
+         and sizes, then turns it on. -->
+    <svg class="sr-defs" width="0" height="0" aria-hidden="true" focusable="false">
+      <filter id="crt-barrel" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse" primitiveUnits="userSpaceOnUse">
+        <feImage result="map" preserveAspectRatio="none" />
+        <feDisplacementMap in="SourceGraphic" in2="map" scale="0" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+    </svg>
 
     <div class="tv-controls">
       <nav class="tv-channels" aria-label="Channels">
@@ -40,3 +54,7 @@ import { channels, chLabel } from '../data/channels';
   <p class="sticky-note">hi! pick a channel :)</p>
   <div class="tv-stand" aria-hidden="true"></div>
 </div>
+
+<script>
+  import '../scripts/crt-warp';
+</script>

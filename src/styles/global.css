@@ -156,9 +156,27 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 700; color: var(--in
 .tv-screen {
   position: relative; aspect-ratio: 4 / 3; overflow: hidden;
   border-radius: 36px / 30px; background: var(--screen);
-  box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.9), inset 0 0 18px rgba(184, 242, 160, 0.15);
+  box-shadow:
+    inset 0 0 80px rgba(0, 0, 0, 0.9), inset 0 0 18px rgba(184, 242, 160, 0.15),
+    /* recessed bezel ring the glass sits in */
+    0 0 0 8px #141310, 0 0 0 10px rgba(255, 255, 255, 0.05), 0 0 22px 10px rgba(0, 0, 0, 0.55);
   animation: flicker 4s infinite;
 }
+/* Curved glass, drawn on top of everything on the screen:
+   1. hard diagonal reflection (light from a window hitting the glass)
+   2. soft hotspot where the bulge faces the light
+   3. edges darken because the glass curves away from you */
+.tv-screen::after {
+  content: ''; position: absolute; inset: 0; z-index: 3; pointer-events: none; border-radius: inherit;
+  background:
+    linear-gradient(122deg, rgba(255, 255, 255, 0.055) 0 36%, rgba(255, 255, 255, 0) 36.4%),
+    radial-gradient(ellipse 55% 40% at 26% 16%, rgba(255, 255, 255, 0.09), transparent 70%),
+    radial-gradient(ellipse 75% 75% at 50% 50%, transparent 58%, rgba(0, 0, 0, 0.65) 100%);
+}
+/* Fish-eye: src/scripts/crt-warp.ts adds .is-warped once its map is ready */
+.tv-warp { position: absolute; inset: 0; }
+.tv-warp.is-warped { filter: url(#crt-barrel); }
+.sr-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
 .tv-screen .noise {
   position: absolute; inset: -20%; pointer-events: none;
   background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px), radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
