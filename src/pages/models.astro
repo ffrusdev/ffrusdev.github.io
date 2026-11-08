@@ -1,0 +1,104 @@
+---
+import Base from '../layouts/Base.astro';
+import { specimens } from '../data/models';
+const first = specimens[0];
+---
+
+<Base title="3D Models" channel={2} description="Low-poly 3D models by frus, viewable in the browser.">
+  <div class="screen-page" data-viewer-root data-models={JSON.stringify(specimens)}>
+    <h1>CH02 // SPECIMEN VIEWER</h1>
+    <p class="dim">{specimens.length} specimen{specimens.length === 1 ? '' : 's'} on file. 3D loads only when you insert the tape.</p>
+
+    <div class="viewer-layout">
+      <section class="viewer-main" aria-label="Model preview">
+        <div class="stage" data-stage data-no-channel-keys>
+          <span class="rec" aria-live="polite">REC ● <span data-code>{first?.code}</span></span>
+          <button type="button" class="btn insert" data-insert>▶ INSERT TAPE (load 3D)</button>
+          <span class="hint">drag: rotate · scroll: zoom</span>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px">
+          <button type="button" class="btn" data-wire aria-pressed="false" disabled>WIREFRAME</button>
+          <button type="button" class="btn" data-ps2 aria-pressed="true" disabled>PS2 FILTER</button>
+        </div>
+        <p data-status class="dim" style="margin: 0; min-height: 1.2em" aria-live="polite"></p>
+      </section>
+
+      <aside class="viewer-side">
+        <h2 class="panel-title">SPECIMENS</h2>
+        {specimens.map((s, i) => (
+          <button type="button" class="specimen" data-pick={i} aria-pressed={i === 0 ? 'true' : 'false'}>
+            <strong>{s.code} · {s.name}</strong>
+            <span>{s.meta}</span>
+          </button>
+        ))}
+        <div class="panel">
+          <h2 class="panel-title">FIELD NOTES</h2>
+          <p style="margin: 0; color: var(--ink)" data-note>{first?.note}</p>
+          <p style="margin: 8px 0 0" data-stats>tris: {first?.tris} · texture: {first?.texture}</p>
+        </div>
+      </aside>
+    </div>
+  </div>
+</Base>
+
+<script>
+  import type { Specimen } from '../data/models';
+  import type { Viewer } from '../scripts/ps2viewer';
+
+  const root = document.querySelector<HTMLElement>('[data-viewer-root]')!;
+  const models: Specimen[] = JSON.parse(root.dataset.models ?? '[]');
+  const stage = root.querySelector<HTMLElement>('[data-stage]')!;
+  const insert = root.querySelector<HTMLButtonElement>('[data-insert]')!;
+  const wireBtn = root.querySelector<HTMLButtonElement>('[data-wire]')!;
+  const ps2Btn = root.querySelector<HTMLButtonElement>('[data-ps2]')!;
+  const status = root.querySelector<HTMLElement>('[data-status]')!;
+  const picks = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-pick]'));
+
+  let viewer: Viewer | null = null;
+  let current = 0;
+
+  async function show(i: number) {
+    current = i;
+    const m = models[i];
+    picks.forEach((b, j) => b.setAttribute('aria-pressed', String(j === i)));
+    root.querySelector('[data-code]')!.textContent = m.code;
+    root.querySelector('[data-note]')!.textContent = m.note;
+    root.querySelector('[data-stats]')!.textContent = `tris: ${m.tris} · texture: ${m.texture}`;
+    if (!viewer) return;
+    status.textContent = 'TRACKING…';
+    try {
+      await viewer.load(m.file);
+      status.textContent = '';
+    } catch (err) {
+      console.error(err);
+      status.textContent = 'SIGNAL LOST: could not load this model.';
+      await viewer.load(null);
+    }
+  }
+
+  insert.addEventListener('click', async () => {
+    insert.disabled = true;
+    insert.textContent = 'LOADING…';
+    // Dynamic import: Three.js is split into its own file and only
+    // downloaded right now — that's what keeps the rest of the site light.
+    const { createViewer } = await import('../scripts/ps2viewer');
+    viewer = createViewer(stage);
+    insert.remove();
+    wireBtn.disabled = false;
+    ps2Btn.disabled = false;
+    await show(current);
+  });
+
+  picks.forEach((b, i) => b.addEventListener('click', () => void show(i)));
+
+  wireBtn.addEventListener('click', () => {
+    const on = wireBtn.getAttribute('aria-pressed') !== 'true';
+    wireBtn.setAttribute('aria-pressed', String(on));
+    viewer?.setWireframe(on);
+  });
+  ps2Btn.addEventListener('click', () => {
+    const on = ps2Btn.getAttribute('aria-pressed') !== 'true';
+    ps2Btn.setAttribute('aria-pressed', String(on));
+    viewer?.setPs2(on);
+  });
+</script>

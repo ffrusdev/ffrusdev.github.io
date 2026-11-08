@@ -1,0 +1,239 @@
+/* ============================================================
+   FRUS — "Dead Channel" theme
+   All the CRT effects are plain CSS: zero JS, zero downloads.
+   ============================================================ */
+
+:root {
+  --bg: #0b0c0a;
+  --panel: #12120f;
+  --line: #3a372f;
+  --plastic: #2b2823;
+  --plastic-dark: #1a1814;
+  --ink: #d8d3c4;
+  --ink-bright: #e9e4d4;
+  --muted: #9a9486;
+  --phosphor: #b8f2a0;
+  --phosphor-dim: #8fc47c;
+  --phosphor-bright: #e4ffd6;
+  --screen: #0e140d;
+  --note: #f2e27a;
+  --lamp: rgba(255, 170, 90, 0.16);
+  --font-body: 'VT323', ui-monospace, monospace;
+  --font-display: 'Silkscreen', ui-monospace, monospace;
+}
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html { background: var(--bg); }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 22px;
+  line-height: 1.2;
+  overflow-x: hidden;
+}
+
+a { color: var(--phosphor); }
+a:hover { color: var(--phosphor-bright); }
+:focus-visible { outline: 2px solid var(--phosphor); outline-offset: 3px; }
+
+h1, h2, h3 { font-family: var(--font-display); font-weight: 700; color: var(--ink-bright); line-height: 1.05; }
+
+.skip {
+  position: absolute; left: -9999px; top: 8px; z-index: 100;
+  background: var(--phosphor); color: var(--screen); padding: 8px 12px;
+}
+.skip:focus { left: 8px; }
+
+/* ---------- buttons ---------- */
+.btn, .ch-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 44px; padding: 6px 14px;
+  font-family: var(--font-body); font-size: 22px; line-height: 1;
+  color: var(--ink); background: var(--plastic-dark);
+  border: 1px solid #4a463c; border-radius: 6px;
+  text-decoration: none; cursor: pointer;
+}
+.btn:hover, .ch-btn:hover { background: #2c2a24; color: var(--phosphor-bright); }
+.ch-btn[aria-current='page'], .btn[aria-pressed='true'] {
+  background: var(--phosphor); color: var(--screen); border-color: var(--phosphor);
+}
+.btn:disabled { opacity: 0.6; cursor: wait; }
+
+/* ---------- top bar ---------- */
+.topbar {
+  position: relative; z-index: 5;
+  max-width: 1180px; margin: 0 auto; padding: 24px 24px 0;
+  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px;
+}
+.logo {
+  font-family: var(--font-display); font-size: 18px; letter-spacing: 2px;
+  color: var(--ink-bright); text-decoration: none;
+}
+.logo span { color: var(--muted); }
+.topbar-right { display: flex; align-items: center; gap: 16px; color: var(--muted); }
+
+/* ---------- channel bar (inner pages) ---------- */
+.channel-bar {
+  position: relative; z-index: 5;
+  max-width: 1180px; margin: 16px auto 0; padding: 0 24px;
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+
+/* ---------- inner page "inside the TV" ---------- */
+.screen-page {
+  position: relative; z-index: 1;
+  max-width: 1180px; margin: 0 auto; padding: 32px 24px 80px;
+  color: var(--phosphor);
+  text-shadow: 0 0 8px rgba(184, 242, 160, 0.35);
+}
+.screen-page h1 { color: var(--phosphor); font-size: clamp(28px, 4vw, 44px); margin: 0 0 8px; letter-spacing: 2px; }
+.screen-page .dim { color: var(--phosphor-dim); }
+.screen-page p { max-width: 68ch; }
+
+/* full-screen scanlines + vignette over inner pages */
+.crt-overlay {
+  position: fixed; inset: 0; z-index: 20; pointer-events: none;
+  background:
+    radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.55) 100%),
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.25) 0 1px, transparent 1px 3px);
+}
+
+/* static flash when changing channel + on page load */
+.static-burst {
+  position: fixed; inset: 0; z-index: 30; pointer-events: none; opacity: 0;
+  background-image:
+    radial-gradient(rgba(255, 255, 255, 0.35) 1px, transparent 1px),
+    radial-gradient(rgba(255, 255, 255, 0.2) 1px, transparent 1px);
+  background-size: 3px 3px, 5px 5px;
+  background-color: #111;
+  animation: tuneIn 0.35s ease-out;
+}
+.static-burst.on { opacity: 1; animation: noise 0.1s steps(2) infinite; }
+
+/* ---------- cards (projects, devlog, guide) ---------- */
+.panel { border: 1px solid var(--line); background: var(--panel); padding: 16px; color: var(--muted); text-shadow: none; }
+.panel-title { font-family: var(--font-display); font-size: 14px; letter-spacing: 2px; color: var(--ink-bright); margin: 0 0 8px; }
+
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 24px; }
+.card {
+  display: flex; flex-direction: column; gap: 8px; padding: 18px;
+  border: 1px solid var(--line); background: var(--panel);
+  text-decoration: none; color: var(--ink); text-shadow: none;
+}
+.card:hover { border-color: var(--phosphor); color: var(--ink); }
+.card h2 { font-size: 20px; margin: 0; color: var(--phosphor-bright); }
+.tag { font-size: 18px; color: var(--muted); }
+.status { font-size: 18px; letter-spacing: 1px; }
+.status--active { color: var(--phosphor); }
+.status--day-job { color: #ffb000; }
+.status--shipped { color: #9fd8ff; }
+.status--paused { color: var(--muted); }
+
+.prose { color: var(--ink); text-shadow: none; max-width: 70ch; }
+.prose h2 { font-size: 20px; color: var(--phosphor); margin-top: 32px; }
+
+/* ---------- HOME: the TV ---------- */
+.home {
+  position: relative; max-width: 1180px; margin: 28px auto 0; padding: 0 24px 64px;
+  display: flex; flex-wrap: wrap; gap: 40px; align-items: flex-start; justify-content: center;
+}
+.home::before { /* warm lamp glow */
+  content: ''; position: absolute; left: 50%; top: 40px; width: 900px; height: 700px; margin-left: -450px;
+  border-radius: 50%; background: radial-gradient(closest-side, var(--lamp), transparent);
+  pointer-events: none; animation: lamp 5s ease-in-out infinite;
+}
+.tv-wrap { position: relative; flex: 1 1 600px; max-width: 760px; min-width: 0; }
+.tv {
+  position: relative; background: var(--plastic); border-radius: 28px; padding: 28px 28px 22px;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), inset 0 2px 0 rgba(255, 255, 255, 0.06), inset 0 -6px 0 rgba(0, 0, 0, 0.35);
+}
+.tv-screen {
+  position: relative; aspect-ratio: 4 / 3; overflow: hidden;
+  border-radius: 36px / 30px; background: var(--screen);
+  box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.9), inset 0 0 18px rgba(184, 242, 160, 0.15);
+  animation: flicker 4s infinite;
+}
+.tv-screen .noise {
+  position: absolute; inset: -20%; pointer-events: none;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px), radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 3px 3px, 5px 5px; background-position: 0 0, 1px 2px;
+  animation: noise 0.25s steps(2) infinite;
+}
+.tv-screen .scan { position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.38) 0 1px, transparent 1px 3px); }
+.tv-screen .roll { position: absolute; left: 0; right: 0; height: 18%; pointer-events: none; background: rgba(184, 242, 160, 0.05); animation: roll 6s linear infinite; }
+.tv-screen .osd { position: absolute; top: 14px; right: 28px; font-size: 30px; color: var(--phosphor); text-shadow: 0 0 6px rgba(184, 242, 160, 0.6); }
+.tv-content {
+  position: absolute; inset: 0; padding: 24px;
+  display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px; text-align: center;
+  color: var(--phosphor); text-shadow: 0 0 8px rgba(184, 242, 160, 0.55);
+}
+.tv-content h1 { margin: 0; color: var(--phosphor); font-size: clamp(30px, 6vw, 60px); letter-spacing: 2px; }
+.tv-content p { margin: 0; }
+.tv-kicker { font-size: 22px; letter-spacing: 6px; color: var(--phosphor-dim); }
+.tv-sub { font-size: clamp(20px, 2.6vw, 30px); }
+.tv-blink { margin-top: 22px; font-family: var(--font-display); font-size: 16px; letter-spacing: 3px; animation: blink 1.1s steps(1) infinite; }
+.tv-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 18px; }
+.tv-channels { display: flex; flex-wrap: wrap; gap: 8px; flex: 1 1 auto; }
+.knobs { display: flex; gap: 12px; }
+.knob { position: relative; width: 38px; height: 38px; border-radius: 50%; background: var(--plastic-dark); box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.08), 0 2px 0 #000; }
+.knob::after { content: ''; position: absolute; left: 17px; top: 5px; width: 4px; height: 12px; background: #6b655a; border-radius: 2px; }
+.knob.k2 { transform: rotate(40deg); }
+.sticky-note {
+  position: absolute; top: -14px; right: 40px; margin: 0; transform: rotate(4deg);
+  background: var(--note); color: #2b2610; padding: 10px 14px; font-size: 22px; line-height: 1;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+.tv-stand { margin: 0 auto; width: 70%; height: 22px; background: #1b1915; border-radius: 0 0 12px 12px; }
+.guide { position: relative; flex: 1 1 260px; max-width: 320px; display: flex; flex-direction: column; gap: 16px; color: var(--muted); }
+.guide ul { list-style: none; margin: 0; padding: 0; }
+.guide a { color: var(--ink); }
+
+/* ---------- 3D viewer ---------- */
+.viewer-layout { display: flex; flex-wrap: wrap; gap: 24px; margin-top: 24px; }
+.viewer-main { flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+.viewer-side { flex: 1 1 280px; max-width: 380px; display: flex; flex-direction: column; gap: 12px; }
+.stage {
+  position: relative; aspect-ratio: 16 / 10; overflow: hidden;
+  background: var(--screen); border: 14px solid var(--plastic); border-radius: 22px;
+  box-shadow: inset 0 0 70px rgba(0, 0, 0, 0.85);
+}
+.stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; display: block; touch-action: none; }
+.stage .insert {
+  position: absolute; inset: 0; margin: auto; width: max-content; height: max-content; z-index: 2;
+}
+.stage .rec { position: absolute; left: 16px; top: 10px; z-index: 2; pointer-events: none; }
+.stage .hint { position: absolute; right: 16px; bottom: 10px; z-index: 2; pointer-events: none; color: var(--phosphor-dim); font-size: 20px; }
+.specimen {
+  text-align: left; display: block; width: 100%; min-height: 64px; padding: 10px 14px;
+  font-family: var(--font-body); background: var(--panel); color: var(--ink);
+  border: 2px solid var(--line); border-radius: 6px; cursor: pointer;
+}
+.specimen[aria-pressed='true'] { border-color: var(--phosphor); background: #1e2a1b; color: var(--phosphor-bright); }
+.specimen strong { display: block; font-weight: 400; font-size: 26px; }
+.specimen span { display: block; color: var(--muted); font-size: 20px; }
+
+/* ---------- animations ---------- */
+@keyframes noise { 0% { transform: translate(0, 0); } 25% { transform: translate(-6%, 4%); } 50% { transform: translate(5%, -3%); } 75% { transform: translate(-3%, -5%); } 100% { transform: translate(0, 0); } }
+@keyframes flicker { 0%, 47%, 49%, 100% { opacity: 1; } 48% { opacity: 0.86; } 82% { opacity: 0.94; } }
+@keyframes roll { from { top: -20%; } to { top: 110%; } }
+@keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+@keyframes lamp { 0%, 100% { opacity: 0.55; } 50% { opacity: 0.7; } }
+@keyframes tuneIn { from { opacity: 0.7; } to { opacity: 0; } }
+
+/* Respect people who turn off motion in their OS settings. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .static-burst { opacity: 0 !important; }
+}
+
+@media (max-width: 640px) {
+  body { font-size: 20px; }
+  .tv { padding: 16px 16px 14px; border-radius: 20px; }
+  .sticky-note { right: 12px; font-size: 18px; }
+}

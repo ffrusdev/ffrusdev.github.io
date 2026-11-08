@@ -1,0 +1,42 @@
+---
+// The physical TV on the homepage. Whatever you put between <Tv>...</Tv>
+// is drawn on the screen (that's what <slot /> does).
+import { channels, chLabel } from '../data/channels';
+---
+
+<div class="tv-wrap">
+  <div class="tv">
+    <div class="tv-screen">
+      <div class="noise" aria-hidden="true"></div>
+      <div class="tv-content">
+        <slot />
+      </div>
+      <div class="scan" aria-hidden="true"></div>
+      <div class="roll" aria-hidden="true"></div>
+      <div class="osd" aria-hidden="true">CH 00</div>
+    </div>
+
+    <div class="tv-controls">
+      <nav class="tv-channels" aria-label="Channels">
+        {
+          channels.map((c) => (
+            <a
+              class="ch-btn"
+              href={c.href}
+              data-channel-link
+              aria-current={c.num === 0 ? 'page' : undefined}
+            >
+              {chLabel(c.num)} {c.label}
+            </a>
+          ))
+        }
+      </nav>
+      <div class="knobs" aria-hidden="true">
+        <span class="knob"></span>
+        <span class="knob k2"></span>
+      </div>
+    </div>
+  </div>
+  <p class="sticky-note">hi! pick a channel :)</p>
+  <div class="tv-stand" aria-hidden="true"></div>
+</div>

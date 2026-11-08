@@ -1,0 +1,24 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection, render } from 'astro:content';
+
+const entries = (await getCollection('devlog')).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+const posts = await Promise.all(entries.map(async (e) => ({ e, Content: (await render(e)).Content })));
+---
+
+<Base title="Dev Log" channel={3} description="What frus is working on right now.">
+  <div class="screen-page">
+    <h1>CH03 // DEV LOG</h1>
+    <p class="dim">transmissions from the workbench, newest first.</p>
+
+    {posts.map(({ e, Content }) => (
+      <article class="panel" style="margin-top: 20px">
+        <time class="tag" datetime={e.data.date.toISOString()}>{e.data.date.toISOString().slice(0, 10)}</time>
+        <h2 style="font-size: 20px; margin: 6px 0 0; color: var(--phosphor-bright)">{e.data.title}</h2>
+        <div class="prose"><Content /></div>
+      </article>
+    ))}
+  </div>
+</Base>

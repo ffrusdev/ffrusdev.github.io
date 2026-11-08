@@ -1,0 +1,25 @@
+---
+// [id] in the filename = one page per project, generated at build time.
+import Base from '../../layouts/Base.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects');
+  return projects.map((entry) => ({ params: { id: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<Base title={entry.data.title} channel={1} description={entry.data.summary}>
+  <article class="screen-page">
+    <a href="/projects/" data-channel-link>◄ ALL PROJECTS</a>
+    <h1 style="margin-top: 16px">{entry.data.title}</h1>
+    <p class="dim">{entry.data.role} · {entry.data.year}</p>
+    {entry.data.link && <p><a href={entry.data.link}>▶ play / watch</a></p>}
+    <div class="prose">
+      <Content />
+    </div>
+  </article>
+</Base>

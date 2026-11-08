@@ -1,0 +1,26 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+const statusLabel = { active: '● ACTIVE', shipped: '★ SHIPPED', paused: '‖ PAUSED', 'day-job': '● DAY SHIFT' } as const;
+---
+
+<Base title="Projects" channel={1} description="Games and projects by Nabil Luqman (frus).">
+  <div class="screen-page">
+    <h1>CH01 // PROJECTS</h1>
+    <p class="dim">past and current transmissions. pick a tape.</p>
+
+    <div class="card-grid">
+      {projects.map((p) => (
+        <a class="card" href={`/projects/${p.id}/`}>
+          <span class={`status status--${p.data.status}`}>{statusLabel[p.data.status]}</span>
+          <h2>{p.data.title}</h2>
+          <span class="tag">{p.data.role} · {p.data.year}</span>
+          <span>{p.data.summary}</span>
+          {p.data.tags.length > 0 && <span class="tag">{p.data.tags.join(' · ')}</span>}
+        </a>
+      ))}
+    </div>
+  </div>
+</Base>

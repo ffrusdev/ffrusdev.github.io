@@ -1,0 +1,66 @@
+---
+// The shell every page sits in: <head>, top bar, channel bar, CRT overlay.
+// `home` pages draw the physical TV instead of the full-screen CRT overlay.
+import '../styles/global.css';
+import ChannelBar from '../components/ChannelBar.astro';
+import SoundToggle from '../components/SoundToggle.astro';
+
+interface Props {
+  title: string;
+  channel: number;
+  description?: string;
+  home?: boolean;
+}
+
+const {
+  title,
+  channel,
+  description = 'Nabil Luqman (frus): game designer and Unity developer from Malaysia.',
+  home = false,
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} · FRUS</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={`${title} · FRUS`} />
+    <meta property="og:description" content={description} />
+    <meta name="theme-color" content="#0b0c0a" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=VT323&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body data-channel={channel}>
+    <a class="skip" href="#content">Skip to content</a>
+
+    <header class="topbar">
+      <a href="/" class="logo" data-channel-link>FRUS<span> · NABIL LUQMAN</span></a>
+      <div class="topbar-right">
+        <span aria-hidden="true">LOC: MY · UTC+8</span>
+        <SoundToggle />
+      </div>
+    </header>
+
+    {!home && <ChannelBar current={channel} />}
+
+    <main id="content">
+      <slot />
+    </main>
+
+    {!home && <div class="crt-overlay" aria-hidden="true" />}
+    <div class="static-burst" aria-hidden="true"></div>
+
+    <script>
+      import '../scripts/sound';
+      import '../scripts/channels';
+    </script>
+  </body>
+</html>

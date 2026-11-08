@@ -1,0 +1,20 @@
+---
+import { channels, chLabel } from '../data/channels';
+interface Props { current: number }
+const { current } = Astro.props;
+---
+
+<nav class="channel-bar" aria-label="Channels">
+  {
+    channels.map((c) => (
+      <a
+        class="ch-btn"
+        href={c.href}
+        data-channel-link
+        aria-current={c.num === current ? 'page' : undefined}
+      >
+        {chLabel(c.num)} {c.label}
+      </a>
+    ))
+  }
+</nav>

@@ -1,0 +1,56 @@
+---
+import Base from '../layouts/Base.astro';
+import Tv from '../components/Tv.astro';
+import { getCollection } from 'astro:content';
+import { channels, chLabel } from '../data/channels';
+
+// Pull "now playing" + latest dev log straight from your markdown files,
+// so the homepage updates itself when you add content.
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+const nowPlaying = projects.find((p) => p.data.status === 'active');
+const latest = (await getCollection('devlog')).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+)[0];
+---
+
+<Base title="Home" channel={0} home>
+  <div class="home">
+    <Tv>
+      <div class="tv-kicker">NOW BROADCASTING</div>
+      <h1>NABIL LUQMAN</h1>
+      <p class="tv-sub">a.k.a. <strong style="font-family: var(--font-display); font-weight: 400">FRUS</strong></p>
+      <p class="tv-sub">game designer · unity developer</p>
+      <p style="color: var(--phosphor-dim)">building strange, fast, skill-based worlds</p>
+      <div class="tv-blink" aria-hidden="true">▶ PICK A CHANNEL</div>
+    </Tv>
+
+    <aside class="guide">
+      <section class="panel">
+        <h2 class="panel-title">TV GUIDE</h2>
+        <ul>
+          {channels.slice(1).map((c) => (
+            <li><a href={c.href} data-channel-link>{chLabel(c.num)} — {c.label.toLowerCase()}</a></li>
+          ))}
+        </ul>
+      </section>
+
+      {nowPlaying && (
+        <section class="panel">
+          <h2 class="panel-title">NOW PLAYING</h2>
+          <a href={`/projects/${nowPlaying.id}/`} data-channel-link>{nowPlaying.data.title}</a>
+          <p style="margin: 6px 0 0">{nowPlaying.data.summary}</p>
+        </section>
+      )}
+
+      {latest && (
+        <section class="panel">
+          <h2 class="panel-title">LATEST TRANSMISSION</h2>
+          <a href="/devlog/" data-channel-link>{latest.data.title}</a>
+          <p style="margin: 6px 0 0">{latest.data.date.toISOString().slice(0, 10)}</p>
+        </section>
+      )}
+
+      <p style="margin: 0; font-size: 20px">tip: ← → change channel · sound is off until you turn it on</p>
+    </aside>
+  </div>
+</Base>
