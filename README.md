@@ -21,6 +21,7 @@ npm run build      # makes the production site in /dist
 | Post a dev log | Add a `.md` file in `src/data/devlog/` (name it `YYYY-MM-DD-title.md`) |
 | Add a 3D model | Put the `.glb` in `public/models/`, add an entry in `src/data/models.ts` |
 | Add a CV | Put `cv.pdf` in `public/` |
+| Change the About photo | Replace `src/assets/portrait-original.jpg`, then run `node scripts/ps2-image.mjs src/assets/portrait-original.jpg public/portrait-ps2.png 160` (bigger number = less pixelated) |
 | Add a channel/page | New file in `src/pages/` + one line in `src/data/channels.ts` |
 
 The homepage "NOW PLAYING" box picks the first project with `status: active` automatically.
@@ -55,5 +56,5 @@ The homepage "NOW PLAYING" box picks the first project with `status: active` aut
 
 - [ ] Replace every `[PLACEHOLDER]` (search the project for `[`)
 - [ ] Add real 3D models
-- [ ] Pixel portrait / avatar for About
+- [x] Pixel portrait / avatar for About
 - [ ] Optional: per-project trailer embeds, Steam wishlist button when the game is announced

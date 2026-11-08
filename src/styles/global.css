@@ -218,6 +218,19 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 700; color: var(--in
 .specimen strong { display: block; font-weight: 400; font-size: 26px; }
 .specimen span { display: block; color: var(--muted); font-size: 20px; }
 
+/* ---------- about: PS2 portrait ---------- */
+.about-layout { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 32px; margin-top: 24px; }
+.about-layout .prose { flex: 1 1 360px; }
+.portrait {
+  position: relative; margin: 0; flex: 0 1 auto; max-width: 100%; overflow: hidden; line-height: 0;
+  border: 14px solid var(--plastic); border-radius: 22px; background: var(--screen);
+}
+/* 2x = exactly 2 screen pixels per image pixel, so every block is the same size */
+.portrait img { display: block; width: 320px; max-width: 100%; height: auto; image-rendering: pixelated; }
+/* same inner shadow as the 3D stage, drawn on top so it darkens the corners */
+.portrait::after { content: ''; position: absolute; inset: 0; box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.8); pointer-events: none; }
+.portrait .rec { position: absolute; left: 12px; top: 8px; z-index: 1; line-height: 1.2; color: var(--phosphor); }
+
 /* ---------- animations ---------- */
 @keyframes noise { 0% { transform: translate(0, 0); } 25% { transform: translate(-6%, 4%); } 50% { transform: translate(5%, -3%); } 75% { transform: translate(-3%, -5%); } 100% { transform: translate(0, 0); } }
 @keyframes flicker { 0%, 47%, 49%, 100% { opacity: 1; } 48% { opacity: 0.86; } 82% { opacity: 0.94; } }

@@ -7,6 +7,14 @@ import Base from '../layouts/Base.astro';
     <h1>CH04 // ABOUT</h1>
     <p class="dim">NABIL LUQMAN · a.k.a. FRUS · Malaysia (UTC+8)</p>
 
+    <div class="about-layout">
+    <!-- PS2 look is baked into the PNG by scripts/ps2-image.mjs (160px,
+         16-bit colour + dither). CSS shows it at 2x with crisp pixels. -->
+    <figure class="portrait">
+      <span class="rec" aria-hidden="true">REC ● SUBJ-00</span>
+      <img src="/portrait-ps2.png" width="160" height="160" alt="Portrait of Nabil Luqman in a dark cardigan and tie" />
+    </figure>
+
     <div class="prose">
       <p>
         Game designer first, Unity developer by day. I like fast, skill-based action set in worlds that feel
@@ -21,6 +29,7 @@ import Base from '../layouts/Base.astro';
         <a href="[ITCH URL]">itch.io</a> · <a href="[X / BLUESKY URL]">socials</a> · <a href="[LINKEDIN URL]">LinkedIn</a><br />
         <a href="/cv.pdf">Download CV (PDF)</a>
       </p>
+    </div>
     </div>
   </div>
 </Base>
