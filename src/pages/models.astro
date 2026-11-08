@@ -1,23 +1,25 @@
 ---
 // CH03: the Xephos: Starbound showcase. This channel gets its own "signal":
-// a retro-future, sci-fi poster look (cream + signal red, heavy display type,
-// katakana labels, hazard stripes) roughed up with a dystopian PS2 finish
+// a retro-future sci-fi poster look (cream, signal red and cobalt blue, heavy
+// display type, hazard stripes) roughed up with a dystopian PS2 finish
 // (dither pattern, low-res viewers, grime). The rest of the site stays green CRT.
+//
+// Page order: title card → the film on a big-screen TV → the 3D models.
 import Base from '../layouts/Base.astro';
 import { film, specimens } from '../data/models';
 
 const youtubeId = film.video.match(/(?:v=|youtu\.be\/|shorts\/|embed\/)([\w-]{11})/)?.[1];
 const pad = (n: number) => String(n).padStart(2, '0');
+const firstModelNum = youtubeId ? 2 : 1; // the film is section 01 when it's there
 ---
 
 <Base
   title="3D Models"
   channel={3}
-  description="3D models by Nabil Luqman (frus) from his short film Xephos: Starbound, viewable in the browser with a PS2 filter."
+  description="Xephos: Starbound, a short 3D animated film by Nabil Luqman (frus), and its 3D models viewable in the browser with a PS2 filter."
 >
   <Fragment slot="head">
-    <!-- Dela Gothic One: a heavy display face with Latin + Japanese glyphs.
-         Google only sends the characters a page actually uses. -->
+    <!-- Dela Gothic One: a heavy, slightly quirky display face for the big titles. -->
     <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap" rel="stylesheet" />
   </Fragment>
 
@@ -44,15 +46,48 @@ const pad = (n: number) => String(n).padStart(2, '0');
           <span>XPH-STB / {pad(specimens.length)} SPECIMENS ON FILE</span>
         </div>
       </div>
-      <p class="xph-kana xph-kana--hero" lang="ja" aria-hidden="true">{film.kana}</p>
       <span class="xph-stamp" aria-hidden="true">SOLO<br />PROD.</span>
     </header>
+
+    <!-- ===== the film, on a big-screen TV ===== -->
+    {youtubeId && (
+      <section class="xph-spec" aria-labelledby="film-title">
+        <header class="xph-spec-head">
+          <span class="xph-num" aria-hidden="true">01</span>
+          <div>
+            <h2 id="film-title">THE FILM</h2>
+            <p class="xph-role">NOW SHOWING · {film.title}: {film.subtitle}</p>
+          </div>
+        </header>
+
+        <div class="xph-tv">
+          <div class="xph-tv-screen">
+            {/* youtube-nocookie = no tracking cookies until the visitor presses play */}
+            <iframe
+              src={`https://www.youtube-nocookie.com/embed/${youtubeId}`}
+              title={`${film.title}: ${film.subtitle} (short film)`}
+              loading="lazy"
+              allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+              allowfullscreen
+            ></iframe>
+            {/* glass: scanlines + vignette + glare. pointer-events: none lets clicks reach the video */}
+            <span class="xph-tv-glass" aria-hidden="true"></span>
+          </div>
+          <div class="xph-tv-panel" aria-hidden="true">
+            <span class="xph-tv-brand">XPH<b>·</b>VISION</span>
+            <span class="xph-tv-grille"></span>
+            <span class="xph-tv-knobs"><i></i><i></i><em></em></span>
+          </div>
+        </div>
+        <div class="xph-tv-feet" aria-hidden="true"><i></i><i></i></div>
+      </section>
+    )}
 
     <!-- ===== one section per model, stacked ===== -->
     {specimens.map((s, i) => (
       <section class="xph-spec" data-viewer data-file={s.file ?? ''} data-frame={s.frame ?? 3} aria-labelledby={`spec-${i}`}>
         <header class="xph-spec-head">
-          <span class="xph-num" aria-hidden="true">{pad(i + 1)}</span>
+          <span class="xph-num" aria-hidden="true">{pad(firstModelNum + i)}</span>
           <div>
             <h2 id={`spec-${i}`}>{s.name}</h2>
             <p class="xph-role">{s.code} · {s.role}</p>
@@ -63,7 +98,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
           <div class="xph-viewer">
             <div class="stage xph-stage" data-stage data-no-channel-keys>
               <span class="xph-frame" aria-hidden="true"></span>
-              <span class="rec" aria-live="polite">REC ● {s.code}</span>
+              <span class="rec" aria-live="polite"><b>●</b> REC {s.code}</span>
               <button type="button" class="btn insert" data-insert>▶ INSERT TAPE (load 3D)</button>
               <span class="hint">drag: rotate · scroll: zoom</span>
             </div>
@@ -73,8 +108,6 @@ const pad = (n: number) => String(n).padStart(2, '0');
               <p data-status class="xph-status" aria-live="polite"></p>
             </div>
           </div>
-
-          <p class="xph-kana" lang="ja" aria-hidden="true">{s.kana}</p>
 
           <aside class="xph-sheet" aria-label={`${s.name} spec sheet`}>
             <h3>SPEC SHEET</h3>
@@ -95,28 +128,6 @@ const pad = (n: number) => String(n).padStart(2, '0');
         )}
       </section>
     ))}
-
-    <!-- ===== the film (shows up once film.video has a YouTube link) ===== -->
-    {youtubeId && (
-      <section class="xph-spec" aria-labelledby="film-title">
-        <header class="xph-spec-head">
-          <span class="xph-num" aria-hidden="true">{pad(specimens.length + 1)}</span>
-          <div>
-            <h2 id="film-title">THE FILM</h2>
-            <p class="xph-role">TRANSMISSION · {film.title}: {film.subtitle}</p>
-          </div>
-        </header>
-        <div class="video-frame">
-          <iframe
-            src={`https://www.youtube-nocookie.com/embed/${youtubeId}`}
-            title={`${film.title}: ${film.subtitle} (short film)`}
-            loading="lazy"
-            allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-            allowfullscreen
-          ></iframe>
-        </div>
-      </section>
-    )}
   </div>
 </Base>
 
@@ -177,14 +188,16 @@ const pad = (n: number) => String(n).padStart(2, '0');
 <style>
   /* Everything here only applies to this page (Astro scopes <style> blocks). */
   .xph {
-    --x-red: #e4471f;
-    --x-red-dk: #9e2c12;
+    --x-red: #d8232a;
+    --x-red-dk: #9a161c;
+    --x-blue: #2347d6;
+    --x-blue-dk: #182f94;
+    --x-blue-lt: #5b78ff; /* brighter blue for lines on the dark background */
     --x-cream: #ece5d6;
     --x-paper: #dcd3c1;
     --x-ink: #15130f;
     --x-steel: #3a352d;
     --x-grey: #8c867a;
-    --x-yellow: #f2c230;
     --x-display: 'Dela Gothic One', 'Silkscreen', system-ui, sans-serif;
 
     color: var(--x-cream);
@@ -195,8 +208,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
      trick the hardware used to fake extra colours, plus a blueprint grid. */
   :global(body[data-channel='3']) {
     background:
-      linear-gradient(rgba(228, 71, 31, 0.05) 1px, transparent 1px) 0 0 / 48px 48px,
-      linear-gradient(90deg, rgba(228, 71, 31, 0.05) 1px, transparent 1px) 0 0 / 48px 48px,
+      linear-gradient(rgba(35, 71, 214, 0.08) 1px, transparent 1px) 0 0 / 48px 48px,
+      linear-gradient(90deg, rgba(35, 71, 214, 0.08) 1px, transparent 1px) 0 0 / 48px 48px,
       repeating-conic-gradient(#191713 0 25%, #14120e 0 50%) 0 0 / 4px 4px;
   }
 
@@ -211,32 +224,32 @@ const pad = (n: number) => String(n).padStart(2, '0');
     background: var(--x-cream); color: var(--x-ink);
     /* grime: a soft dark vignette + the same dither, very faint */
     background-image:
-      radial-gradient(ellipse at 70% 30%, transparent 40%, rgba(60, 40, 20, 0.22) 100%),
+      radial-gradient(ellipse at 70% 30%, transparent 40%, rgba(40, 30, 30, 0.22) 100%),
       repeating-conic-gradient(rgba(0, 0, 0, 0.05) 0 25%, transparent 0 50%);
     background-size: auto, 4px 4px;
   }
   .xph-hazard {
     height: 14px;
-    background: repeating-linear-gradient(-45deg, var(--x-ink) 0 12px, var(--x-red) 12px 24px);
+    background: repeating-linear-gradient(-45deg, var(--x-red) 0 12px, var(--x-ink) 12px 16px, var(--x-blue) 16px 28px, var(--x-ink) 28px 32px);
   }
   .xph-hero-inner {
-    padding: clamp(20px, 4vw, 44px); padding-right: clamp(64px, 10vw, 120px);
+    padding: clamp(20px, 4vw, 44px);
     container-type: inline-size; /* lets the title size itself to this box (cqi units) */
   }
   .xph-file {
     margin: 0 0 10px;
-    font-family: var(--font-display); font-size: 12px; letter-spacing: 3px; color: var(--x-red-dk);
+    font-family: var(--font-display); font-size: 12px; letter-spacing: 3px; color: var(--x-blue-dk);
   }
   .xph-title { margin: 0; font-family: var(--x-display); font-weight: 400; line-height: 0.86; }
   .xph-title-main {
     display: block; color: var(--x-red);
-    /* "XEPHOS" is ~5.4x as wide as the font size, so 18cqi always fits the box */
-    font-size: clamp(36px, 18cqi, 184px); letter-spacing: -0.01em;
-    /* slight print mis-registration, like a cheap sci-fi poster */
-    text-shadow: 4px 4px 0 rgba(21, 19, 15, 0.9);
+    /* "XEPHOS" is ~5.4x as wide as the font size, so 17cqi always fits the box */
+    font-size: clamp(36px, 17cqi, 184px); letter-spacing: -0.01em;
+    /* blue offset = cheap two-colour print slightly out of register */
+    text-shadow: 5px 5px 0 var(--x-blue);
   }
   .xph-title-sub {
-    display: block; margin-top: 8px; color: var(--x-ink);
+    display: block; margin-top: 10px; color: var(--x-ink);
     font-size: clamp(18px, 7cqi, 52px); letter-spacing: 0.04em;
   }
   .xph-summary { margin: 22px 0 0; max-width: 58ch; font-size: 24px; line-height: 1.15; }
@@ -258,25 +271,15 @@ const pad = (n: number) => String(n).padStart(2, '0');
       var(--x-ink) 0 2px, transparent 2px 4px, var(--x-ink) 4px 5px, transparent 5px 8px,
       var(--x-ink) 8px 11px, transparent 11px 12px);
   }
-
-  /* vertical katakana, read top to bottom like a poster sidebar */
-  .xph-kana {
-    margin: 0; writing-mode: vertical-rl;
-    font-family: var(--x-display); color: var(--x-red); letter-spacing: 0.12em; line-height: 1;
-  }
-  .xph-kana--hero {
-    position: absolute; right: clamp(14px, 3vw, 36px); top: 40px;
-    font-size: clamp(22px, 3.4vw, 40px);
-  }
   .xph-stamp {
-    position: absolute; right: clamp(70px, 12vw, 150px); bottom: 26px;
+    position: absolute; right: clamp(20px, 5vw, 60px); bottom: 26px;
     display: grid; place-items: center; width: 92px; height: 92px; border-radius: 50%;
-    border: 3px solid var(--x-red); color: var(--x-red);
+    border: 3px solid var(--x-blue); color: var(--x-blue);
     font-family: var(--font-display); font-size: 13px; letter-spacing: 1px; text-align: center; line-height: 1.3;
     transform: rotate(-14deg); opacity: 0.85;
   }
 
-  /* ---------- model sections ---------- */
+  /* ---------- section headers ---------- */
   .xph-spec { margin-top: clamp(40px, 6vw, 72px); }
   .xph-spec-head {
     display: flex; align-items: flex-end; gap: 16px;
@@ -287,7 +290,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
   }
   .xph-num {
     font-family: var(--x-display); font-size: clamp(44px, 9vw, 104px); line-height: 0.8;
-    color: transparent; -webkit-text-stroke: 2px var(--x-red);
+    color: transparent; -webkit-text-stroke: 2px var(--x-blue-lt);
   }
   .xph-spec-head h2 {
     margin: 0; font-family: var(--x-display); font-weight: 400;
@@ -295,11 +298,66 @@ const pad = (n: number) => String(n).padStart(2, '0');
   }
   .xph-role { margin: 4px 0 0; color: var(--x-grey); font-size: 22px; }
 
+  /* ---------- the big-screen TV ---------- */
+  .xph-tv {
+    position: relative; max-width: 1080px; margin: 0 auto;
+    padding: clamp(12px, 2.6vw, 30px) clamp(12px, 2.6vw, 30px) 0;
+    border-radius: clamp(14px, 2.4vw, 30px);
+    background: linear-gradient(180deg, #2e2b27, #1c1a17 70%, #151310);
+    box-shadow:
+      inset 0 2px 0 rgba(255, 255, 255, 0.08), inset 0 -3px 0 rgba(0, 0, 0, 0.5),
+      0 0 0 2px #0b0a08, 0 30px 70px rgba(0, 0, 0, 0.65);
+  }
+  /* red + blue trim along the top edge of the casing */
+  .xph-tv::before {
+    content: ''; position: absolute; left: 12%; right: 12%; top: 0; height: 4px;
+    background: linear-gradient(90deg, var(--x-red) 0 50%, var(--x-blue) 50% 100%);
+  }
+  .xph-tv-screen {
+    position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: #000;
+    border-radius: clamp(8px, 1.6vw, 20px) / clamp(10px, 2vw, 26px); /* slightly bulged CRT corners */
+    box-shadow: 0 0 0 clamp(4px, 0.8vw, 8px) #0c0b09, 0 0 0 clamp(6px, 1vw, 10px) rgba(255, 255, 255, 0.05);
+  }
+  .xph-tv-screen iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .xph-tv-glass {
+    position: absolute; inset: 0; z-index: 1; pointer-events: none; border-radius: inherit;
+    background:
+      linear-gradient(122deg, rgba(255, 255, 255, 0.07) 0 22%, transparent 34%),
+      repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.13) 0 1px, transparent 1px 3px);
+    box-shadow: inset 0 0 clamp(30px, 6vw, 80px) rgba(0, 0, 0, 0.75);
+  }
+  .xph-tv-panel {
+    display: flex; align-items: center; gap: clamp(10px, 2vw, 24px);
+    height: clamp(44px, 6vw, 68px); padding: 0 4px;
+  }
+  .xph-tv-brand {
+    font-family: var(--x-display); font-size: clamp(12px, 1.6vw, 18px); letter-spacing: 0.08em; color: var(--x-cream);
+  }
+  .xph-tv-brand b { color: var(--x-red); font-weight: 400; }
+  .xph-tv-grille {
+    flex: 1; height: 45%; min-width: 40px;
+    background: repeating-linear-gradient(90deg, #0d0c0a 0 3px, #2a2723 3px 6px);
+    border-radius: 3px;
+  }
+  .xph-tv-knobs { display: flex; align-items: center; gap: 10px; }
+  .xph-tv-knobs i {
+    width: clamp(16px, 2vw, 24px); aspect-ratio: 1; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #57524a, #1b1916 70%);
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.6);
+  }
+  /* power LED */
+  .xph-tv-knobs em {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #5b7bff; box-shadow: 0 0 8px 2px rgba(91, 123, 255, 0.7);
+  }
+  .xph-tv-feet { display: flex; justify-content: space-between; max-width: 1080px; margin: 0 auto; padding: 0 14%; }
+  .xph-tv-feet i { width: clamp(50px, 9vw, 110px); height: 12px; background: #0f0e0c; border-radius: 0 0 6px 6px; }
+
+  /* ---------- model sections ---------- */
   .xph-spec-body {
-    display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(240px, 320px); gap: 20px;
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(240px, 320px); gap: 20px;
     align-items: start;
   }
-  .xph-spec-body > .xph-kana { font-size: 30px; padding-top: 6px; }
 
   /* the 3D stage: square-cut steel housing with red viewfinder corners */
   .xph-stage {
@@ -320,26 +378,27 @@ const pad = (n: number) => String(n).padStart(2, '0');
       linear-gradient(var(--c), var(--c)) bottom right / 3px 26px no-repeat;
   }
   .xph-stage .rec { left: 28px; top: 20px; color: var(--x-cream); }
+  .xph-stage .rec b { color: var(--x-red); font-weight: 400; }
   .xph-stage .hint { right: 28px; bottom: 18px; color: var(--x-grey); }
 
   .xph .btn {
     border-radius: 0; border: 2px solid var(--x-steel); background: var(--x-ink); color: var(--x-cream);
     font-family: var(--font-display); font-size: 13px; letter-spacing: 1px;
   }
-  .xph .btn:hover:not(:disabled) { border-color: var(--x-red); color: var(--x-cream); }
-  .xph .btn[aria-pressed='true'] { background: var(--x-red); border-color: var(--x-red); color: var(--x-ink); }
+  .xph .btn:hover:not(:disabled) { border-color: var(--x-blue); color: var(--x-cream); }
+  .xph .btn[aria-pressed='true'] { background: var(--x-red); border-color: var(--x-red); color: var(--x-cream); }
   .xph .btn:disabled { opacity: 0.45; cursor: default; }
-  .xph-stage .insert { background: var(--x-red); border-color: var(--x-red); color: var(--x-ink); }
-  .xph-stage .insert:hover:not(:disabled) { background: var(--x-cream); color: var(--x-ink); }
+  .xph-stage .insert { background: var(--x-blue); border-color: var(--x-blue); color: var(--x-cream); }
+  .xph-stage .insert:hover:not(:disabled) { background: var(--x-red); border-color: var(--x-red); }
 
   .xph-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; }
-  .xph-status { margin: 0 0 0 6px; color: var(--x-yellow); min-height: 1.2em; }
+  .xph-status { margin: 0 0 0 6px; color: var(--x-cream); min-height: 1.2em; }
 
   /* spec sheet: a cream data card */
   .xph-sheet { background: var(--x-paper); color: var(--x-ink); padding: 0 0 16px; box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.45); }
   .xph-sheet h3 {
     margin: 0 0 6px; padding: 8px 14px; background: var(--x-ink); color: var(--x-cream);
-    font-size: 13px; letter-spacing: 3px; border-left: 8px solid var(--x-red);
+    font-size: 13px; letter-spacing: 3px; border-left: 8px solid var(--x-blue);
   }
   .xph-sheet dl { margin: 0; padding: 0 14px; }
   .xph-sheet dl div {
@@ -363,11 +422,10 @@ const pad = (n: number) => String(n).padStart(2, '0');
   /* ---------- narrow screens: stack everything ---------- */
   @media (max-width: 900px) {
     .xph-spec-body { grid-template-columns: minmax(0, 1fr); }
-    .xph-spec-body > .xph-kana { writing-mode: horizontal-tb; font-size: 22px; padding: 0; }
   }
   @media (max-width: 560px) {
     .xph-stamp { display: none; }
-    .xph-hero-inner { padding-right: 56px; }
     .xph-stage .hint { display: none; }
+    .xph-tv-grille { display: none; }
   }
 </style>

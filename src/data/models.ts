@@ -11,21 +11,19 @@
 export const film = {
   title: 'XEPHOS',
   subtitle: 'STARBOUND',
-  kana: 'ゼフォス・スターバウンド', // "Xephos Starbound" in katakana
   kind: 'Short 3D animated film',
   context: 'Semester 3 project · Game Design degree · UiTM Puncak Alam',
   credit: 'Solo production',
   tools: ['Blender', 'Substance Painter', 'Cycles'],
   summary:
-    'A short 3D animated film I made solo for my Semester 3 project. I modelled, textured, lit, animated and rendered every shot myself. These are its hero assets.',
-  // Paste the YouTube link here when it's ready and the film embeds itself.
-  video: '',
+    'A short 3D animated film I made solo for my Semester 3 project. I modelled, textured, lit, animated and rendered every shot myself. Watch it below, then inspect its hero assets in 3D.',
+  // YouTube link: the film plays on the big-screen TV at the top of the page.
+  video: 'https://youtu.be/3Pyd8ZWJAlQ',
 };
 
 export type Specimen = {
   code: string; // e.g. 'SPC-01'
   name: string;
-  kana: string; // katakana label, shown vertically next to the viewer
   role: string; // what this asset is in the film
   note: string; // 1-3 sentences: what you made and how
   specs: [label: string, value: string][];
@@ -38,7 +36,6 @@ export const specimens: Specimen[] = [
   {
     code: 'SPC-01',
     name: 'MANTIS-07',
-    kana: 'マンティス',
     role: 'Hero starfighter',
     note:
       'The hero ship of Xephos: Starbound. Hard-surface modelled in Blender and textured in Substance Painter, with a worn orange livery, edge wear, decals and hazard markings.',
@@ -54,7 +51,6 @@ export const specimens: Specimen[] = [
   {
     code: 'SPC-02',
     name: 'PILOT SEAT',
-    kana: 'パイロットシート',
     role: 'Cockpit prop',
     note:
       "The MANTIS-07's pilot seat. Modelled in Blender, with PBR leather, painted metal and rubber materials.",
