@@ -11,6 +11,19 @@ import { film, specimens } from '../data/models';
 const youtubeId = film.video.match(/(?:v=|youtu\.be\/|shorts\/|embed\/)([\w-]{11})/)?.[1];
 const pad = (n: number) => String(n).padStart(2, '0');
 const firstModelNum = youtubeId ? 2 : 1; // the film is section 01 when it's there
+
+// Sound-wave bars for the TV's speaker strip. Each bar gets its own height,
+// speed and start offset so they don't move in sync. sin() is used as a
+// cheap "random" number generator that gives the same result every build.
+const rand = (n: number) => Math.abs((Math.sin(n * 12.9898) * 43758.5453) % 1);
+const eqBars = Array.from({ length: 72 }, (_, i) => {
+  const envelope = 0.45 + 0.55 * Math.sin((Math.PI * i) / 71); // taller in the middle
+  return {
+    peak: (0.25 + 0.75 * rand(i + 1)) * envelope + 0.12,
+    speed: 0.28 + 0.5 * rand(i + 101),
+    offset: -1.2 * rand(i + 202),
+  };
+});
 ---
 
 <Base
@@ -59,11 +72,12 @@ const firstModelNum = youtubeId ? 2 : 1; // the film is section 01 when it's the
           </div>
         </header>
 
-        <div class="xph-tv">
+        <div class="xph-tv" data-tv>
           <div class="xph-tv-screen">
             {/* youtube-nocookie = no tracking cookies until the visitor presses play */}
             <iframe
-              src={`https://www.youtube-nocookie.com/embed/${youtubeId}`}
+              src={`https://www.youtube-nocookie.com/embed/${youtubeId}?enablejsapi=1`}
+              data-film
               title={`${film.title}: ${film.subtitle} (short film)`}
               loading="lazy"
               allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen"
@@ -74,7 +88,11 @@ const firstModelNum = youtubeId ? 2 : 1; // the film is section 01 when it's the
           </div>
           <div class="xph-tv-panel" aria-hidden="true">
             <span class="xph-tv-brand">XPH<b>·</b>VISION</span>
-            <span class="xph-tv-grille"></span>
+            <span class="xph-tv-eq">
+              {eqBars.map((b) => (
+                <i style={`--p:${b.peak.toFixed(2)};--d:${b.speed.toFixed(2)}s;--o:${b.offset.toFixed(2)}s`}></i>
+              ))}
+            </span>
             <span class="xph-tv-knobs"><i></i><i></i><em></em></span>
           </div>
         </div>
@@ -138,6 +156,45 @@ const firstModelNum = youtubeId ? 2 : 1; // the film is section 01 when it's the
     background: '#1a1814', sky: 0xf2ece0, ground: 0x2a2620, key: 0xfff1dc,
     reflections: 0.8, // metal parts need something to reflect (see ps2viewer.ts)
   };
+
+  // ---- TV sound-wave bars: animate only while the film is playing ----
+  // The video lives in a YouTube iframe (another website), so we can't read
+  // its audio. But with ?enablejsapi=1 the player will *tell* us its state
+  // through postMessage: 1 = playing, 2 = paused, 0 = ended, 3 = buffering.
+  // We say "I'm listening", then toggle .is-playing from the replies.
+  const tv = document.querySelector<HTMLElement>('[data-tv]');
+  const film = document.querySelector<HTMLIFrameElement>('[data-film]');
+  if (tv && film) {
+    let heard = false;
+    const hello = () =>
+      film.contentWindow?.postMessage(JSON.stringify({ event: 'listening', id: 'xph-film', channel: 'widget' }), '*');
+    // keep saying hello until the player answers (it can take a moment to boot)
+    const greet = () => {
+      let tries = 0;
+      const timer = window.setInterval(() => {
+        if (heard || ++tries > 40) return window.clearInterval(timer);
+        hello();
+      }, 250);
+    };
+    film.addEventListener('load', greet);
+    greet(); // in case the iframe already loaded before this script ran
+
+    window.addEventListener('message', (e) => {
+      if (e.source !== film.contentWindow) return; // only trust our own video
+      let data: { event?: string; info?: unknown };
+      try {
+        data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
+      } catch {
+        return;
+      }
+      heard = true;
+      let state: number | undefined;
+      if (data.event === 'onStateChange' && typeof data.info === 'number') state = data.info;
+      const info = data.info as { playerState?: unknown } | null;
+      if (data.event === 'infoDelivery' && typeof info?.playerState === 'number') state = info.playerState;
+      if (state !== undefined) tv.classList.toggle('is-playing', state === 1);
+    });
+  }
 
   // Every model section works on its own: its own INSERT TAPE, its own
   // viewer, its own buttons. Three.js is still downloaded only once.
@@ -323,10 +380,30 @@ const firstModelNum = youtubeId ? 2 : 1; // the film is section 01 when it's the
     font-family: var(--x-display); font-size: clamp(12px, 1.6vw, 18px); letter-spacing: 0.08em; color: var(--x-cream);
   }
   .xph-tv-brand b { color: var(--x-grey); font-weight: 400; }
-  .xph-tv-grille {
-    flex: 1; height: 45%; min-width: 40px;
-    background: repeating-linear-gradient(90deg, #0d0c0a 0 3px, #2a2723 3px 6px);
-    border-radius: 3px;
+  /* speaker strip = sound-wave bars. Flat while the film is paused/stopped;
+     when it plays (.is-playing, set by the script), each bar bounces between
+     flat and its own peak height. steps() makes the motion choppy and
+     low-framerate, like a cheap old LED meter. */
+  .xph-tv-eq {
+    flex: 1; min-width: 40px; height: 62%; overflow: hidden;
+    display: flex; align-items: center; gap: 2px; padding: 0 6px;
+    background: #0d0c0a; border-radius: 3px;
+  }
+  .xph-tv-eq i {
+    flex: 1 0 2px; height: 100%;
+    background: #3a3631; transform: scaleY(0.1);
+    animation: xph-eq var(--d) steps(5, end) var(--o) infinite alternate;
+  }
+  .xph-tv:not(.is-playing) .xph-tv-eq i { animation: none; }
+  .xph-tv.is-playing .xph-tv-eq i { background: var(--x-accent); }
+  @keyframes xph-eq {
+    from { transform: scaleY(0.1); }
+    to { transform: scaleY(var(--p)); }
+  }
+  /* power light glows brighter while the film plays */
+  .xph-tv.is-playing .xph-tv-knobs em { background: #fff4dc; box-shadow: 0 0 10px 3px rgba(255, 240, 210, 0.7); }
+  @media (prefers-reduced-motion: reduce) {
+    .xph-tv.is-playing .xph-tv-eq i { animation: none; transform: scaleY(var(--p)); }
   }
   .xph-tv-knobs { display: flex; align-items: center; gap: 10px; }
   .xph-tv-knobs i {
@@ -415,6 +492,5 @@ const firstModelNum = youtubeId ? 2 : 1; // the film is section 01 when it's the
   @media (max-width: 560px) {
     .xph-stamp { display: none; }
     .xph-stage .hint { display: none; }
-    .xph-tv-grille { display: none; }
   }
 </style>
