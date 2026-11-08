@@ -1,7 +1,11 @@
 // Bake a PS2 look into a still image (run once, commit the output).
 //
-//   node scripts/ps2-image.mjs <input> <output.png> [width]
-//   e.g. node scripts/ps2-image.mjs src/assets/portrait-original.jpg public/portrait-ps2.png 200
+//   node scripts/ps2-image.mjs <input> <output.png> [width] [left,top,size]
+//   e.g. node scripts/ps2-image.mjs src/assets/portrait-original.jpg public/portrait-ps2.png 160 55,40,290
+//
+// The optional last argument crops a square first (in original-image pixels):
+// start `left` px from the left, `top` px from the top, `size` px wide/tall.
+// The portrait uses it to cut a bystander out of the bottom-left corner.
 //
 // The PS2 look for a 2D image, step by step:
 //  1. LOW RES: shrink to `width` pixels wide. The page shows it at 2x with
@@ -14,12 +18,13 @@
 //     you see in smooth gradients in PS2 games.
 import sharp from 'sharp';
 
-const [input, output, widthArg] = process.argv.slice(2);
+const [input, output, widthArg, cropArg] = process.argv.slice(2);
 if (!input || !output) {
-  console.error('usage: node scripts/ps2-image.mjs <input> <output.png> [width]');
+  console.error('usage: node scripts/ps2-image.mjs <input> <output.png> [width] [left,top,size]');
   process.exit(1);
 }
 const width = Number(widthArg ?? 200);
+const crop = cropArg?.split(',').map(Number); // e.g. "55,40,290" -> [55, 40, 290]
 const LEVELS = 32; // 5 bits per channel
 const STEP = 255 / (LEVELS - 1);
 
@@ -31,7 +36,10 @@ const BAYER = [
   [15, 7, 13, 5],
 ];
 
-const { data, info } = await sharp(input)
+let img = sharp(input);
+if (crop) img = img.extract({ left: crop[0], top: crop[1], width: crop[2], height: crop[2] });
+
+const { data, info } = await img
   .resize({ width, kernel: 'lanczos3' }) // smooth shrink keeps facial detail
   .modulate({ saturation: 1.08 }) // tiny bit punchier, like a CRT
   .removeAlpha()
