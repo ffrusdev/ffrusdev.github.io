@@ -1,0 +1,40 @@
+---
+// CH03 shelf: one card per short film (same card style as CH02 XR).
+// Each card opens that film's page, /models/<id>/. Films live in
+// src/data/models.ts.
+import Base from '../../layouts/Base.astro';
+import { sortedFilms } from '../../data/models';
+
+const films = sortedFilms();
+---
+
+<Base title="3D Models" channel={3} description="Short 3D animated films by Nabil Luqman (frus), with their 3D models viewable in the browser with a PS2 filter.">
+  <div class="screen-page">
+    <h1>CH03 // 3D MODELS</h1>
+    <p class="dim">short films and the models inside them. PS2 filter on.</p>
+
+    <div class="card-grid">
+      {films.map((f) => (
+        <a class="card film-card" href={`/models/${f.id}/`}>
+          <img class="film-thumb" src={f.thumb} width="320" height="180" loading="lazy" alt="" />
+          <span class="status status--film">◉ SHORT FILM · {f.specimens.length} MODELS</span>
+          <h2>{f.name}</h2>
+          <span class="tag">{f.credit.split(' · ')[0]} · {f.context.split(' · ')[0]}</span>
+          <span>{f.blurb}</span>
+          <span class="tag">{f.tools.join(' · ')}</span>
+        </a>
+      ))}
+    </div>
+  </div>
+</Base>
+
+<style>
+  /* The thumbnail is only 320x180, shown bigger with chunky pixels: a PS2 look. */
+  .film-thumb {
+    display: block; width: 100%; height: auto; aspect-ratio: 16 / 9;
+    image-rendering: pixelated;
+    border: 1px solid var(--line);
+    filter: saturate(0.85) contrast(1.05);
+  }
+  .film-card:hover .film-thumb { filter: none; border-color: var(--phosphor); }
+</style>

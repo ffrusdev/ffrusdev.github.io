@@ -21,8 +21,8 @@ npm run build      # makes the production site in /dist
 | Give a project a showcase page | In its `.md`, fill in `video:` (YouTube) and/or `poster:`, plus optional `context`, `stamp`, `tools` and `gallery` (see `src/data/projects/a-way-end.md`). Put its images in `public/projects/<name>/` |
 | Add / edit a VR/MR project | Add a `.md` file in `src/data/xr/` (copy an existing one). Paste a YouTube link in `video:` and it embeds itself |
 | Post a dev log | Add a `.md` file in `src/data/devlog/` (name it `YYYY-MM-DD-title.md`) |
-| Add a 3D model | Export from Blender as `.glb` with **Limit to → Selected Objects** (keep it under ~10 MB), put it in `public/models/` and its render in `public/xephos/`, then add an entry in `src/data/models.ts`. Each model gets its own section on CH03 |
-| Add the Xephos film | Paste the YouTube link into `video:` in `src/data/models.ts` and the film section appears |
+| Add a short film to CH03 | Copy a film entry in `src/data/models.ts` (title, YouTube `video`, story, stills, models). It gets a card on `/models/` and its own page at `/models/<id>/` |
+| Add a 3D model to a film | Export from Blender as `.glb` with **Limit to → Selected Objects** and **Compression** on (see `public/models/README.txt`), put it in `public/models/` and its render in the film's folder in `public/`, then add it to that film's `specimens` |
 | Add a CV | Put `cv.pdf` in `public/` |
 | Change the About photo | Replace `src/assets/portrait.jpg` (square works best), then run `node scripts/ps2-image.mjs src/assets/portrait.jpg public/portrait-ps2.png 160` (bigger 160 = less pixelated; add e.g. `55,40,290` at the end to crop a square: left,top,size) |
 | Add a channel/page | New file in `src/pages/` + one line in `src/data/channels.ts` |
@@ -39,7 +39,7 @@ The homepage "NOW PLAYING" box picks the first project with `status: active` aut
 - **Content collections** (`src/content.config.ts`): Astro validates your markdown
   frontmatter against a schema, so a typo like `status: actve` fails the build instead of
   silently breaking the page.
-- **Three.js only loads on demand.** `models.astro` uses `await import(...)` when you press
+- **Three.js only loads on demand.** `src/pages/models/[id].astro` uses `await import(...)` when you press
   INSERT TAPE. The bundler splits Three into its own file, so no other page pays for it.
 - **The PS2 look** (`src/scripts/ps2viewer.ts`): low-res render + `image-rendering: pixelated`,
   nearest-neighbour textures, and vertex snapping injected into Three's shader via

@@ -1,0 +1,474 @@
+---
+// CH03 film page: one short film and the models inside it. Every film in
+// src/data/models.ts gets a page at /models/<id>/ built from this template.
+//
+// The look: a "specimen file" title card (cream paper, heavy display type)
+// over a muted, dystopian PS2 finish (dither, low-res viewers, grime, greys).
+// Each film adds one accent through its `theme`:
+//   xephos → retro-future sci-fi: red title with a blue offset
+//   forge  → Norse smithy: iron title with an ember offset, plus runes
+// The rest of the site stays green CRT.
+//
+// Page order: title card → the film on a big-screen TV → the story (if any)
+// → the 3D models → stills (if any).
+import Base from '../../layouts/Base.astro';
+import ShowcaseTv from '../../components/ShowcaseTv.astro';
+import EngineBadge from '../../components/EngineBadge.astro';
+import Runes from '../../components/Runes.astro';
+import { films, type Film } from '../../data/models';
+
+export function getStaticPaths() {
+  return films.map((film) => ({ params: { id: film.id }, props: { film } }));
+}
+
+const { film } = Astro.props as { film: Film };
+const { specimens } = film;
+const youtubeId = film.video.match(/(?:v=|youtu\.be\/|shorts\/|embed\/)([\w-]{11})/)?.[1];
+const pad = (n: number) => String(n).padStart(2, '0');
+
+// Number the sections in the order they appear.
+let n = 0;
+const filmNum = youtubeId ? pad(++n) : '';
+const storyNum = film.story?.length ? pad(++n) : '';
+const specimenNums = specimens.map(() => pad(++n));
+const stillsNum = film.stills?.length ? pad(++n) : '';
+---
+
+<Base
+  title={film.name}
+  channel={3}
+  description={`${film.name}, a short 3D animated film by Nabil Luqman (frus), and its 3D models viewable in the browser with a PS2 filter.`}
+>
+  <Fragment slot="head">
+    <!-- Dela Gothic One: a heavy, slightly quirky display face for the big titles. -->
+    <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap" rel="stylesheet" />
+  </Fragment>
+
+  <div class="screen-page fm" data-theme={film.theme}>
+    <p class="fm-crumb"><a href="/models/">◂ ALL FILMS</a> &nbsp;/&nbsp; CH03 // SPECIMEN VIEWER</p>
+
+    <!-- ===== title card ===== -->
+    <header class="fm-hero">
+      <div class="fm-hero-inner">
+        <p class="fm-file">FILE № {film.fileNo} &nbsp;/&nbsp; {film.kind.toUpperCase()}</p>
+        <h1 class="fm-title">
+          <span class="fm-title-main">{film.titleMain}</span>
+          <span class="fm-title-sub">{film.titleSub}</span>
+        </h1>
+        {film.runes && <Runes text={film.runes} class="fm-runes" />}
+        <p class="fm-summary">{film.summary}</p>
+        <dl class="fm-meta">
+          <div><dt>CONTEXT</dt><dd>{film.context}</dd></div>
+          <div><dt>CREDIT</dt><dd>{film.credit}</dd></div>
+          <div><dt>TOOLS</dt><dd>{film.tools.join(' · ')}</dd></div>
+        </dl>
+        <div class="fm-hero-foot" aria-hidden="true">
+          <span class="fm-barcode"></span>
+          <span>{film.code} / {pad(specimens.length)} SPECIMENS ON FILE</span>
+        </div>
+      </div>
+      <span class="fm-stamp" aria-hidden="true">SOLO<br />PROD.</span>
+    </header>
+
+    <!-- ===== the film, on a big-screen TV ===== -->
+    {youtubeId && (
+      <section class="fm-spec" aria-labelledby="film-title">
+        <header class="fm-spec-head">
+          <span class="fm-num" aria-hidden="true">{filmNum}</span>
+          <div>
+            <h2 id="film-title">THE FILM</h2>
+            <p class="fm-role">NOW SHOWING · {film.name.toUpperCase()}</p>
+          </div>
+        </header>
+
+        <ShowcaseTv video={film.video} title={`${film.name} (short film)`} brand={film.tvBrand}>
+          {film.engine && <EngineBadge slot="badge" {...film.engine} />}
+        </ShowcaseTv>
+      </section>
+    )}
+
+    <!-- ===== the story ===== -->
+    {!!film.story?.length && (
+      <section class="fm-spec" aria-labelledby="story-title">
+        <header class="fm-spec-head">
+          <span class="fm-num" aria-hidden="true">{storyNum}</span>
+          <div>
+            <h2 id="story-title">THE STORY</h2>
+            <p class="fm-role">AS TOLD IN THE FILM</p>
+          </div>
+        </header>
+        <div class="fm-story">
+          {film.story.map((p) => <p>{p}</p>)}
+        </div>
+      </section>
+    )}
+
+    <!-- ===== one section per model, stacked ===== -->
+    {specimens.map((s, i) => (
+      <section
+        class="fm-spec"
+        data-viewer
+        data-file={s.file ?? ''}
+        data-frame={s.frame ?? 3}
+        data-look={JSON.stringify(film.look)}
+        aria-labelledby={`spec-${i}`}
+      >
+        <header class="fm-spec-head">
+          <span class="fm-num" aria-hidden="true">{specimenNums[i]}</span>
+          <div>
+            <h2 id={`spec-${i}`}>{s.name}</h2>
+            <p class="fm-role">{s.code} · {s.role}</p>
+          </div>
+        </header>
+
+        <div class="fm-spec-body">
+          <div class="fm-viewer">
+            <div class="stage fm-stage" data-stage data-no-channel-keys>
+              <span class="fm-frame" aria-hidden="true"></span>
+              <span class="rec" aria-live="polite"><b>●</b> REC {s.code}</span>
+              <button type="button" class="btn insert" data-insert>▶ INSERT TAPE (load 3D)</button>
+              <span class="hint">drag: rotate · scroll: zoom</span>
+            </div>
+            <div class="fm-controls">
+              <button type="button" class="btn" data-wire aria-pressed="false" disabled>WIREFRAME</button>
+              <button type="button" class="btn" data-ps2 aria-pressed="true" disabled>PS2 FILTER</button>
+              <p data-status class="fm-status" aria-live="polite"></p>
+            </div>
+          </div>
+
+          <aside class="fm-sheet" aria-label={`${s.name} spec sheet`}>
+            <h3>SPEC SHEET</h3>
+            <dl>
+              {s.specs.map(([label, value]) => (
+                <div><dt>{label}</dt><dd>{value}</dd></div>
+              ))}
+            </dl>
+            <p>{s.note}</p>
+          </aside>
+        </div>
+
+        {s.render && (
+          <figure class="fm-render">
+            <img src={s.render} width="1600" height="900" loading="lazy" alt={s.renderAlt ?? s.name} />
+            <figcaption><span aria-hidden="true">■</span> {film.renderLabel} · {s.name}</figcaption>
+          </figure>
+        )}
+      </section>
+    ))}
+
+    <!-- ===== stills from the film ===== -->
+    {!!film.stills?.length && (
+      <section class="fm-spec" aria-labelledby="stills-title">
+        <header class="fm-spec-head">
+          <span class="fm-num" aria-hidden="true">{stillsNum}</span>
+          <div>
+            <h2 id="stills-title">STILLS</h2>
+            <p class="fm-role">FRAMES FROM THE FILM</p>
+          </div>
+        </header>
+        <div class="fm-stills">
+          {film.stills.map((st) => (
+            <figure class="fm-render">
+              <img src={st.src} width="1426" height="862" loading="lazy" alt={st.alt} />
+              <figcaption><span aria-hidden="true">■</span> {st.caption}</figcaption>
+            </figure>
+          ))}
+        </div>
+      </section>
+    )}
+  </div>
+</Base>
+
+<script>
+  import type { Viewer, ViewerLook } from '../../scripts/ps2viewer';
+
+  // Every model section works on its own: its own INSERT TAPE, its own
+  // viewer, its own buttons. Three.js is still downloaded only once.
+  document.querySelectorAll<HTMLElement>('[data-viewer]').forEach((section) => {
+    const stage = section.querySelector<HTMLElement>('[data-stage]')!;
+    const insert = section.querySelector<HTMLButtonElement>('[data-insert]')!;
+    const wireBtn = section.querySelector<HTMLButtonElement>('[data-wire]')!;
+    const ps2Btn = section.querySelector<HTMLButtonElement>('[data-ps2]')!;
+    const status = section.querySelector<HTMLElement>('[data-status]')!;
+    const file = section.dataset.file || null;
+    // The film's viewer colours come from src/data/models.ts (`look`).
+    const look = JSON.parse(section.dataset.look || '{}') as ViewerLook;
+    let viewer: Viewer | null = null;
+
+    insert.addEventListener('click', async () => {
+      insert.disabled = true;
+      insert.textContent = 'LOADING…';
+      // Dynamic import: Three.js is split into its own file and only
+      // downloaded right now. That's what keeps the rest of the site light.
+      try {
+        const { createViewer } = await import('../../scripts/ps2viewer');
+        viewer = createViewer(stage, { ...look, size: Number(section.dataset.frame) || 3 });
+      } catch (err) {
+        // No WebGL (old device, or hardware acceleration switched off in the
+        // browser) or the script failed to download. Say so instead of
+        // leaving the button stuck on LOADING….
+        console.error(err);
+        insert.disabled = false;
+        insert.textContent = '▶ RETRY';
+        status.textContent = 'NO SIGNAL: your browser could not start 3D. Try turning on hardware acceleration, or see the image below.';
+        return;
+      }
+      insert.remove();
+      status.textContent = 'TRACKING… 0%';
+      try {
+        await viewer.load(file, (f) => {
+          // Capped at 99: when the server gzips the file the browser can count
+          // more bytes than the header promised, which would show e.g. 130%.
+          status.textContent = `TRACKING… ${Math.min(99, Math.round(f * 100))}%`;
+        });
+        status.textContent = '';
+      } catch (err) {
+        console.error(err);
+        status.textContent = 'SIGNAL LOST: could not load this model.';
+        await viewer.load(null);
+      }
+      wireBtn.disabled = false;
+      ps2Btn.disabled = false;
+    });
+
+    wireBtn.addEventListener('click', () => {
+      const on = wireBtn.getAttribute('aria-pressed') !== 'true';
+      wireBtn.setAttribute('aria-pressed', String(on));
+      viewer?.setWireframe(on);
+    });
+    ps2Btn.addEventListener('click', () => {
+      const on = ps2Btn.getAttribute('aria-pressed') !== 'true';
+      ps2Btn.setAttribute('aria-pressed', String(on));
+      viewer?.setPs2(on);
+    });
+  });
+</script>
+
+<style>
+  /* Everything here only applies to this page (Astro scopes <style> blocks). */
+  .fm {
+    --x-accent: #b9b2a3; /* muted bone-grey for most highlights */
+    --x-hot: var(--x-accent); /* small "lit" details: REC dot, caption squares */
+    --x-cream: #ece5d6;
+    --x-paper: #dcd3c1;
+    --x-ink: #15130f;
+    --x-steel: #3a352d;
+    --x-grey: #8c867a;
+    --x-display: 'Dela Gothic One', 'Silkscreen', system-ui, sans-serif;
+    --tv-brand-font: var(--x-display);
+    /* title card colours: set per theme below */
+    --x-title: var(--x-ink);
+    --x-title-shadow: transparent;
+    --x-title-size: 17cqi;
+    --x-stamp: var(--x-steel);
+
+    color: var(--x-cream);
+    text-shadow: none;
+  }
+  /* Xephos: red title, slightly out-of-register blue print behind it. */
+  .fm[data-theme='xephos'] {
+    --x-title: #d8232a;
+    --x-title-shadow: #2347d6;
+    --x-stamp: #2347d6;
+  }
+  /* Hammer of Gods: hammered-iron title with an ember glow offset, a rust
+     stamp, and ember for the few "lit" details (like coals in a dark forge). */
+  .fm[data-theme='forge'] {
+    --x-title: #1f1b17;
+    --x-title-shadow: #d4622a;
+    --x-title-size: 15.5cqi; /* "HAMMER" is wider than "XEPHOS" */
+    --x-stamp: #b4451f;
+    --x-hot: #e8762e;
+    --tv-accent: #e8762e;
+  }
+
+  /* PS2-era "dither" on the page background: a faint 2x2 checker, the same
+     trick the hardware used to fake extra colours, plus a blueprint grid. */
+  :global(body[data-channel='3']) {
+    background:
+      linear-gradient(rgba(185, 178, 163, 0.05) 1px, transparent 1px) 0 0 / 48px 48px,
+      linear-gradient(90deg, rgba(185, 178, 163, 0.05) 1px, transparent 1px) 0 0 / 48px 48px,
+      repeating-conic-gradient(#191713 0 25%, #14120e 0 50%) 0 0 / 4px 4px;
+  }
+
+  .fm-crumb {
+    margin: 0 0 14px;
+    font-family: var(--font-display); font-size: 13px; letter-spacing: 3px; color: var(--x-grey);
+  }
+  .fm-crumb a { color: var(--x-cream); text-decoration: none; }
+  .fm-crumb a:hover { color: var(--x-hot); }
+
+  /* ---------- title card ---------- */
+  .fm-hero {
+    position: relative; overflow: hidden;
+    background: var(--x-cream); color: var(--x-ink);
+    /* grime: a soft dark vignette + the same dither, very faint */
+    background-image:
+      radial-gradient(ellipse at 70% 30%, transparent 40%, rgba(40, 30, 30, 0.22) 100%),
+      repeating-conic-gradient(rgba(0, 0, 0, 0.05) 0 25%, transparent 0 50%);
+    background-size: auto, 4px 4px;
+  }
+  .fm-hero-inner {
+    padding: clamp(20px, 4vw, 44px);
+    container-type: inline-size; /* lets the title size itself to this box (cqi units) */
+  }
+  .fm-file {
+    margin: 0 0 10px;
+    font-family: var(--font-display); font-size: 12px; letter-spacing: 3px; color: var(--x-steel);
+  }
+  .fm-title { margin: 0; font-family: var(--x-display); font-weight: 400; line-height: 0.86; }
+  .fm-title-main {
+    display: block; color: var(--x-title);
+    /* a 6-letter title is ~5.4x as wide as the font size, so ~17cqi always fits */
+    font-size: clamp(36px, var(--x-title-size), 184px); letter-spacing: -0.01em;
+    /* the offset = cheap two-colour print slightly out of register */
+    text-shadow: 5px 5px 0 var(--x-title-shadow);
+  }
+  .fm-title-sub {
+    display: block; margin-top: 10px; color: var(--x-ink);
+    font-size: clamp(18px, 7cqi, 52px); letter-spacing: 0.04em;
+  }
+  /* rune line under the title (forge theme): carved, so it's in the stamp colour */
+  .fm-hero :global(.fm-runes) {
+    margin-top: 16px; font-size: clamp(16px, 3.4cqi, 26px); color: var(--x-stamp); opacity: 0.85;
+    max-width: 100%;
+  }
+  .fm-summary { margin: 22px 0 0; max-width: 58ch; font-size: 24px; line-height: 1.15; }
+
+  .fm-meta {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px 24px;
+    margin: 24px 0 0; padding-top: 16px; border-top: 2px solid var(--x-ink);
+  }
+  .fm-meta dt { font-family: var(--font-display); font-size: 11px; letter-spacing: 2px; color: var(--x-grey); }
+  .fm-meta dd { margin: 2px 0 0; font-size: 22px; }
+
+  .fm-hero-foot {
+    display: flex; align-items: center; gap: 14px; margin-top: 24px;
+    font-family: var(--font-display); font-size: 11px; letter-spacing: 2px; color: var(--x-steel);
+  }
+  .fm-barcode {
+    width: 120px; height: 30px; flex: none;
+    background: repeating-linear-gradient(90deg,
+      var(--x-ink) 0 2px, transparent 2px 4px, var(--x-ink) 4px 5px, transparent 5px 8px,
+      var(--x-ink) 8px 11px, transparent 11px 12px);
+  }
+  .fm-stamp {
+    position: absolute; right: clamp(20px, 5vw, 60px); bottom: 26px;
+    display: grid; place-items: center; width: 92px; height: 92px; border-radius: 50%;
+    border: 3px solid var(--x-stamp); color: var(--x-stamp);
+    font-family: var(--font-display); font-size: 13px; letter-spacing: 1px; text-align: center; line-height: 1.3;
+    transform: rotate(-14deg); opacity: 0.85;
+  }
+
+  /* ---------- section headers ---------- */
+  .fm-spec { margin-top: clamp(40px, 6vw, 72px); }
+  .fm-spec-head {
+    display: flex; align-items: flex-end; gap: 16px;
+    padding-bottom: 12px; margin-bottom: 18px;
+    border-bottom: 3px solid var(--x-steel);
+    /* ruler ticks under the line */
+    background: repeating-linear-gradient(90deg, var(--x-steel) 0 1px, transparent 1px 16px) bottom / 100% 8px no-repeat;
+  }
+  .fm-num {
+    font-family: var(--x-display); font-size: clamp(44px, 9vw, 104px); line-height: 0.8;
+    color: transparent; -webkit-text-stroke: 2px var(--x-grey);
+  }
+  .fm-spec-head h2 {
+    margin: 0; font-family: var(--x-display); font-weight: 400;
+    font-size: clamp(24px, 6.4vw, 56px); color: var(--x-cream); letter-spacing: 0.02em;
+  }
+  .fm-role { margin: 4px 0 0; color: var(--x-grey); font-size: 22px; }
+
+  /* the big-screen TV itself lives in src/components/ShowcaseTv.astro */
+
+  /* ---------- the story: a few lines, read like a saga ---------- */
+  .fm-story {
+    max-width: 62ch; padding: 4px 0 4px 20px;
+    border-left: 4px solid var(--x-hot);
+  }
+  .fm-story p { margin: 0 0 14px; font-size: 26px; line-height: 1.2; color: var(--x-cream); }
+  .fm-story p:last-child { margin-bottom: 0; color: var(--x-hot); }
+
+  /* ---------- model sections ---------- */
+  .fm-spec-body {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(240px, 320px); gap: 20px;
+    align-items: start;
+  }
+
+  /* the 3D stage: square-cut steel housing with viewfinder corners */
+  .fm-stage {
+    border: 2px solid var(--x-steel); border-radius: 0; background: #1a1814;
+    box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.7), 6px 6px 0 rgba(0, 0, 0, 0.45);
+  }
+  .fm-frame {
+    position: absolute; inset: 12px; z-index: 2; pointer-events: none;
+    --c: var(--x-accent);
+    background:
+      linear-gradient(var(--c), var(--c)) top left / 26px 3px no-repeat,
+      linear-gradient(var(--c), var(--c)) top left / 3px 26px no-repeat,
+      linear-gradient(var(--c), var(--c)) top right / 26px 3px no-repeat,
+      linear-gradient(var(--c), var(--c)) top right / 3px 26px no-repeat,
+      linear-gradient(var(--c), var(--c)) bottom left / 26px 3px no-repeat,
+      linear-gradient(var(--c), var(--c)) bottom left / 3px 26px no-repeat,
+      linear-gradient(var(--c), var(--c)) bottom right / 26px 3px no-repeat,
+      linear-gradient(var(--c), var(--c)) bottom right / 3px 26px no-repeat;
+  }
+  .fm-stage .rec { left: 28px; top: 20px; color: var(--x-cream); }
+  .fm-stage .rec b { color: var(--x-hot); font-weight: 400; }
+  .fm-stage .hint { right: 28px; bottom: 18px; color: var(--x-grey); }
+
+  .fm .btn {
+    border-radius: 0; border: 2px solid var(--x-steel); background: var(--x-ink); color: var(--x-cream);
+    font-family: var(--font-display); font-size: 13px; letter-spacing: 1px;
+  }
+  .fm .btn:hover:not(:disabled) { border-color: var(--x-accent); color: var(--x-cream); }
+  .fm .btn[aria-pressed='true'] { background: var(--x-cream); border-color: var(--x-cream); color: var(--x-ink); }
+  .fm .btn:disabled { opacity: 0.45; cursor: default; }
+  .fm-stage .insert { background: var(--x-cream); border-color: var(--x-cream); color: var(--x-ink); }
+  .fm-stage .insert:hover:not(:disabled) { background: var(--x-accent); border-color: var(--x-accent); }
+
+  .fm-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; }
+  .fm-status { margin: 0 0 0 6px; color: var(--x-cream); min-height: 1.2em; }
+
+  /* spec sheet: a cream data card */
+  .fm-sheet { background: var(--x-paper); color: var(--x-ink); padding: 0 0 16px; box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.45); }
+  .fm-sheet h3 {
+    margin: 0 0 6px; padding: 8px 14px; background: var(--x-ink); color: var(--x-cream);
+    font-size: 13px; letter-spacing: 3px; border-left: 8px solid var(--x-steel);
+  }
+  .fm[data-theme='forge'] .fm-sheet h3 { border-left-color: var(--x-stamp); }
+  .fm-sheet dl { margin: 0; padding: 0 14px; }
+  .fm-sheet dl div {
+    display: flex; justify-content: space-between; gap: 12px; padding: 7px 0;
+    border-bottom: 1px dashed rgba(21, 19, 15, 0.35);
+  }
+  .fm-sheet dt { font-family: var(--font-display); font-size: 11px; letter-spacing: 1px; color: var(--x-steel); padding-top: 4px; }
+  .fm-sheet dd { margin: 0; font-size: 21px; text-align: right; }
+  .fm-sheet p { margin: 12px 14px 0; font-size: 21px; line-height: 1.15; }
+
+  .fm-render { margin: 24px 0 0; }
+  .fm-render img {
+    display: block; width: 100%; height: auto;
+    border: 2px solid var(--x-steel); box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.45);
+  }
+  .fm-render figcaption {
+    margin-top: 10px; font-family: var(--font-display); font-size: 11px; letter-spacing: 2px; color: var(--x-grey);
+  }
+  .fm-render figcaption span { color: var(--x-hot); }
+
+  .fm-stills { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 20px; }
+  .fm-stills .fm-render { margin-top: 0; }
+
+  /* ---------- narrow screens: stack everything ---------- */
+  @media (max-width: 900px) {
+    .fm-spec-body { grid-template-columns: minmax(0, 1fr); }
+  }
+  /* the "powered by" badge lives in src/components/EngineBadge.astro */
+
+  @media (max-width: 560px) {
+    .fm-stamp { display: none; }
+    .fm-stage .hint { display: none; }
+    .fm-stills { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+    .fm-story p { font-size: 23px; }
+  }
+</style>

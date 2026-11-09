@@ -1,5 +1,5 @@
 // PS2-style 3D viewer. This file (and Three.js) is only downloaded when a
-// visitor presses "INSERT TAPE" — see the dynamic import() in models.astro.
+// visitor presses "INSERT TAPE" — see the dynamic import() in src/pages/models/[id].astro.
 //
 // The PS2 look comes from three tricks:
 //  1. LOW-RES RENDER: draw at 1/3 resolution, then let CSS scale the canvas up

@@ -1,0 +1,77 @@
+---
+// Writes text in Elder Futhark runes as a small SVG, for a Norse touch.
+// Drawn with straight strokes (runes were carved, so they have no curves),
+// which also keeps them crisp and pixel-ish. Decorative only: screen readers
+// skip it. Letters without a rune here are left out.
+//   <Runes text="SINDRI · BROKKR" />
+interface Props {
+  text: string;
+  class?: string;
+}
+const { text, class: className } = Astro.props;
+
+// Each rune lives in a 4 wide x 8 tall box. Every entry is a list of
+// polylines: [x1, y1, x2, y2, ...].
+const G: Record<string, number[][]> = {
+  A: [[1, 8, 1, 0], [1, 0, 3, 2], [1, 3, 3, 5]], // ᚨ ansuz
+  B: [[1, 0, 1, 8], [1, 0, 3, 2, 1, 4, 3, 6, 1, 8]], // ᛒ berkano
+  D: [[0, 0, 0, 8], [4, 0, 4, 8], [0, 0, 4, 8], [4, 0, 0, 8]], // ᛞ dagaz
+  E: [[0, 8, 0, 0, 2, 2, 4, 0, 4, 8]], // ᛖ ehwaz
+  F: [[1, 0, 1, 8], [1, 2, 3, 0], [1, 4, 3, 2]], // ᚠ fehu
+  G: [[0, 0, 4, 8], [4, 0, 0, 8]], // ᚷ gebo
+  H: [[0, 0, 0, 8], [4, 0, 4, 8], [0, 3, 4, 5]], // ᚺ hagalaz
+  I: [[2, 0, 2, 8]], // ᛁ isa
+  J: [[2, 1, 0, 3, 2, 5], [2, 3, 4, 5, 2, 7]], // ᛃ jera
+  K: [[3, 1, 1, 3, 3, 5]], // ᚲ kaunan
+  L: [[1, 8, 1, 0, 3, 2]], // ᛚ laguz
+  M: [[0, 8, 0, 0, 4, 4], [4, 8, 4, 0, 0, 4]], // ᛗ mannaz
+  N: [[2, 0, 2, 8], [1, 3, 3, 5]], // ᚾ naudiz
+  O: [[0, 8, 4, 3, 2, 0, 0, 3, 4, 8]], // ᛟ othala
+  P: [[3, 0, 1, 1.5, 1, 6.5, 3, 8]], // ᛈ perth
+  R: [[1, 8, 1, 0, 3, 2, 1, 4, 3, 8]], // ᚱ raidho
+  S: [[3, 0, 1, 3, 3, 5, 1, 8]], // ᛊ sowilo
+  T: [[2, 8, 2, 0], [0, 2, 2, 0, 4, 2]], // ᛏ tiwaz
+  U: [[0, 8, 0, 0, 4, 3, 4, 8]], // ᚢ uruz
+  W: [[1, 8, 1, 0, 3, 2, 1, 4]], // ᚹ wunjo
+  Z: [[2, 8, 2, 0], [0, 2, 2, 4, 4, 2]], // ᛉ algiz
+  '·': [[2, 3, 3, 4, 2, 5, 1, 4, 2, 3]], // a small diamond between words
+};
+// Letters with no rune of their own borrow the closest one.
+const ALIAS: Record<string, string> = { C: 'K', Q: 'K', V: 'W', Y: 'J', X: 'Z' };
+
+const ADVANCE = 6; // rune width (4) + gap (2)
+const SPACE = 3;
+let x = 1;
+const lines: string[] = [];
+for (const raw of text.toUpperCase()) {
+  if (raw === ' ') { x += SPACE; continue; }
+  const glyph = G[ALIAS[raw] ?? raw];
+  if (!glyph) continue;
+  for (const pl of glyph) {
+    const pts: string[] = [];
+    for (let i = 0; i < pl.length; i += 2) pts.push(`${pl[i] + x},${pl[i + 1] + 1}`);
+    lines.push(pts.join(' '));
+  }
+  x += ADVANCE;
+}
+const width = x - 1;
+---
+
+<svg
+  class:list={['runes', className]}
+  viewBox={`0 0 ${width} 10`}
+  aria-hidden="true"
+  focusable="false"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1"
+  stroke-linecap="square"
+  stroke-linejoin="miter"
+  shape-rendering="crispEdges"
+>
+  {lines.map((p) => <polyline points={p} />)}
+</svg>
+
+<style>
+  .runes { display: block; height: 1em; width: auto; overflow: visible; }
+</style>

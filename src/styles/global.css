@@ -147,6 +147,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 700; color: var(--in
 .status--vr { color: #c9a6ff; }
 .status--mr { color: #9fd8ff; }
 .status--ar { color: #ffb000; }
+.status--film { color: #e8c39a; } /* CH03 short films */
 
 /* XR project video: 16:9 box in a dark bezel, like a monitor on the TV */
 .video-frame {
