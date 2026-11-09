@@ -37,16 +37,22 @@ const eqBars = Array.from({ length: 72 }, (_, i) => {
   <div class="stv-wrap">
     <div class="stv" data-showcase-tv>
       <slot name="badge" />
-      <div class="stv-screen">
-        {/* youtube-nocookie = no tracking cookies until the visitor presses play */}
-        <iframe
-          src={`https://www.youtube-nocookie.com/embed/${youtubeId}?enablejsapi=1`}
-          data-showcase-video
-          title={title}
-          loading="lazy"
-          allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-          allowfullscreen
-        ></iframe>
+      <div class="stv-screen" data-video-id={youtubeId} data-video-title={title}>
+        {/* Click-to-play: the page only shows YouTube's thumbnail (one small
+            image). The real player, which is a big download, is created by
+            the script below when the visitor presses play. Without
+            JavaScript, the button is a normal link to the video on YouTube. */}
+        <a class="stv-poster" href={`https://www.youtube.com/watch?v=${youtubeId}`} data-play aria-label={`Play ${title}`}>
+          <img
+            src={`https://i.ytimg.com/vi/${youtubeId}/maxresdefault.jpg`}
+            onerror={`this.onerror=null;this.src='https://i.ytimg.com/vi/${youtubeId}/hqdefault.jpg'`}
+            alt=""
+            width="1280"
+            height="720"
+            decoding="async"
+          />
+          <span class="stv-play" aria-hidden="true">▶ PLAY</span>
+        </a>
         {/* glass: scanlines + vignette + glare. pointer-events: none lets clicks reach the video */}
         <span class="stv-glass" aria-hidden="true"></span>
       </div>
@@ -70,9 +76,32 @@ const eqBars = Array.from({ length: 72 }, (_, i) => {
   // its audio. But with ?enablejsapi=1 the player will *tell* us its state
   // through postMessage: 1 = playing, 2 = paused, 0 = ended, 3 = buffering.
   // We say "I'm listening", then toggle .is-playing from the replies.
+  //
+  // ---- click-to-play ----
+  // The YouTube player is only created when the visitor presses PLAY, so
+  // opening the page costs one thumbnail instead of YouTube's whole player.
   document.querySelectorAll<HTMLElement>('[data-showcase-tv]').forEach((tv, n) => {
-    const film = tv.querySelector<HTMLIFrameElement>('[data-showcase-video]');
-    if (!film) return;
+    const screen = tv.querySelector<HTMLElement>('[data-video-id]');
+    const poster = tv.querySelector<HTMLAnchorElement>('[data-play]');
+    if (!screen || !poster) return;
+    poster.addEventListener('click', (e) => {
+      // let people open the YouTube link in a new tab normally
+      if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      e.preventDefault();
+      const film = document.createElement('iframe');
+      // youtube-nocookie = no tracking cookies; autoplay=1 because the visitor already pressed play
+      film.src = `https://www.youtube-nocookie.com/embed/${screen.dataset.videoId}?enablejsapi=1&autoplay=1`;
+      film.title = screen.dataset.videoTitle ?? 'Video';
+      film.allow = 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen';
+      film.allowFullscreen = true;
+      film.setAttribute('data-showcase-video', '');
+      poster.replaceWith(film);
+      film.focus();
+      listen(tv, film, n);
+    });
+  });
+
+  function listen(tv: HTMLElement, film: HTMLIFrameElement, n: number) {
     let heard = false;
     const hello = () =>
       film.contentWindow?.postMessage(JSON.stringify({ event: 'listening', id: `tv-${n}`, channel: 'widget' }), '*');
@@ -84,8 +113,7 @@ const eqBars = Array.from({ length: 72 }, (_, i) => {
         hello();
       }, 250);
     };
-    film.addEventListener('load', greet);
-    greet(); // in case the iframe already loaded before this script ran
+    film.addEventListener('load', greet); // the player was just created, so wait for it to load
 
     window.addEventListener('message', (e) => {
       if (e.source !== film.contentWindow) return; // only trust our own video
@@ -102,7 +130,7 @@ const eqBars = Array.from({ length: 72 }, (_, i) => {
       if (data.event === 'infoDelivery' && typeof info?.playerState === 'number') state = info.playerState;
       if (state !== undefined) tv.classList.toggle('is-playing', state === 1);
     });
-  });
+  }
 </script>
 
 <style>
@@ -121,6 +149,23 @@ const eqBars = Array.from({ length: 72 }, (_, i) => {
     box-shadow: 0 0 0 clamp(4px, 0.8vw, 8px) #0c0b09, 0 0 0 clamp(6px, 1vw, 10px) rgba(255, 255, 255, 0.05);
   }
   .stv-screen iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  /* the thumbnail + PLAY button shown until the visitor presses play */
+  .stv-poster { position: absolute; inset: 0; display: grid; place-items: center; text-decoration: none; cursor: pointer; }
+  .stv-poster img {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+    filter: saturate(0.85) brightness(0.8); transition: filter 0.15s;
+  }
+  .stv-play {
+    position: relative; z-index: 2; /* above the glass */
+    padding: 10px 18px; border: 2px solid #ece5d6; background: rgba(13, 12, 10, 0.82); color: #ece5d6;
+    font-family: var(--font-display); font-size: clamp(13px, 1.8vw, 18px); letter-spacing: 2px;
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.6);
+  }
+  .stv-poster:hover img, .stv-poster:focus-visible img { filter: none; }
+  .stv-poster:hover .stv-play, .stv-poster:focus-visible .stv-play {
+    background: var(--tv-accent, #ece5d6); border-color: var(--tv-accent, #ece5d6); color: #0d0c0a;
+  }
+  .stv-poster:focus-visible { outline: 3px solid var(--tv-accent, #ece5d6); outline-offset: -3px; }
   .stv-glass {
     position: absolute; inset: 0; z-index: 1; pointer-events: none; border-radius: inherit;
     background:
