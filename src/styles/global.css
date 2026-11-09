@@ -159,6 +159,8 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 700; color: var(--in
 
 .prose { color: var(--ink); text-shadow: none; max-width: 70ch; }
 .prose h2 { font-size: 20px; color: var(--phosphor); margin-top: 32px; }
+/* VT323 has no bold weight, so browsers smear a fake one. Highlight with colour instead. */
+.prose strong { font-weight: 400; color: var(--phosphor-bright); }
 
 /* ---------- HOME: the TV ---------- */
 .home {
