@@ -169,7 +169,7 @@ const stillsNum = film.stills?.length ? pad(++n) : '';
         <div class="fm-stills">
           {film.stills.map((st) => (
             <figure class="fm-render">
-              <img src={st.src} width="1426" height="862" loading="lazy" alt={st.alt} />
+              <img src={st.src} width="1600" height="900" loading="lazy" alt={st.alt} />
               <figcaption><span aria-hidden="true">■</span> {st.caption}</figcaption>
             </figure>
           ))}
@@ -456,8 +456,10 @@ const stillsNum = film.stills?.length ? pad(++n) : '';
   }
   .fm-render figcaption span { color: var(--x-hot); }
 
-  .fm-stills { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 20px; }
+  .fm-stills { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 20px; }
   .fm-stills .fm-render { margin-top: 0; }
+  /* stills come in different shapes; crop them all to 16:9 so the rows line up */
+  .fm-stills img { aspect-ratio: 16 / 9; object-fit: cover; }
 
   /* ---------- narrow screens: stack everything ---------- */
   @media (max-width: 900px) {

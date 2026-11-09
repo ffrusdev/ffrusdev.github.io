@@ -115,6 +115,48 @@ export const films: Film[] = [
         renderAlt: 'Cycles render of the pilot seat',
       },
     ],
+    stills: [
+      {
+        src: '/xephos/still-crew-quarters.webp',
+        caption: 'INTERIOR · CREW QUARTERS',
+        alt: 'Dim sci-fi crew quarters with a bunk, flowers in white planters and orange crates',
+      },
+      {
+        src: '/xephos/still-common-area.webp',
+        caption: 'INTERIOR · COMMON AREA',
+        alt: 'Worn orange and grey ship interior with glowing consoles and a window onto asteroids',
+      },
+      {
+        src: '/xephos/still-cockpit.webp',
+        caption: 'IN THE COCKPIT',
+        alt: 'View from the cockpit seat, glowing controls in front of a starfield and asteroids',
+      },
+      {
+        src: '/xephos/still-through-the-belt.webp',
+        caption: 'MANTIS-07 · THROUGH THE BELT',
+        alt: 'The starfighter, engines glowing cyan, weaving through an asteroid belt near a ringed planet',
+      },
+      {
+        src: '/xephos/still-asteroid-ring.webp',
+        caption: 'THE ASTEROID RING',
+        alt: 'Dark asteroids drifting over a planetary ring, a bright star behind',
+      },
+      {
+        src: '/xephos/still-ringed-world.webp',
+        caption: 'THE RINGED WORLD',
+        alt: 'A reddish planet circled by a ring of rock and asteroids',
+      },
+      {
+        src: '/xephos/still-ring-arc.webp',
+        caption: 'RING ARC',
+        alt: 'A planetary ring curving away into space, strewn with asteroids',
+      },
+      {
+        src: '/xephos/still-ring-backlit.webp',
+        caption: 'RING PLANE · BACKLIT',
+        alt: 'Asteroids silhouetted against a tilted ring and a bright star',
+      },
+    ],
   },
   {
     id: 'hammer-of-gods',
