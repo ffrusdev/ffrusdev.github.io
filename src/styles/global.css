@@ -114,7 +114,29 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 700; color: var(--in
   background-color: #111;
   animation: tuneIn 0.35s ease-out;
 }
-.static-burst.on { opacity: 1; animation: noise 0.1s steps(2) infinite; }
+
+/* ---------- channel change (driven by src/scripts/channels.ts) ----------
+   html.switching = leaving this page, html.tuning = just arrived by changing
+   channel. The page picture is the top bar + channel bar + main content. */
+.static-noise { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.5; }
+/* leaving: a quick, soft blink of static and a tiny nudge of the picture */
+html.switching .static-burst { animation: switchOut 0.18s steps(3) both; }
+html.switching :is(.topbar, .channel-bar, main) { animation: vjump 0.18s steps(3) both; }
+/* arriving: the static fades straight away and the picture settles into place */
+html.tuning .static-burst { animation: tuneInCh 0.3s steps(4) both; }
+html.tuning :is(.topbar, .channel-bar, main) { animation: vsettle 0.3s steps(3) both; }
+
+/* the TV's on-screen display: big green channel number, top right */
+.ch-osd {
+  display: none; position: fixed; z-index: 31; margin: 0; pointer-events: none;
+  top: clamp(14px, 3vw, 30px); right: clamp(16px, 4vw, 44px); text-align: right;
+  font-family: var(--font-display); color: #74ff5c;
+  text-shadow: 0 0 6px rgba(116, 255, 92, 0.5), 2px 2px 0 #000;
+}
+.ch-osd b { display: block; font-size: clamp(22px, 3vw, 34px); font-weight: 700; letter-spacing: 2px; line-height: 1; }
+.ch-osd span { display: block; margin-top: 4px; font-size: 11px; letter-spacing: 3px; }
+html.switching .ch-osd { display: block; }
+html.tuning .ch-osd { display: block; animation: osd 0.9s linear both; }
 
 /* ---------- cards (projects, devlog, guide) ---------- */
 .panel { border: 1px solid var(--line); background: var(--panel); padding: 16px; color: var(--muted); text-shadow: none; }
@@ -297,11 +319,24 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 700; color: var(--in
 @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
 @keyframes lamp { 0%, 100% { opacity: 0.55; } 50% { opacity: 0.7; } }
 @keyframes tuneIn { from { opacity: 0.7; } to { opacity: 0; } }
+@keyframes switchOut { from { opacity: 0; } to { opacity: 0.55; } }
+@keyframes tuneInCh { from { opacity: 0.55; } to { opacity: 0; } }
+@keyframes osd { 0%, 80% { opacity: 1; } 100% { opacity: 0; } }
+/* a small vertical-hold slip and brightness blip */
+@keyframes vjump {
+  from { transform: none; filter: none; }
+  to { transform: translateY(1%); filter: brightness(1.25); }
+}
+/* the new channel drops into place */
+@keyframes vsettle {
+  from { transform: translateY(-1%); filter: brightness(1.2); }
+  to { transform: none; filter: none; }
+}
 
 /* Respect people who turn off motion in their OS settings. */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
-  .static-burst { opacity: 0 !important; }
+  .static-burst, .ch-osd { opacity: 0 !important; }
 }
 
 @media (max-width: 640px) {
