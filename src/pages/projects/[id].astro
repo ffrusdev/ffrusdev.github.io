@@ -26,7 +26,9 @@ const showcase = Boolean(entry.data.video || entry.data.poster);
       <a href="/projects/" data-channel-link>◄ ALL PROJECTS</a>
       <h1 style="margin-top: 16px">{entry.data.title}</h1>
       <p class="dim">{entry.data.role} · {entry.data.year}</p>
-      {entry.data.link && <p><a href={entry.data.link}>▶ play / watch</a></p>}
+      {entry.data.link && (
+        <p><a href={entry.data.link}>{entry.data.linkLabel ?? '▶ play / watch'}</a></p>
+      )}
       <div class="prose">
         <Content />
       </div>

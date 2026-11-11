@@ -41,11 +41,15 @@ const eqBars = Array.from({ length: 72 }, (_, i) => {
         {/* Click-to-play: the page only shows YouTube's thumbnail (one small
             image). The real player, which is a big download, is created by
             the script below when the visitor presses play. Without
-            JavaScript, the button is a normal link to the video on YouTube. */}
+            JavaScript, the button is a normal link to the video on YouTube.
+            Not every video has the big "maxresdefault" thumbnail: YouTube then
+            sends a tiny 120x90 grey placeholder (not an error), so onload
+            swaps to the always-available "hqdefault". */}
         <a class="stv-poster" href={`https://www.youtube.com/watch?v=${youtubeId}`} data-play aria-label={`Play ${title}`}>
           <img
             src={`https://i.ytimg.com/vi/${youtubeId}/maxresdefault.jpg`}
             onerror={`this.onerror=null;this.src='https://i.ytimg.com/vi/${youtubeId}/hqdefault.jpg'`}
+            onload={`if(this.naturalWidth<=120&&!this.dataset.fb){this.dataset.fb=1;this.src='https://i.ytimg.com/vi/${youtubeId}/hqdefault.jpg'}`}
             alt=""
             width="1280"
             height="720"

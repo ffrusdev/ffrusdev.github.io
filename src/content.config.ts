@@ -19,17 +19,25 @@ const projects = defineCollection({
     tags: z.array(z.string()).default([]),
     order: z.number().default(99), // lower = shown first
     link: z.string().optional(), // Steam / itch / trailer URL
+    linkLabel: z.string().optional(), // button text for `link`, e.g. "▶ PLAY THE DEMO"
 
     // ---- optional "showcase" page (title card + TV + art gallery) ----
+    // Look of the page: 'ember' = fire + embers (A Way End), 'cooked' = night
+    // sea + kitchen lanterns + rising pixel bubbles (We Are COOKED!).
+    theme: z.enum(['ember', 'cooked']).default('ember'),
+    titleHighlight: z.string().optional(), // part of the title drawn in the hot accent colour, e.g. "COOKED!"
     // Fill in `video` and/or `poster` and the project page switches from the
     // plain text layout to the showcase layout. See a-way-end.md.
     video: z.string().optional(), // YouTube link, plays on the big-screen TV
     poster: z.string().optional(), // key art, e.g. /projects/a-way-end/poster.webp
+    posterWide: z.boolean().default(false), // true for landscape (16:9) key art: gives it a wider column
     context: z.string().optional(), // e.g. "Semester 2 project"
     stamp: z.string().optional(), // short text in the round stamp, e.g. "SEM 02"
     tools: z.array(z.string()).default([]),
     // "POWERED BY" sticker on the TV, e.g. { mark: "U6", name: "UNITY 6" }
     engine: z.object({ mark: z.string(), logo: z.string().optional(), name: z.string(), sub: z.string().optional() }).optional(),
+    galleryTitle: z.string().default('PIXEL ART'), // heading of the image gallery section
+    gallerySub: z.string().default('SPRITES · TILES · PROPS'), // small line under it
     gallery: z
       .array(z.object({ src: z.string(), caption: z.string(), alt: z.string() }))
       .default([]),

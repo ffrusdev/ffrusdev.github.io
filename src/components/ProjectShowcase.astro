@@ -1,9 +1,13 @@
 ---
 // Showcase layout for a project page: a title card with a stamp and the key
-// art, the gameplay video on the big-screen TV, a pixel-art gallery, then the
-// markdown dev notes. Same structure as the CH03 Xephos page, but themed after
-// the game's own poster: black-to-ember-red glow, cream pixel title with a
-// brown outline, drifting embers.
+// art, the gameplay video on the big-screen TV, an image gallery (pixel art,
+// screenshots...: see galleryTitle), then the
+// markdown dev notes. Same structure as the CH03 Xephos page, themed after
+// each game (`theme` in the project's .md), always over the site's muted,
+// dystopian PS2 finish (dither, grime, low-fps particles):
+//   ember  → A Way End's poster: black-to-ember-red glow, drifting embers
+//   cooked → We Are COOKED!: night sea and stone kitchen, lantern yellow,
+//            tomato-orange title, rising pixel bubbles and a pixel wave line
 //
 // Used by src/pages/projects/[id].astro when a project has `video` or `poster`.
 import type { CollectionEntry } from 'astro:content';
@@ -23,22 +27,27 @@ const pad = (n: number) => String(n).padStart(2, '0');
 let n = 0;
 const num = { video: d.video ? pad(++n) : '', art: d.gallery.length ? pad(++n) : '', notes: pad(++n) };
 const code = d.title.split(/\s+/).map((w) => w[0]).join('').toUpperCase(); // "A Way End" -> "AWE"
+// Split the title so `titleHighlight` (e.g. "COOKED!") can be coloured on its own.
+const hi = d.titleHighlight && d.title.includes(d.titleHighlight) ? d.titleHighlight : '';
+const [titleBefore, titleAfter] = hi ? d.title.split(hi) : [d.title, ''];
+// Background particles: embers for 'ember', bubbles for 'cooked'.
+const particles = d.theme === 'cooked' ? 14 : 9;
 ---
 
-<div class="screen-page sc">
+<div class="screen-page sc" data-theme={d.theme}>
   <p class="sc-crumb">
     <a href="/projects/" data-channel-link>◄ ALL PROJECTS</a>
     <span aria-hidden="true">&nbsp;/&nbsp; CH01 // {shelfLabel[d.section]}S</span>
   </p>
 
   <!-- ===== title card ===== -->
-  <header class="sc-hero">
-    {/* drifting embers, like the poster */}
-    <span class="sc-embers" aria-hidden="true">{Array.from({ length: 9 }, () => <i></i>)}</span>
+  <header class:list={['sc-hero', { 'sc-hero--wide': d.posterWide }]}>
+    {/* drifting embers (or rising bubbles), like the poster */}
+    <span class="sc-embers" aria-hidden="true">{Array.from({ length: particles }, () => <i></i>)}</span>
 
     <div class="sc-hero-text">
       <p class="sc-file">FILE № {pad(d.order)} &nbsp;/&nbsp; {shelfLabel[d.section]}</p>
-      <h1 class="sc-title">{d.title}</h1>
+      <h1 class="sc-title">{titleBefore}{hi && <span class="sc-title-hi">{hi}</span>}{titleAfter}</h1>
       <p class="sc-summary">{d.summary}</p>
       <dl class="sc-meta">
         {d.context && <div><dt>CONTEXT</dt><dd>{d.context}</dd></div>}
@@ -46,7 +55,7 @@ const code = d.title.split(/\s+/).map((w) => w[0]).join('').toUpperCase(); // "A
         <div><dt>STATUS</dt><dd>{statusLabel[d.status]}</dd></div>
         {d.tools.length > 0 && <div><dt>TOOLS</dt><dd>{d.tools.join(' · ')}</dd></div>}
       </dl>
-      {d.link && <p class="sc-link"><a class="btn" href={d.link}>▶ PLAY / WATCH</a></p>}
+      {d.link && <p class="sc-link"><a class="btn" href={d.link}>{d.linkLabel ?? '▶ PLAY / WATCH'}</a></p>}
       <div class="sc-hero-foot" aria-hidden="true">
         <span class="sc-barcode"></span>
         <span>{code} / {d.tags.join(' / ').toUpperCase()}</span>
@@ -56,7 +65,7 @@ const code = d.title.split(/\s+/).map((w) => w[0]).join('').toUpperCase(); // "A
     {d.poster && (
       <figure class="sc-poster">
         <span class="sc-tape" aria-hidden="true"></span>
-        <img src={d.poster} width="900" height="1284" alt={`${d.title} key art`} />
+        <img src={d.poster} width={d.posterWide ? 1131 : 900} height={d.posterWide ? 636 : 1284} alt={`${d.title} key art`} />
       </figure>
     )}
     {d.stamp && <span class="sc-stamp" aria-hidden="true">{d.stamp}</span>}
@@ -78,14 +87,14 @@ const code = d.title.split(/\s+/).map((w) => w[0]).join('').toUpperCase(); // "A
     </section>
   )}
 
-  <!-- ===== pixel art gallery ===== -->
+  <!-- ===== image gallery ===== -->
   {d.gallery.length > 0 && (
     <section class="sc-sec" aria-labelledby="sc-art">
       <header class="sc-sec-head">
         <span class="sc-num" aria-hidden="true">{num.art}</span>
         <div>
-          <h2 id="sc-art">PIXEL ART</h2>
-          <p class="sc-sub">SPRITES · TILES · PROPS</p>
+          <h2 id="sc-art">{d.galleryTitle}</h2>
+          <p class="sc-sub">{d.gallerySub}</p>
         </div>
       </header>
       <div class="sc-gallery">
@@ -121,13 +130,57 @@ const code = d.title.split(/\s+/).map((w) => w[0]).join('').toUpperCase(); // "A
     --e-ink: #0d0908;
     --e-steel: #3a2f2c;
     --e-grey: #9a8c86;
+    --e-hot: var(--e-cream); /* titleHighlight colour */
+    --e-text: #f1e2cc; /* summary + dev notes */
+    --e-strong: #ffc98a; /* bold words in the notes */
+    --e-glow: rgba(255, 110, 30, 0.55); /* soft glow behind the title */
+    --e-check-a: #241918; /* gallery checkerboard */
+    --e-check-b: #1b1312;
+    --e-border: #2a1a16;
+    --e-hero-bg:
+      radial-gradient(ellipse 70% 90% at 15% 110%, rgba(190, 40, 15, 0.75), transparent 70%),
+      radial-gradient(ellipse at 80% -10%, rgba(255, 120, 40, 0.12), transparent 60%),
+      repeating-conic-gradient(rgba(0, 0, 0, 0.18) 0 25%, transparent 0 50%) 0 0 / 4px 4px,
+      linear-gradient(180deg, #0b0707, #1c0a07);
     --tv-accent: var(--e-ember); /* sound bars glow ember while the video plays */
     color: var(--e-cream);
     text-shadow: none;
   }
-  /* same PS2-style dither as CH03, warmed up */
+
+  /* We Are COOKED!: a night-time sea and stone kitchen (from the title screen
+     and levels), lit by warm lanterns, with the logo's tomato-orange. Kept
+     muted and slate-blue so it still sits in the site's dystopian PS2 world. */
+  .sc[data-theme='cooked'] {
+    --e-cream: #e9f3ee; /* sea-foam white */
+    --e-brown: #0c1a2e; /* deep navy outline */
+    --e-ember: #ffc145; /* lantern / egg-yolk yellow: buttons, numbers, labels */
+    --e-hot: #ff6b2c; /* tomato orange, like COOKED in the logo */
+    --e-sea: #4fc6c2; /* teal water: bubbles, waves, sound bars */
+    --e-ink: #06101a;
+    --e-steel: #22374a;
+    --e-grey: #8399a6;
+    --e-text: #d9e6e6;
+    --e-strong: #ffd27a;
+    --e-glow: rgba(79, 198, 194, 0.45);
+    --e-check-a: #13202b;
+    --e-check-b: #0e1922;
+    --e-border: #172838;
+    --e-hero-bg:
+      radial-gradient(ellipse 80% 70% at 20% 120%, rgba(40, 150, 160, 0.55), transparent 70%),
+      radial-gradient(ellipse 50% 60% at 85% -10%, rgba(255, 175, 60, 0.18), transparent 65%),
+      radial-gradient(ellipse at 50% 40%, transparent 50%, rgba(0, 0, 0, 0.45) 100%),
+      repeating-conic-gradient(rgba(0, 0, 0, 0.2) 0 25%, transparent 0 50%) 0 0 / 4px 4px,
+      linear-gradient(180deg, #070e17, #0c2230);
+    --tv-accent: var(--e-sea);
+  }
+
+  /* same PS2-style dither as CH03, tinted per theme. (Written out in full:
+     <body> sits outside .sc, so it can't see the variables above.) */
   :global(body:has(.sc)) {
     background: repeating-conic-gradient(#171010 0 25%, #120c0c 0 50%) 0 0 / 4px 4px;
+  }
+  :global(body:has(.sc[data-theme='cooked'])) {
+    background: repeating-conic-gradient(#0d151c 0 25%, #091017 0 50%) 0 0 / 4px 4px;
   }
 
   .sc-crumb { margin: 0 0 14px; font-family: var(--font-display); font-size: 13px; letter-spacing: 2px; color: var(--e-grey); }
@@ -139,12 +192,8 @@ const code = d.title.split(/\s+/).map((w) => w[0]).join('').toUpperCase(); // "A
     position: relative; overflow: hidden;
     display: grid; grid-template-columns: minmax(0, 1fr) minmax(200px, 300px); gap: clamp(20px, 4vw, 48px);
     align-items: center; padding: clamp(20px, 4vw, 44px);
-    border: 2px solid #2a1a16;
-    background:
-      radial-gradient(ellipse 70% 90% at 15% 110%, rgba(190, 40, 15, 0.75), transparent 70%),
-      radial-gradient(ellipse at 80% -10%, rgba(255, 120, 40, 0.12), transparent 60%),
-      repeating-conic-gradient(rgba(0, 0, 0, 0.18) 0 25%, transparent 0 50%) 0 0 / 4px 4px,
-      linear-gradient(180deg, #0b0707, #1c0a07);
+    border: 2px solid var(--e-border);
+    background: var(--e-hero-bg);
     box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.5);
   }
   .sc-hero-text { position: relative; z-index: 1; container-type: inline-size; }
@@ -155,9 +204,10 @@ const code = d.title.split(/\s+/).map((w) => w[0]).join('').toUpperCase(); // "A
     /* chunky brown outline (four hard shadows) + warm glow, like the poster's logo */
     text-shadow:
       3px 0 0 var(--e-brown), -3px 0 0 var(--e-brown), 0 3px 0 var(--e-brown), 0 -3px 0 var(--e-brown),
-      3px 3px 0 var(--e-brown), 0 0 24px rgba(255, 110, 30, 0.55);
+      3px 3px 0 var(--e-brown), 0 0 24px var(--e-glow);
   }
-  .sc-summary { margin: 22px 0 0; max-width: 52ch; font-size: 24px; line-height: 1.15; color: #f1e2cc; }
+  .sc-title-hi { color: var(--e-hot); }
+  .sc-summary { margin: 22px 0 0; max-width: 52ch; font-size: 24px; line-height: 1.15; color: var(--e-text); }
   .sc-meta {
     display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px 24px;
     margin: 24px 0 0; padding-top: 16px; border-top: 2px solid rgba(255, 243, 214, 0.25);
@@ -183,6 +233,8 @@ const code = d.title.split(/\s+/).map((w) => w[0]).join('').toUpperCase(); // "A
 
   /* key art, pinned to the card with tape */
   .sc-poster { position: relative; z-index: 1; margin: 0; transform: rotate(2.5deg); }
+  /* landscape key art needs a wider column than a tall poster */
+  .sc-hero--wide { grid-template-columns: minmax(0, 1fr) minmax(240px, 440px); }
   .sc-poster img {
     display: block; width: 100%; height: auto;
     border: 3px solid var(--e-ink); box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.55);
@@ -222,8 +274,52 @@ const code = d.title.split(/\s+/).map((w) => w[0]).join('').toUpperCase(); // "A
     10% { opacity: 1; }
     100% { transform: translate(24px, -460px); opacity: 0; }
   }
+
+  /* bubbles (cooked theme): little pixel rings with a shine pixel, wobbling
+     side to side as they rise and popping near the top. Same low-fps steps()
+     as the embers so they feel like old console sprites. */
+  .sc[data-theme='cooked'] .sc-embers i {
+    width: 8px; height: 8px; background: transparent; border-radius: 3px;
+    border: 2px solid rgba(160, 235, 240, 0.75);
+    box-shadow: inset 2px 2px 0 -1px rgba(255, 255, 255, 0.9), 0 0 6px rgba(79, 198, 194, 0.45);
+    animation-name: sc-bubble; animation-duration: 7s; animation-timing-function: steps(28, end);
+  }
+  .sc[data-theme='cooked'] .sc-embers i:nth-child(3n) { width: 5px; height: 5px; border-width: 1px; border-radius: 2px; }
+  .sc[data-theme='cooked'] .sc-embers i:nth-child(4n) { width: 11px; height: 11px; border-radius: 4px; }
+  .sc-embers i:nth-child(10) { left: 13%; animation-delay: -4.2s; animation-duration: 8s; }
+  .sc-embers i:nth-child(11) { left: 33%; animation-delay: -6.1s; }
+  .sc-embers i:nth-child(12) { left: 52%; animation-delay: -1.9s; animation-duration: 9s; }
+  .sc-embers i:nth-child(13) { left: 71%; animation-delay: -5.6s; }
+  .sc-embers i:nth-child(14) { left: 84%; animation-delay: -0.4s; animation-duration: 8s; }
+  @keyframes sc-bubble {
+    0% { transform: translate(0, 0); opacity: 0; }
+    8% { opacity: 1; }
+    25% { transform: translate(7px, -110px); }
+    50% { transform: translate(-6px, -220px); }
+    75% { transform: translate(6px, -330px); opacity: 1; }
+    92% { transform: translate(0, -400px) scale(1); opacity: 0.9; }
+    96% { transform: translate(0, -410px) scale(1.5); opacity: 0.6; } /* pop */
+    100% { transform: translate(0, -410px) scale(0); opacity: 0; }
+  }
+
+  /* water line along the bottom of the title card (cooked theme): a stepped
+     pixel wave that slowly drifts sideways */
+  .sc[data-theme='cooked'] .sc-hero::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 22px; pointer-events: none;
+    background:
+      radial-gradient(circle at 12px 0, transparent 9px, rgba(79, 198, 194, 0.28) 10px) 0 6px / 24px 16px repeat-x,
+      linear-gradient(transparent 12px, rgba(79, 198, 194, 0.18) 12px);
+    image-rendering: pixelated;
+    animation: sc-wave 4s steps(12) infinite;
+  }
+  @keyframes sc-wave { from { background-position: 0 6px, 0 0; } to { background-position: 24px 6px, 0 0; } }
+  .sc[data-theme='cooked'] .sc-stamp { border-color: var(--e-hot); color: var(--e-hot); }
+  .sc[data-theme='cooked'] .sc-sheet figcaption span { color: var(--e-sea); }
+  .sc[data-theme='cooked'] .sc-sec-head { border-bottom-color: var(--e-steel); }
+
   @media (prefers-reduced-motion: reduce) {
     .sc-embers { display: none; }
+    .sc[data-theme='cooked'] .sc-hero::after { animation: none; }
   }
 
   /* ---------- section headers ---------- */
@@ -251,7 +347,7 @@ const code = d.title.split(/\s+/).map((w) => w[0]).join('').toUpperCase(); // "A
     display: grid; place-items: center; aspect-ratio: 16 / 10; padding: 18px;
     border: 2px solid var(--e-steel); box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.45);
     /* dark checkerboard = "transparent background" like in a pixel-art editor */
-    background: repeating-conic-gradient(#241918 0 25%, #1b1312 0 50%) 0 0 / 16px 16px;
+    background: repeating-conic-gradient(var(--e-check-a) 0 25%, var(--e-check-b) 0 50%) 0 0 / 16px 16px;
   }
   /* no image-rendering: pixelated here: these sheets are shown SMALLER than
      their file, and shrinking with 'pixelated' drops whole rows of pixels */
@@ -259,16 +355,18 @@ const code = d.title.split(/\s+/).map((w) => w[0]).join('').toUpperCase(); // "A
   .sc-sheet figcaption { margin-top: 10px; font-family: var(--font-display); font-size: 11px; letter-spacing: 2px; color: var(--e-grey); }
   .sc-sheet figcaption span { color: var(--e-ember); }
 
-  .sc-notes { color: #f1e2cc; }
+  .sc-notes { color: var(--e-text); }
   .sc-notes :global(h2) { color: var(--e-ember); }
   /* VT323 has no bold, so the browser smears a fake one. Use colour for emphasis instead. */
-  .sc-notes :global(strong) { font-weight: 400; color: #ffc98a; }
+  .sc-notes :global(strong) { font-weight: 400; color: var(--e-strong); }
   .sc-notes :global(em) { color: var(--e-cream); }
 
   /* ---------- narrow screens ---------- */
   @media (max-width: 760px) {
     .sc-hero { grid-template-columns: minmax(0, 1fr); }
     .sc-poster { max-width: 260px; justify-self: center; }
+    .sc-hero--wide { grid-template-columns: minmax(0, 1fr); }
+    .sc-hero--wide .sc-poster { max-width: 420px; }
     /* stamped on the poster's bottom corner, clear of the title */
     .sc-stamp { right: 14px; bottom: 26px; width: 70px; height: 70px; font-size: 12px; }
   }
