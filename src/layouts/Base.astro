@@ -47,12 +47,9 @@ const imageUrl = new URL('/og-image.jpg', Astro.site).href;
     <link rel="sitemap" href="/sitemap-index.xml" />
     <meta name="theme-color" content="#0b0c0a" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=VT323&display=swap"
-      rel="stylesheet"
-    />
+    <!-- Start downloading the fonts straight away (they're tiny: ~34 KB total). -->
+    <link rel="preload" href="/fonts/vt323.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/silkscreen-700.woff2" as="font" type="font/woff2" crossorigin />
     <!-- Arrived here by changing channel? Mark it before the first paint so the
          page starts under static instead of flashing up plain (see channels.ts). -->
     <script is:inline>

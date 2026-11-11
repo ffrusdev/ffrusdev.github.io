@@ -1,3 +1,26 @@
+/* Fonts live on this site (public/fonts/) instead of Google's servers, so
+   they arrive with the page and the layout doesn't jump when they swap in.
+   "block" = wait a moment for the pixel font rather than flash a plain one.
+   Both fonts are free (SIL Open Font License). */
+@font-face {
+  font-family: 'VT323';
+  font-weight: 400;
+  font-display: block;
+  src: url('/fonts/vt323.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Silkscreen';
+  font-weight: 400;
+  font-display: block;
+  src: url('/fonts/silkscreen-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Silkscreen';
+  font-weight: 700;
+  font-display: block;
+  src: url('/fonts/silkscreen-700.woff2') format('woff2');
+}
+
 /* ============================================================
    FRUS — "Dead Channel" theme
    All the CRT effects are plain CSS: zero JS, zero downloads.
