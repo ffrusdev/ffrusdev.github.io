@@ -20,6 +20,9 @@ const {
   home = false,
 } = Astro.props;
 const channelName = channels.find((c) => c.num === channel)?.label ?? '';
+// Full web addresses for link previews (they need https://..., not /...).
+const pageUrl = new URL(Astro.url.pathname, Astro.site).href;
+const imageUrl = new URL('/og-image.jpg', Astro.site).href;
 ---
 
 <!doctype html>
@@ -29,8 +32,19 @@ const channelName = channels.find((c) => c.num === channel)?.label ?? '';
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title} · FRUS</title>
     <meta name="description" content={description} />
+    <link rel="canonical" href={pageUrl} />
+    <!-- Link previews (Discord, WhatsApp, LinkedIn, X...): title, text and picture. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="FRUS · Nabil Luqman" />
+    <meta property="og:url" content={pageUrl} />
     <meta property="og:title" content={`${title} · FRUS`} />
     <meta property="og:description" content={description} />
+    <meta property="og:image" content={imageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="A ringed planet behind an asteroid belt, a still from the short film Xephos: Starbound" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
     <meta name="theme-color" content="#0b0c0a" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />

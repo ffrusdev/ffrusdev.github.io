@@ -1,0 +1,62 @@
+---
+// Shown by GitHub Pages for any address that doesn't exist on the site.
+// Looks like the TV tuned to an empty channel: colour bars and NO SIGNAL.
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="No Signal" channel={99} description="This channel doesn't exist. Try another one.">
+  <div class="screen-page nosignal-page">
+    <div class="bars" aria-hidden="true">
+      <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
+
+    <h1>NO SIGNAL</h1>
+    <p class="dim">ERROR 404 · THIS CHANNEL ISN'T BROADCASTING</p>
+    <p>The page you're looking for doesn't exist, or it moved. Use the channel buttons above, or head back home.</p>
+
+    <a class="home-btn" href="/" data-channel-link>◂ BACK TO CH00 HOME</a>
+  </div>
+</Base>
+
+<style>
+  .nosignal-page { text-align: center; }
+  .nosignal-page p { margin-inline: auto; }
+  .nosignal-page h1 {
+    font-size: clamp(40px, 9vw, 88px);
+    letter-spacing: 6px;
+    margin-top: 24px;
+    animation: blink 1.6s steps(1) infinite;
+  }
+
+  /* classic TV test-card colour bars */
+  .bars {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    height: clamp(90px, 22vw, 180px);
+    max-width: 640px;
+    margin: 8px auto 0;
+    border: 2px solid var(--phosphor-dim);
+    opacity: 0.85;
+  }
+  .bars span:nth-child(1) { background: #c0c0c0; }
+  .bars span:nth-child(2) { background: #c0c000; }
+  .bars span:nth-child(3) { background: #00c0c0; }
+  .bars span:nth-child(4) { background: #00c000; }
+  .bars span:nth-child(5) { background: #c000c0; }
+  .bars span:nth-child(6) { background: #c00000; }
+  .bars span:nth-child(7) { background: #0000c0; }
+
+  .home-btn {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 18px;
+    border: 1px solid var(--phosphor-dim);
+    font-size: 24px;
+    text-decoration: none;
+  }
+  .home-btn:hover,
+  .home-btn:focus-visible { border-color: var(--phosphor); color: var(--phosphor); }
+
+  @keyframes blink { 50% { opacity: 0.35; } }
+  @media (prefers-reduced-motion: reduce) { .nosignal-page h1 { animation: none; } }
+</style>

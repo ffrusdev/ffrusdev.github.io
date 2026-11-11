@@ -1,0 +1,5 @@
+# Search engines are welcome everywhere on this site.
+User-agent: *
+Allow: /
+
+Sitemap: https://ffrusdev.github.io/sitemap-index.xml
