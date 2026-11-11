@@ -14,7 +14,9 @@ linkLabel: "▶ PLAY THE DEMO"
 theme: cooked # night sea + lanterns + pixel bubbles (see ProjectShowcase.astro)
 titleHighlight: "COOKED!"
 video: "https://youtu.be/RPcMJywCvyE"
-poster: "/projects/we-are-cooked/poster.webp"
+logo: "/projects/we-are-cooked/logo.webp"
+adLine: "★ FREE DEMO ON ITCH.IO ★"
+poster: "/projects/we-are-cooked/key-art.webp" # splash screen art
 posterWide: true
 context: "University team project · demo out on itch.io"
 stamp: "4 CHEFS"

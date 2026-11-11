@@ -30,6 +30,8 @@ const projects = defineCollection({
     // plain text layout to the showcase layout. See a-way-end.md.
     video: z.string().optional(), // YouTube link, plays on the big-screen TV
     poster: z.string().optional(), // key art, e.g. /projects/a-way-end/poster.webp
+    logo: z.string().optional(), // game logo (transparent .webp): an ad cutout above the key art + printed on it
+    adLine: z.string().optional(), // small line under the logo on the ad cutout, e.g. "★ FREE DEMO ON ITCH.IO ★"
     posterWide: z.boolean().default(false), // true for landscape (16:9) key art: gives it a wider column
     context: z.string().optional(), // e.g. "Semester 2 project"
     stamp: z.string().optional(), // short text in the round stamp, e.g. "SEM 02"

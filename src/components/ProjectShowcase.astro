@@ -32,6 +32,18 @@ const hi = d.titleHighlight && d.title.includes(d.titleHighlight) ? d.titleHighl
 const [titleBefore, titleAfter] = hi ? d.title.split(hi) : [d.title, ''];
 // Background particles: embers for 'ember', bubbles for 'cooked'.
 const particles = d.theme === 'cooked' ? 14 : 9;
+
+// The logo sits on a piece of paper cut out of a magazine ad: a jagged,
+// scissor-cut outline. Points go round the edge with a small random dent
+// each (sin() as a repeatable "random", so every build cuts the same shape).
+const jag = (i: number) => Math.abs((Math.sin(i * 91.3) * 7919.17) % 1) * 3.2; // 0-3.2% inward
+const cut: string[] = [];
+const STEPS = 16;
+for (let i = 0; i <= STEPS; i++) cut.push(`${(i / STEPS) * 100}% ${jag(i)}%`); // top
+for (let i = 1; i <= 8; i++) cut.push(`${100 - jag(i + 40)}% ${(i / 8) * 100}%`); // right
+for (let i = STEPS - 1; i >= 0; i--) cut.push(`${(i / STEPS) * 100}% ${100 - jag(i + 80)}%`); // bottom
+for (let i = 7; i >= 1; i--) cut.push(`${jag(i + 120)}% ${(i / 8) * 100}%`); // left
+const cutoutClip = `polygon(${cut.join(', ')})`;
 ---
 
 <div class="screen-page sc" data-theme={d.theme}>
@@ -62,13 +74,28 @@ const particles = d.theme === 'cooked' ? 14 : 9;
       </div>
     </div>
 
-    {d.poster && (
-      <figure class="sc-poster">
-        <span class="sc-tape" aria-hidden="true"></span>
-        <img src={d.poster} width={d.posterWide ? 1131 : 900} height={d.posterWide ? 636 : 1284} alt={`${d.title} key art`} />
-      </figure>
+    {/* right column: the game's logo (optional) above the taped-on key art */}
+    {(d.poster || d.logo) && (
+      <div class="sc-art">
+        {d.logo && (
+          <div class="sc-cutout" style={`--cut: ${cutoutClip}`}>
+            <img class="sc-logo" src={d.logo} width="900" height="352" alt={`${d.title} logo`} />
+            {d.adLine && <p class="sc-adline">{d.adLine}</p>}
+          </div>
+        )}
+        {d.poster && (
+          <figure class="sc-poster">
+            <span class="sc-tape" aria-hidden="true"></span>
+            <img src={d.poster} width={d.posterWide ? 1280 : 900} height={d.posterWide ? 720 : 1284} alt={`${d.title} key art`} />
+            {/* the logo again, printed on the key art like a game cover */}
+            {d.logo && <img class="sc-art-logo" src={d.logo} width="900" height="352" alt="" />}
+            {/* wide key art: the stamp sits on its bottom-right corner */}
+            {d.stamp && d.posterWide && <span class="sc-stamp sc-stamp--corner" aria-hidden="true">{d.stamp}</span>}
+          </figure>
+        )}
+      </div>
     )}
-    {d.stamp && <span class="sc-stamp" aria-hidden="true">{d.stamp}</span>}
+    {d.stamp && !d.posterWide && <span class="sc-stamp" aria-hidden="true">{d.stamp}</span>}
   </header>
 
   <!-- ===== gameplay on the big-screen TV ===== -->
@@ -231,6 +258,33 @@ const particles = d.theme === 'cooked' ? 14 : 9;
       var(--e-cream) 8px 11px, transparent 11px 12px);
   }
 
+  /* right column: logo + key art */
+  .sc-art { position: relative; z-index: 1; display: flex; flex-direction: column; gap: clamp(14px, 2vw, 24px); }
+  .sc-hero--wide .sc-art { align-self: start; } /* sit at the top of the card, not floating in the middle */
+  /* the logo as a magazine-ad cutout: a scrap of halftone paper with a
+     jagged scissor edge. The paper is drawn by ::before (clipped to the
+     jagged shape in --cut); the drop-shadow on the wrapper follows that shape. */
+  .sc-cutout {
+    position: relative; padding: 16px 20px 14px; transform: rotate(-3deg);
+    filter: drop-shadow(6px 6px 0 rgba(0, 0, 0, 0.55));
+  }
+  .sc-cutout::before {
+    content: ''; position: absolute; inset: 0; clip-path: var(--cut);
+    background:
+      radial-gradient(rgba(12, 26, 46, 0.13) 1px, transparent 1.4px) 0 0 / 5px 5px, /* halftone dots */
+      linear-gradient(170deg, #f4ecd8, #e6dcc3);
+  }
+  .sc-logo { position: relative; display: block; width: 100%; height: auto; }
+  .sc-adline {
+    position: relative; margin: 6px 0 0; text-align: center;
+    font-family: var(--font-display); font-size: 11px; letter-spacing: 2px; color: var(--e-brown);
+  }
+  /* logo printed on the key art */
+  .sc-poster .sc-art-logo { /* .sc-poster prefix: beats the `.sc-poster img` frame styles */
+    position: absolute; z-index: 1; left: 50%; top: 5%; width: 54%; height: auto;
+    transform: translateX(-50%) rotate(-4deg); border: 0; box-shadow: none;
+    filter: drop-shadow(3px 3px 0 rgba(0, 0, 0, 0.65));
+  }
   /* key art, pinned to the card with tape */
   .sc-poster { position: relative; z-index: 1; margin: 0; transform: rotate(2.5deg); }
   /* landscape key art needs a wider column than a tall poster */
@@ -250,6 +304,11 @@ const particles = d.theme === 'cooked' ? 14 : 9;
     border: 3px solid var(--e-ember); color: var(--e-ember);
     font-family: var(--font-display); font-size: 14px; letter-spacing: 1px; text-align: center;
     transform: rotate(-14deg); opacity: 0.85;
+  }
+  /* on wide key art: stamped half over the bottom-right corner */
+  .sc-poster .sc-stamp--corner {
+    right: -22px; bottom: -26px; width: 80px; height: 80px; font-size: 12px; opacity: 0.95;
+    background: rgba(6, 16, 26, 0.55);
   }
 
   /* embers: tiny square sparks floating up, choppy like low-fps sprites.
@@ -364,9 +423,9 @@ const particles = d.theme === 'cooked' ? 14 : 9;
   /* ---------- narrow screens ---------- */
   @media (max-width: 760px) {
     .sc-hero { grid-template-columns: minmax(0, 1fr); }
-    .sc-poster { max-width: 260px; justify-self: center; }
+    .sc-art { width: 100%; max-width: 260px; justify-self: center; }
     .sc-hero--wide { grid-template-columns: minmax(0, 1fr); }
-    .sc-hero--wide .sc-poster { max-width: 420px; }
+    .sc-hero--wide .sc-art { max-width: 420px; margin-bottom: 22px; } /* room for the corner stamp */
     /* stamped on the poster's bottom corner, clear of the title */
     .sc-stamp { right: 14px; bottom: 26px; width: 70px; height: 70px; font-size: 12px; }
   }
