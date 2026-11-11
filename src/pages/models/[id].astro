@@ -39,11 +39,6 @@ const stillsNum = film.stills?.length ? pad(++n) : '';
   channel={3}
   description={`${film.name}, a short 3D animated film by Nabil Luqman (frus), and its 3D models viewable in the browser with a PS2 filter.`}
 >
-  <Fragment slot="head">
-    <!-- Dela Gothic One: a heavy, slightly quirky display face for the big titles. -->
-    <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap" rel="stylesheet" />
-  </Fragment>
-
   <div class="screen-page fm" data-theme={film.theme}>
     <p class="fm-crumb"><a href="/models/">◂ ALL FILMS</a> &nbsp;/&nbsp; CH03 // SPECIMEN VIEWER</p>
 
@@ -254,7 +249,7 @@ const stillsNum = film.stills?.length ? pad(++n) : '';
     --x-ink: #15130f;
     --x-steel: #3a352d;
     --x-grey: #8c867a;
-    --x-display: 'Dela Gothic One', 'Silkscreen', system-ui, sans-serif;
+    --x-display: var(--font-display); /* the site's pixel display font, like every other page */
     --tv-brand-font: var(--x-display);
     /* title card colours: set per theme below */
     --x-title: var(--x-ink);
@@ -316,7 +311,7 @@ const stillsNum = film.stills?.length ? pad(++n) : '';
     margin: 0 0 10px;
     font-family: var(--font-display); font-size: 12px; letter-spacing: 3px; color: var(--x-steel);
   }
-  .fm-title { margin: 0; font-family: var(--x-display); font-weight: 400; line-height: 0.86; }
+  .fm-title { margin: 0; font-family: var(--x-display); font-weight: 700; line-height: 0.86; }
   .fm-title-main {
     display: block; color: var(--x-title);
     /* a 6-letter title is ~5.4x as wide as the font size, so ~17cqi always fits */
@@ -370,11 +365,11 @@ const stillsNum = film.stills?.length ? pad(++n) : '';
     background: repeating-linear-gradient(90deg, var(--x-steel) 0 1px, transparent 1px 16px) bottom / 100% 8px no-repeat;
   }
   .fm-num {
-    font-family: var(--x-display); font-size: clamp(44px, 9vw, 104px); line-height: 0.8;
+    font-family: var(--x-display); font-weight: 700; font-size: clamp(44px, 9vw, 104px); line-height: 0.8;
     color: transparent; -webkit-text-stroke: 2px var(--x-grey);
   }
   .fm-spec-head h2 {
-    margin: 0; font-family: var(--x-display); font-weight: 400;
+    margin: 0; font-family: var(--x-display); font-weight: 700;
     font-size: clamp(24px, 6.4vw, 56px); color: var(--x-cream); letter-spacing: 0.02em;
   }
   .fm-role { margin: 4px 0 0; color: var(--x-grey); font-size: 22px; }

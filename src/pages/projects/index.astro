@@ -12,6 +12,10 @@ const shelves = [
   { id: '2d', title: '2D GAMES', note: 'sprites, tiles and pixels.' },
   { id: 'work', title: 'DAY SHIFT', note: 'what I build at work.' },
 ] as const;
+
+// Card thumbnail: the project's key art (`poster`), else its first gallery
+// image. Projects with neither get a "NO SIGNAL" screen instead.
+const thumbOf = (p: (typeof projects)[number]) => p.data.poster ?? p.data.gallery?.[0]?.src;
 ---
 
 <Base title="Projects" channel={1} description="3D, multiplayer and 2D games by Nabil Luqman (frus).">
@@ -29,6 +33,11 @@ const shelves = [
             <div class="card-grid">
               {items.map((p) => (
                 <a class="card" href={`/projects/${p.id}/`}>
+                  <span class="thumb" aria-hidden="true">
+                    {thumbOf(p)
+                      ? <img src={thumbOf(p)} alt="" loading="lazy" />
+                      : <span class="thumb-nosignal">NO SIGNAL</span>}
+                  </span>
                   <span class={`status status--${p.data.status}`}>{statusLabel[p.data.status]}</span>
                   <h3>{p.data.title}</h3>
                   <span class="tag">{p.data.role} · {p.data.year}</span>
@@ -43,3 +52,30 @@ const shelves = [
     })}
   </div>
 </Base>
+
+<style>
+  /* the thumbnail fills the top of the card, edge to edge, like a little TV screen */
+  .thumb {
+    position: relative; display: block; margin: -18px -18px 4px; aspect-ratio: 16 / 9;
+    overflow: hidden; background: #050605; border-bottom: 1px solid var(--line);
+  }
+  .thumb img {
+    width: 100%; height: 100%; object-fit: cover; object-position: 50% 22%; /* tall posters: keep the title + hero in frame */
+    filter: saturate(0.9) brightness(0.9); transition: transform 0.3s, filter 0.3s;
+  }
+  /* scanlines over the picture */
+  .thumb::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.22) 0 1px, transparent 1px 4px);
+    box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.6);
+  }
+  .card:hover .thumb img, .card:focus-visible .thumb img { transform: scale(1.04); filter: saturate(1.05) brightness(1); }
+  .thumb-nosignal {
+    display: grid; place-items: center; width: 100%; height: 100%;
+    font-family: var(--font-display); font-size: 18px; letter-spacing: 4px; color: var(--phosphor-dim);
+    background:
+      radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px) 0 0 / 3px 3px,
+      radial-gradient(ellipse at center, #121611, #050605 75%);
+  }
+  @media (prefers-reduced-motion: reduce) { .thumb img { transition: none; } }
+</style>

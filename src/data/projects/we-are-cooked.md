@@ -8,7 +8,7 @@ summary: "A 2 vs 2 online cooking-chaos game: cook real dishes with out-of-this-
 tags: ["3D", "online multiplayer", "2v2 co-op", "team of 4", "Unity 6"]
 order: 1
 link: "https://tzoik.itch.io/we-are-cooked"
-linkLabel: "▶ PLAY THE DEMO"
+linkLabel: "▶ PLAY THE DEMO ON ITCH.IO"
 
 # ---- showcase page ----
 theme: cooked # night sea + lanterns + pixel bubbles (see ProjectShowcase.astro)
