@@ -2,13 +2,12 @@
 // Shown by GitHub Pages for any address that doesn't exist on the site.
 // Looks like the TV tuned to an empty channel: colour bars and NO SIGNAL.
 import Base from '../layouts/Base.astro';
+import TestBars from '../components/TestBars.astro';
 ---
 
 <Base title="No Signal" channel={99} description="This channel doesn't exist. Try another one.">
   <div class="screen-page nosignal-page">
-    <div class="bars" aria-hidden="true">
-      <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-    </div>
+    <TestBars />
 
     <h1>NO SIGNAL</h1>
     <p class="dim">ERROR 404 · THIS CHANNEL ISN'T BROADCASTING</p>
@@ -27,24 +26,6 @@ import Base from '../layouts/Base.astro';
     margin-top: 24px;
     animation: blink 1.6s steps(1) infinite;
   }
-
-  /* classic TV test-card colour bars */
-  .bars {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    height: clamp(90px, 22vw, 180px);
-    max-width: 640px;
-    margin: 8px auto 0;
-    border: 2px solid var(--phosphor-dim);
-    opacity: 0.85;
-  }
-  .bars span:nth-child(1) { background: #c0c0c0; }
-  .bars span:nth-child(2) { background: #c0c000; }
-  .bars span:nth-child(3) { background: #00c0c0; }
-  .bars span:nth-child(4) { background: #00c000; }
-  .bars span:nth-child(5) { background: #c000c0; }
-  .bars span:nth-child(6) { background: #c00000; }
-  .bars span:nth-child(7) { background: #0000c0; }
 
   .home-btn {
     display: inline-block;

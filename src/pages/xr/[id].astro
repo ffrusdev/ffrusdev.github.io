@@ -4,7 +4,8 @@ import Base from '../../layouts/Base.astro';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
-  const projects = await getCollection('xr');
+  // Drafts (draft: true) get no page at all.
+  const projects = await getCollection('xr', (p) => !p.data.draft);
   return projects.map((entry) => ({ params: { id: entry.id }, props: { entry } }));
 }
 

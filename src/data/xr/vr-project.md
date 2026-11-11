@@ -6,6 +6,7 @@ role: "Solo dev · design + Unity"
 year: "2026"
 summary: "[One line: what you do in it, and what's special about it.]"
 tags: ["Unity", "XR Interaction Toolkit", "[OpenXR]"]
+draft: true # still a template: hidden from the site. Fill it in, then delete this line.
 order: 1
 # video: "https://www.youtube.com/watch?v=XXXXXXXXXXX"   # paste a YouTube link and it embeds itself
 # link: "https://frus.itch.io/[project]"

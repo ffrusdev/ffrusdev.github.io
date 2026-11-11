@@ -1,25 +1,53 @@
 ---
 import Base from '../../layouts/Base.astro';
+import TestBars from '../../components/TestBars.astro';
 import { getCollection } from 'astro:content';
 
-const projects = (await getCollection('xr')).sort((a, b) => a.data.order - b.data.order);
+// Drafts (draft: true in the .md file) stay hidden. With nothing ready yet,
+// the channel shows a "COMING SOON / PLEASE STAND BY" test card instead.
+const projects = (await getCollection('xr', (p) => !p.data.draft)).sort((a, b) => a.data.order - b.data.order);
 ---
 
-<Base title="XR" channel={2} description="VR and mixed reality projects by Nabil Luqman (frus).">
+<Base title="XR" channel={2} description="VR and mixed reality projects by Nabil Luqman (frus). Coming soon.">
   <div class="screen-page">
     <h1>CH02 // XR</h1>
     <p class="dim">signals from other realities. headset not included.</p>
 
-    <div class="card-grid">
-      {projects.map((p) => (
-        <a class="card" href={`/xr/${p.id}/`}>
-          <span class={`status status--${p.data.kind.toLowerCase()}`}>◉ {p.data.kind} · {p.data.headset}</span>
-          <h2>{p.data.title}</h2>
-          <span class="tag">{p.data.role} · {p.data.year}</span>
-          <span>{p.data.summary}</span>
-          {p.data.tags.length > 0 && <span class="tag">{p.data.tags.join(' · ')}</span>}
-        </a>
-      ))}
-    </div>
+    {projects.length > 0 ? (
+      <div class="card-grid">
+        {projects.map((p) => (
+          <a class="card" href={`/xr/${p.id}/`}>
+            <span class={`status status--${p.data.kind.toLowerCase()}`}>◉ {p.data.kind} · {p.data.headset}</span>
+            <h2>{p.data.title}</h2>
+            <span class="tag">{p.data.role} · {p.data.year}</span>
+            <span>{p.data.summary}</span>
+            {p.data.tags.length > 0 && <span class="tag">{p.data.tags.join(' · ')}</span>}
+          </a>
+        ))}
+      </div>
+    ) : (
+      <div class="standby">
+        <TestBars />
+        <p class="soon">COMING SOON</p>
+        <p class="dim">PLEASE STAND BY · VR &amp; MIXED REALITY PROJECTS IN PRODUCTION</p>
+      </div>
+    )}
   </div>
 </Base>
+
+<style>
+  .standby { text-align: center; margin-top: 32px; }
+  .standby p { margin-inline: auto; }
+  .soon {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(36px, 8vw, 80px);
+    letter-spacing: 6px;
+    line-height: 1.05;
+    color: var(--phosphor);
+    margin: 24px auto 8px;
+    animation: blink 1.6s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0.35; } }
+  @media (prefers-reduced-motion: reduce) { .soon { animation: none; } }
+</style>

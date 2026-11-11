@@ -1,0 +1,26 @@
+---
+// Classic TV test-card colour bars. Used by the 404 page and "coming soon" screens.
+---
+
+<div class="bars" aria-hidden="true">
+  <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+</div>
+
+<style>
+  .bars {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    height: clamp(90px, 22vw, 180px);
+    max-width: 640px;
+    margin: 8px auto 0;
+    border: 2px solid var(--phosphor-dim);
+    opacity: 0.85;
+  }
+  .bars span:nth-child(1) { background: #c0c0c0; }
+  .bars span:nth-child(2) { background: #c0c000; }
+  .bars span:nth-child(3) { background: #00c0c0; }
+  .bars span:nth-child(4) { background: #00c000; }
+  .bars span:nth-child(5) { background: #c000c0; }
+  .bars span:nth-child(6) { background: #c00000; }
+  .bars span:nth-child(7) { background: #0000c0; }
+</style>

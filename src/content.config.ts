@@ -62,6 +62,7 @@ const xr = defineCollection({
     order: z.number().default(99), // lower = shown first
     video: z.string().optional(), // YouTube link (gets embedded) or any video URL (shown as a link)
     link: z.string().optional(), // itch / Meta store / GitHub URL
+    draft: z.boolean().default(false), // true = hidden from the site until it's ready
   }),
 });
 
