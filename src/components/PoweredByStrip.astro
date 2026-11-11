@@ -1,0 +1,143 @@
+---
+// A strip of "POWERED BY" buttons (old-web 88x31 style) that slowly scrolls
+// to the left forever, like the sponsor line under a TV ad.
+//
+// Each button is built at the classic tiny size and scaled up 2x, like the
+// sticker on the film TVs (EngineBadge.astro), so the pixel font and pixel
+// logos stay crisp. Logos live in public/logos/ (made with
+// scripts/pixel-logo.mjs). Apps without a logo file get a two-letter tile.
+// The list is drawn twice in a row; the track moves left by exactly one copy
+// and jumps back, which makes the loop seamless.
+//
+// The strip is shown on a little CRT tube: the moving buttons get red/blue
+// colour fringing (SVG filter below), with scanlines, a rolling bar and glass on top.
+interface Tool {
+  name: string;
+  sub?: string;
+  logo?: string; // pixel logo in public/logos/
+  tile?: { text: string; fg: string; bg: string }; // two-letter app tile instead of a logo
+}
+const tools: Tool[] = [
+  { name: 'UNITY', logo: '/logos/unity-6.png' },
+  { name: 'UNREAL', sub: 'ENGINE 5', logo: '/logos/unreal.png' },
+  { name: 'BLENDER', logo: '/logos/blender.png' },
+  { name: 'ASEPRITE', logo: '/logos/aseprite.png' },
+  { name: 'PHOTOSHOP', tile: { text: 'Ps', fg: '#31a8ff', bg: '#001e36' } },
+  { name: 'SUBSTANCE', sub: '3D PAINTER', tile: { text: 'Pt', fg: '#7df0c8', bg: '#0b2b25' } },
+  { name: 'ILLUSTRATOR', tile: { text: 'Ai', fg: '#ff9a00', bg: '#330000' } },
+];
+---
+
+<div class="pb" aria-label={`Powered by ${tools.map((t) => [t.name, t.sub].filter(Boolean).join(' ').toLowerCase()).join(', ')}`} role="img">
+  <div class="pb-screen" data-pb-screen>
+  <div class="pb-track" aria-hidden="true">
+    {[0, 1].map(() => (
+      <span class="pb-copy">
+        {tools.map((t) => (
+          <span class="pb-slot">
+            <span class="pb-btn">
+              {t.logo
+                ? <img class="pb-logo" src={t.logo} alt="" height="18" />
+                : <span class="pb-tile" style={`color:${t.tile!.fg};background:${t.tile!.bg};border-color:${t.tile!.fg}`}>{t.tile!.text}</span>}
+              <span class="pb-text"><small>POWERED BY</small><b>{t.name}</b>{t.sub && <span>{t.sub}</span>}</span>
+            </span>
+          </span>
+        ))}
+      </span>
+    ))}
+  </div>
+  </div>
+  <!-- CRT tube look on top (click-through) -->
+  <span class="pb-scan" aria-hidden="true"></span>
+  <span class="pb-roll" aria-hidden="true"></span>
+  <span class="pb-glass" aria-hidden="true"></span>
+  <!-- colour fringing: the red and blue parts land a little apart, like a worn tube -->
+  <svg class="sr-defs" width="0" height="0" aria-hidden="true" focusable="false">
+    <filter id="pb-crt" color-interpolation-filters="sRGB">
+      <feColorMatrix in="SourceGraphic" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="red" />
+      <feOffset in="red" dx="-1.5" dy="0" result="redShift" />
+      <feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="green" />
+      <feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="blue" />
+      <feOffset in="blue" dx="1.5" dy="0" result="blueShift" />
+      <feBlend in="redShift" in2="green" mode="screen" result="rg" />
+      <feBlend in="rg" in2="blueShift" mode="screen" />
+    </filter>
+  </svg>
+</div>
+
+<script>
+  // Safari draws SVG filters on normal HTML unreliably (text can vanish),
+  // so it skips the colour fringing and keeps the rest of the TV look.
+  const isSafari = /^((?!chrome|chromium|android|crios|fxios|edg).)*safari/i.test(navigator.userAgent);
+  if (!isSafari) document.querySelectorAll('[data-pb-screen]').forEach((el) => el.classList.add('is-fringed'));
+</script>
+
+<style>
+  /* the tube: dark glass with rounded corners in a thin bezel */
+  .pb {
+    position: relative; overflow: hidden; overflow: clip; width: 100%;
+    border: 3px solid #1c1a17; border-radius: 14px / 12px;
+    background: radial-gradient(ellipse at 50% 50%, #15140f, #08080a 80%);
+    box-shadow: 0 0 0 1px #2e2b26, inset 0 0 18px rgba(0, 0, 0, 0.9);
+  }
+  .pb-screen {
+    padding: 6px 0;
+    /* fade the ends so buttons slide in and out of view softly */
+    mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  }
+  .pb-screen.is-fringed { filter: url(#pb-crt); }
+  /* scanlines + a faint red/green/blue phosphor grid, with a slight flicker */
+  .pb-scan, .pb-roll, .pb-glass { position: absolute; inset: 0; pointer-events: none; }
+  .pb-scan {
+    background:
+      repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.42) 0 1px, transparent 1px 3px),
+      repeating-linear-gradient(90deg, rgba(255, 60, 60, 0.07) 0 1px, rgba(60, 255, 120, 0.07) 1px 2px, rgba(60, 120, 255, 0.07) 2px 3px);
+    animation: pb-flicker 3.2s steps(1) infinite;
+  }
+  /* a soft bright bar rolling down the tube */
+  .pb-roll {
+    background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.07) 45%, rgba(255, 255, 255, 0.11) 50%, transparent);
+    height: 60%; top: -60%; bottom: auto;
+    animation: pb-roll 5.5s linear infinite;
+  }
+  /* curved glass: dark corners + a diagonal sheen */
+  .pb-glass {
+    border-radius: inherit;
+    background:
+      linear-gradient(170deg, rgba(255, 255, 255, 0.07) 0 30%, rgba(255, 255, 255, 0) 30.5%),
+      radial-gradient(ellipse 75% 140% at 50% 50%, transparent 60%, rgba(0, 0, 0, 0.6));
+  }
+  @keyframes pb-roll { to { transform: translateY(270%); } }
+  @keyframes pb-flicker { 0%, 100% { opacity: 1; } 47% { opacity: 0.85; } 49% { opacity: 1; } 83% { opacity: 0.92; } }
+  .pb-track { display: flex; width: max-content; animation: pb-scroll 40s linear infinite; }
+  .pb:hover .pb-track { animation-play-state: paused; }
+  .pb-copy { display: flex; }
+  @keyframes pb-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* each slot reserves the 2x-scaled size of its button */
+  .pb-slot { display: block; width: 208px; height: 62px; margin-right: 14px; }
+  .pb-btn {
+    display: flex; align-items: center; gap: 3px; width: 104px; height: 31px; padding: 2px 3px;
+    transform: scale(2); transform-origin: top left;
+    background: linear-gradient(180deg, #4a4741, #1b1a17 55%, #0e0d0b);
+    border: 1px solid #000;
+    box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.35), inset -1px -1px 0 rgba(0, 0, 0, 0.8);
+    font-family: var(--font-display); font-size: 8px; line-height: 8px; color: #f2eee6; white-space: nowrap;
+  }
+  .pb-logo { flex: none; width: auto; height: 18px; margin: 0 1px 0 2px; image-rendering: pixelated; }
+  .pb-tile {
+    flex: none; display: grid; place-items: center; width: 18px; height: 18px; margin: 0 1px 0 2px;
+    border: 1px solid; border-radius: 2px; font-size: 8px; line-height: 1; letter-spacing: -0.5px;
+  }
+  .pb-text { display: flex; flex-direction: column; color: #a9a397; }
+  .pb-text small { font-size: 6px; letter-spacing: 0.3px; }
+  .pb-text b { color: #fff; font-weight: 700; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pb-track, .pb-scan, .pb-roll { animation: none; }
+  }
+  @media (max-width: 560px) {
+    .pb-slot { width: 156px; height: 47px; margin-right: 10px; }
+    .pb-btn { transform: scale(1.5); }
+  }
+</style>

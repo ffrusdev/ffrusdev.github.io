@@ -21,6 +21,7 @@ npm run build      # makes the production site in /dist
 | Give a project a showcase page | In its `.md`, fill in `video:` (YouTube) and/or `poster:`, plus optional `context`, `stamp`, `tools` and `gallery` (see `src/data/projects/a-way-end.md`). Put its images in `public/projects/<name>/` |
 | Add / edit a VR/MR project | Add a `.md` file in `src/data/xr/` (copy an existing one). Paste a YouTube link in `video:` and it embeds itself |
 | Post a dev log | Add a `.md` file in `src/data/devlog/` (name it `YYYY-MM-DD-title.md`) |
+| Change the homepage highlight reel | Edit the `ads` list at the top of `src/components/HighlightReel.astro` (image, title, tagline, button text, link). The "POWERED BY" tools strip is the `tools` list in `src/components/PoweredByStrip.astro` |
 | Add a short film to CH03 | Copy a film entry in `src/data/models.ts` (title, YouTube `video`, story, stills, models). It gets a card on `/models/` and its own page at `/models/<id>/` |
 | Add a 3D model to a film | Export from Blender as `.glb` with **Limit to → Selected Objects** and **Compression** on (see `public/models/README.txt`), put it in `public/models/` and its render in the film's folder in `public/`, then add it to that film's `specimens` |
 | Add a CV | Put `cv.pdf` in `public/` |

@@ -1,4 +1,9 @@
-// Fish-eye / barrel distortion for the homepage TV screen.
+// Fish-eye / barrel distortion for CRT screens (the homepage TV).
+//
+// USE: give the element to bend `data-crt-warp="<id of an SVG filter>"` and
+// optionally `data-crt-strength="0.06"`. The filter needs an <feImage> and an
+// <feDisplacementMap> (see Tv.astro). This script draws
+// the map for that element's size and switches the filter on.
 //
 // HOW IT WORKS
 // SVG's <feDisplacementMap> moves every pixel of an element by an amount read
@@ -11,18 +16,18 @@
 //
 // The map depends on the screen's size, so we redraw it whenever that changes.
 
-const STRENGTH = 0.1; // 0 = flat glass. Higher = more bulge (0.05–0.1 looks right)
-
-const warp = document.querySelector<HTMLElement>('.tv-warp');
-const filter = document.getElementById('crt-barrel');
-const feImage = filter?.querySelector('feImage');
-const feDisp = filter?.querySelector('feDisplacementMap');
+const DEFAULT_STRENGTH = 0.1; // 0 = flat glass. Higher = more bulge (0.05–0.1 looks right)
 
 // Safari draws SVG filters on normal HTML unreliably (the text can vanish).
 // It just gets the flat-glass CSS look instead; that's still curved-looking.
 const isSafari = /^((?!chrome|chromium|android|crios|fxios|edg).)*safari/i.test(navigator.userAgent);
 
-if (warp && filter && feImage && feDisp && !isSafari) {
+function setUp(warp: HTMLElement) {
+  const filter = document.getElementById(warp.dataset.crtWarp ?? '');
+  const feImage = filter?.querySelector('feImage');
+  const feDisp = filter?.querySelector('feDisplacementMap');
+  if (!filter || !feImage || !feDisp) return;
+  const STRENGTH = Number(warp.dataset.crtStrength) || DEFAULT_STRENGTH;
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
 
@@ -64,9 +69,12 @@ if (warp && filter && feImage && feDisp && !isSafari) {
     }
     feImage.setAttribute('href', canvas.toDataURL());
     feDisp.setAttribute('scale', scale.toFixed(2));
-    warp.classList.add('is-warped'); // CSS: filter: url(#crt-barrel)
+    warp.style.filter = `url(#${filter.id})`;
+    warp.classList.add('is-warped');
   };
 
   draw(); // right away, so the bend is there from the first frame
   new ResizeObserver(draw).observe(warp); // and again whenever the screen changes size
 }
+
+if (!isSafari) document.querySelectorAll<HTMLElement>('[data-crt-warp]').forEach(setUp);

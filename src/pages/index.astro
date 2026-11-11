@@ -1,6 +1,8 @@
 ---
 import Base from '../layouts/Base.astro';
 import Tv from '../components/Tv.astro';
+import HighlightReel from '../components/HighlightReel.astro';
+import SiteFooter from '../components/SiteFooter.astro';
 import { getCollection } from 'astro:content';
 import { channels, chLabel } from '../data/channels';
 
@@ -53,4 +55,8 @@ const latest = (await getCollection('devlog')).sort(
       <p style="margin: 0; font-size: 20px">tip: ← → change channel · sound is off until you turn it on</p>
     </aside>
   </div>
+
+  <!-- scroll down: the tape goes into the VCR and the highlight reel plays -->
+  <HighlightReel />
+  <SiteFooter />
 </Base>
