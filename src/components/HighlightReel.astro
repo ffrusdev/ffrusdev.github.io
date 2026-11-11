@@ -1,16 +1,16 @@
 ---
 import PoweredByStrip from './PoweredByStrip.astro';
-// "Highlight reel" for the homepage: scroll down and a big VHS cassette
-// slides up from in front of the monitor into the VCR's slot, the monitor
+// "Highlight reel" for the homepage: a big VHS cassette sits in front of the
+// monitor. Scroll down and it slides up into the VCR's slot, the monitor
 // powers on, and it plays a TV-commercial style reel of your work (stills,
 // key art, logos). Scroll back up to eject.
 //
 // How it works:
 //  - The section is tall (230vh) and its contents stick to the screen, so
-//    scrolling through it "scrubs" the insert animation (--e = tape rises
-//    into view, --t = tape slides up into the slot, both 0 → 1, set by the
-//    script below). The tape sits in a box whose top edge is the slot line,
-//    with overflow hidden, so it disappears exactly at the slot.
+//    scrolling through it "scrubs" the insert animation (--t = tape slides
+//    up into the slot, 0 → 1, set by the script below).
+//  - The tape sits in a box whose top edge is the slot line, with overflow
+//    hidden, so it disappears exactly at the slot as it slides up.
 //  - Once the tape is in, the screen turns on and the ads play on a timer.
 // Edit the ads in `ads` below. Each one links to its page.
 interface Ad {
@@ -128,7 +128,7 @@ const ads: Ad[] = [
       <!-- sponsor line under the screen: tool logos scrolling left -->
       <PoweredByStrip />
 
-      <!-- the cassette: starts in front of the (dark) monitor and slides up
+      <!-- the cassette: sits in front of the (dark) monitor and slides up
            into the slot. This box starts at the slot line and clips the tape. -->
       <div class="reel-insert" aria-hidden="true">
         <div class="reel-tape">
@@ -216,18 +216,18 @@ const ads: Ad[] = [
     }
 
     // Scroll position inside the section → insert animation.
-    //   0.00–0.15  tape flies in      (--e)
-    //   0.15–0.45  tape sinks in      (--t)
-    //   0.45+      loaded: screen on, ads play
+    //   0.00–0.05  tape sits in front of the monitor, just under the VCR
+    //   0.05–0.35  tape slides into the slot (--t)
+    //   0.35+      loaded: screen on, ads play
     let queued = false;
     function update() {
       queued = false;
       const r = reel.getBoundingClientRect();
       const travel = reel.offsetHeight - window.innerHeight;
       const p = travel > 0 ? clamp(-r.top / travel) : 1;
-      reel.style.setProperty('--e', String(clamp(p / 0.15)));
-      reel.style.setProperty('--t', String(clamp((p - 0.15) / 0.3)));
-      const shouldPlay = p >= 0.45;
+      const t = clamp((p - 0.05) / 0.3);
+      reel.style.setProperty('--t', String(t));
+      const shouldPlay = p >= 0.35;
       if (shouldPlay !== loaded) (shouldPlay ? load : eject)();
     }
     const onScroll = () => {
@@ -240,7 +240,6 @@ const ads: Ad[] = [
     if (reduceMotion) {
       // No scroll animation: the tape is already in and the reel just plays.
       reel.classList.add('reel--static');
-      reel.style.setProperty('--e', '1');
       reel.style.setProperty('--t', '1');
       load();
     } else {
@@ -259,7 +258,7 @@ const ads: Ad[] = [
 
 <style>
   /* margin-top pulls it up over the homepage's bottom padding, so there's less empty space above */
-  .reel { position: relative; height: 230vh; margin-top: -44px; --e: 0; --t: 0; }
+  .reel { position: relative; height: 230vh; margin-top: -44px; --t: 0; }
   .reel--static { height: auto; }
   .reel-sticky {
     position: sticky; top: 0; height: 100vh; overflow: hidden; overflow: clip;
@@ -269,7 +268,7 @@ const ads: Ad[] = [
   .reel--static .reel-sticky { position: static; height: auto; padding: 40px 16px; }
   .reel-hint {
     margin: 0; font-family: var(--font-display); font-size: 12px; letter-spacing: 3px; color: var(--phosphor-dim);
-    opacity: calc(1 - var(--e)); animation: blink 1.1s steps(1) infinite;
+    opacity: calc(1 - var(--t) * 3); animation: blink 1.1s steps(1) infinite;
   }
   .reel.is-on .reel-hint { visibility: hidden; }
 
@@ -462,10 +461,9 @@ const ads: Ad[] = [
     container-type: inline-size; /* inner sizes in cqw, so the whole tape scales together */
     border-radius: 2.5cqw; background: linear-gradient(180deg, #232220, #121110);
     box-shadow: inset 0 0 0 1cqw #2f2d2a, 0 14px 28px rgba(0, 0, 0, 0.7);
-    /* rises into view (--e), then slides up through the slot (--t) */
-    opacity: var(--e);
-    /* (in translate, 100% = the tape's own height, so -100% lifts it by exactly its height) */
-    transform: translate(-50%, calc((1 - var(--e)) * 70px - var(--t) * (var(--rest) + 6px) - var(--t) * 100%));
+    /* slides up through the slot as you scroll (--t)
+       (in translate, 100% = the tape's own height, so -100% lifts it by exactly its height) */
+    transform: translate(-50%, calc(-1 * var(--t) * (var(--rest) + 6px) - var(--t) * 100%));
   }
   .reel-label {
     position: absolute; left: 6%; right: 6%; top: 9%; height: 29%; padding: 0 4cqw;
@@ -485,7 +483,7 @@ const ads: Ad[] = [
     background: repeating-conic-gradient(#e9e4d4 0 12deg, #77736a 12deg 60deg);
     box-shadow: inset 0 0 0 4.6cqw #3a2f26;
     /* the reels turn while the tape is moving */
-    transform: rotate(calc(var(--t) * 540deg + var(--e) * 90deg));
+    transform: rotate(calc(var(--t) * 540deg));
   }
 
   /* ---------- phones / narrow: monitor on top, VCR underneath ---------- */
