@@ -15,8 +15,9 @@ interface Props {
   video: string; // any YouTube link: watch?v=, youtu.be/, shorts/
   title: string; // accessible name of the video
   brand?: [string, string]; // the little logo under the screen, e.g. ['XPH', 'VISION']
+  poster?: string; // own picture before PLAY is pressed; without it, YouTube's thumbnail is used
 }
-const { video, title, brand = ['FRUS', 'VISION'] } = Astro.props;
+const { video, title, brand = ['FRUS', 'VISION'], poster } = Astro.props;
 const youtubeId = video.match(/(?:v=|youtu\.be\/|shorts\/|embed\/)([\w-]{11})/)?.[1];
 
 // Sound-wave bars. Each bar gets its own height, speed and start offset so
@@ -46,15 +47,19 @@ const eqBars = Array.from({ length: 72 }, (_, i) => {
             sends a tiny 120x90 grey placeholder (not an error), so onload
             swaps to the always-available "hqdefault". */}
         <a class="stv-poster" href={`https://www.youtube.com/watch?v=${youtubeId}`} data-play aria-label={`Play ${title}`}>
-          <img
-            src={`https://i.ytimg.com/vi/${youtubeId}/maxresdefault.jpg`}
-            onerror={`this.onerror=null;this.src='https://i.ytimg.com/vi/${youtubeId}/hqdefault.jpg'`}
-            onload={`if(this.naturalWidth<=120&&!this.dataset.fb){this.dataset.fb=1;this.src='https://i.ytimg.com/vi/${youtubeId}/hqdefault.jpg'}`}
-            alt=""
-            width="1280"
-            height="720"
-            decoding="async"
-          />
+          {poster ? (
+            <img src={poster} alt="" width="1280" height="720" decoding="async" />
+          ) : (
+            <img
+              src={`https://i.ytimg.com/vi/${youtubeId}/maxresdefault.jpg`}
+              onerror={`this.onerror=null;this.src='https://i.ytimg.com/vi/${youtubeId}/hqdefault.jpg'`}
+              onload={`if(this.naturalWidth<=120&&!this.dataset.fb){this.dataset.fb=1;this.src='https://i.ytimg.com/vi/${youtubeId}/hqdefault.jpg'}`}
+              alt=""
+              width="1280"
+              height="720"
+              decoding="async"
+            />
+          )}
           <span class="stv-play" aria-hidden="true">▶ PLAY</span>
         </a>
         {/* glass: scanlines + vignette + glare. pointer-events: none lets clicks reach the video */}

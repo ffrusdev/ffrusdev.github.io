@@ -76,7 +76,7 @@ const stillsNum = film.stills?.length ? pad(++n) : '';
           </div>
         </header>
 
-        <ShowcaseTv video={film.video} title={`${film.name} (short film)`} brand={film.tvBrand}>
+        <ShowcaseTv video={film.video} title={`${film.name} (short film)`} brand={film.tvBrand} poster={film.videoPoster}>
           {film.engine && <EngineBadge slot="badge" {...film.engine} />}
         </ShowcaseTv>
       </section>

@@ -45,6 +45,7 @@ export type Film = {
   blurb: string; // one or two lines for the /models/ card
   thumb: string; // 320x180 card image (shown with chunky pixels)
   video: string; // YouTube link, plays on the big-screen TV
+  videoPoster?: string; // picture on the TV before PLAY is pressed (default: YouTube's thumbnail)
   tvBrand: [string, string]; // the TV's brand plate
   engine?: { mark: string; logo?: string; name: string; sub?: string }; // "powered by" sticker on the TV
   story?: string[]; // paragraphs for THE STORY section (optional)
@@ -74,6 +75,7 @@ export const films: Film[] = [
     blurb: 'A retro-future sci-fi short starring the MANTIS-07 starfighter. Hard-surface modelling, Substance Painter texturing and Cycles rendering.',
     thumb: '/xephos/thumb.webp',
     video: 'https://youtu.be/3Pyd8ZWJAlQ',
+    videoPoster: '/xephos/still-asteroid-ring.webp',
     tvBrand: ['XPH', 'VISION'],
     engine: { mark: 'UE5', logo: '/logos/unreal.png', name: 'UNREAL', sub: 'ENGINE 5' },
     renderLabel: 'RENDER // CYCLES',
