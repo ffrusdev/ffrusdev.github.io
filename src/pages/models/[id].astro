@@ -365,23 +365,32 @@ const stillsNum = film.stills?.length ? pad(++n) : '';
 
   /* ---------- section headers ---------- */
   .fm-spec { margin-top: clamp(40px, 6vw, 72px); }
+  /* Lining the big number up with the heading: every letter sits in a box with
+     empty space above and below it. The margins below cut that space off, so
+     the number's top = the title's top and its bottom = the subtitle's baseline.
+     Its size is worked out from the title size so the heights match:
+     number capitals (0.63em) = title (0.765 x size) + gap + subtitle line. */
   .fm-spec-head {
-    display: flex; align-items: flex-end; gap: 16px;
+    --h2-size: clamp(20px, 6.4vw, 56px);
+    display: flex; align-items: flex-start; gap: 16px;
     padding-bottom: 12px; margin-bottom: 18px;
     border-bottom: 3px solid var(--x-steel);
     /* ruler ticks under the line */
     background: repeating-linear-gradient(90deg, var(--x-steel) 0 1px, transparent 1px 16px) bottom / 100% 8px no-repeat;
   }
   .fm-num {
-    font-family: var(--x-display); font-weight: 700; font-size: clamp(44px, 9vw, 104px); line-height: 0.8;
+    font-family: var(--x-display); font-weight: 700; font-size: calc(1.214 * var(--h2-size) + 37.8px); line-height: 1;
+    margin: -0.26em 0 -0.11em; /* trim to the ink of the digits */
     color: var(--x-num-fill, transparent); -webkit-text-stroke: 2px var(--x-num-line, var(--x-grey));
     text-shadow: var(--x-num-echo, none);
   }
   .fm-spec-head h2 {
-    margin: 0; font-family: var(--x-display); font-weight: 700;
-    font-size: clamp(24px, 6.4vw, 56px); color: var(--x-cream); letter-spacing: 0.02em;
+    margin: -0.285em 0 0; /* trim to the top of the capitals */
+    font-family: var(--x-display); font-weight: 700; line-height: 1.05;
+    font-size: var(--h2-size); color: var(--x-cream); letter-spacing: 0.02em;
   }
-  .fm-role { margin: 4px 0 0; color: var(--x-grey); font-size: 22px; }
+  .fm-role { margin: 4px 0 0; color: var(--x-grey); font-size: 22px; line-height: 1.2; }
+  .fm-spec-head .fm-role { margin-bottom: -0.3em; /* trim to the baseline */ }
 
   /* the big-screen TV itself lives in src/components/ShowcaseTv.astro */
 
