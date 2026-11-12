@@ -265,6 +265,10 @@ const stillsNum = film.stills?.length ? pad(++n) : '';
     --x-title: #d8232a;
     --x-title-shadow: #2347d6;
     --x-stamp: #2347d6;
+    /* section numbers match the title: red print, blue misprint behind it */
+    --x-num-fill: #d8232a;
+    --x-num-line: #d8232a;
+    --x-num-echo: 5px 4px 0 #2347d6;
   }
   /* Hammer of Gods: hammered-iron title with an ember glow offset, a rust
      stamp, and ember for the few "lit" details (like coals in a dark forge). */
@@ -275,6 +279,10 @@ const stillsNum = film.stills?.length ? pad(++n) : '';
     --x-stamp: #b4451f;
     --x-hot: #e8762e;
     --tv-accent: #e8762e;
+    /* section numbers: dark hammered iron, ember-hot edges, a glow of coals */
+    --x-num-fill: #2a231d;
+    --x-num-line: #e8762e;
+    --x-num-echo: 4px 4px 0 #b4451f, 0 0 22px rgba(232, 118, 46, 0.45);
   }
 
   /* PS2-era "dither" on the page background: a faint 2x2 checker, the same
@@ -366,7 +374,8 @@ const stillsNum = film.stills?.length ? pad(++n) : '';
   }
   .fm-num {
     font-family: var(--x-display); font-weight: 700; font-size: clamp(44px, 9vw, 104px); line-height: 0.8;
-    color: transparent; -webkit-text-stroke: 2px var(--x-grey);
+    color: var(--x-num-fill, transparent); -webkit-text-stroke: 2px var(--x-num-line, var(--x-grey));
+    text-shadow: var(--x-num-echo, none);
   }
   .fm-spec-head h2 {
     margin: 0; font-family: var(--x-display); font-weight: 700;
