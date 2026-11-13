@@ -1,0 +1,366 @@
+---
+// Standalone product page for Alter, in Alter's own look (black, coral, Rubik + Inter),
+// not the CRT portfolio theme. Colours and type follow the Alter UI handoff.
+// Fonts are Latin-only subsets in /alter/fonts (about 94 KB together).
+const title = 'Alter: separate copies of any Windows app';
+const description =
+  'Alter runs separate copies of any Windows app, each with its own sign-in, settings, icon and taskbar button. Free, for Windows 10 and 11.';
+const pageUrl = new URL(Astro.url.pathname, Astro.site).href;
+const imageUrl = new URL('/alter/og-image.jpg', Astro.site).href;
+const download = '/downloads/Alter.zip';
+
+// Example copies for the window illustration. Letter tiles follow Alter's rule:
+// "Claude 2" -> CL2, "Chrome Work" -> CW, "Slack Client" -> SC.
+const examples = [
+  { mono: 'CL2', name: 'Claude 2', exe: 'WindowsApps\\claude-desktop.exe', mode: 'Chromium', on: true },
+  { mono: 'CW', name: 'Chrome Work', exe: 'Application\\chrome.exe', mode: 'Chromium', on: false },
+  { mono: 'SC', name: 'Slack Client', exe: 'slack\\slack.exe', mode: 'Chromium', on: false },
+];
+
+const steps = [
+  { n: '1', title: 'Pick an app', text: "Browse to the app's .exe. Alter recognises Chrome, Edge, VS Code, Slack, Discord, Claude and more, and picks how to keep the copy apart." },
+  { n: '2', title: 'Name it', text: 'Give the copy a name. It gets its own letter tile, like CL2 for "Claude 2", or an icon you choose.' },
+  { n: '3', title: 'Launch it', text: 'Start it from its card in Alter, or from its own Desktop and Start Menu shortcut. Pin it to the taskbar like any app.' },
+];
+
+const features = [
+  { title: 'Its own sign-in', text: "Each copy keeps its logins and settings in its own data folder, so accounts never mix." },
+  { title: 'Its own taskbar button', text: 'Copies get their own button and icon on the taskbar, separate from the original app.' },
+  { title: 'Launch and Stop', text: "See which copies are running, and start or close them from one window." },
+  { title: 'Store apps too', text: 'Microsoft Store apps such as the Claude desktop app work through their launch aliases.' },
+  { title: 'Follows updates', text: 'Apps that move to a new folder on every update, like Discord and Slack, are found again automatically.' },
+  { title: 'Nothing to install', text: 'Runs on the PowerShell and .NET compiler that come with Windows. Unzip it and start it.' },
+];
+
+const knows = ['Chrome', 'Edge', 'Brave', 'Vivaldi', 'Firefox', 'VS Code', 'Cursor', 'Slack', 'Discord', 'Notion', 'Obsidian', 'Signal', 'Claude'];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Alter</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={pageUrl} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="FRUS · Nabil Luqman" />
+    <meta property="og:url" content={pageUrl} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={imageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="The Alter logo, coral ALT letters on a black tile, with the name Alter and example copy tiles" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#0B0B0B" />
+    <link rel="icon" type="image/svg+xml" href="/alter/icon.svg" />
+    <link rel="preload" href="/alter/fonts/Rubik-ExtraBold.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/alter/fonts/Inter-Regular.woff2" as="font" type="font/woff2" crossorigin />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+
+    <header class="top">
+      <div class="wrap top-row">
+        <a class="brand" href="/alter/" aria-label="Alter home">
+          <img src="/alter/icon.svg" alt="" width="32" height="32" />
+          <span>Alter</span>
+        </a>
+        <nav class="top-nav" aria-label="Page">
+          <a href="#how">How it works</a>
+          <a href="#install">Install</a>
+          <a class="btn btn-primary btn-sm" href={download} download>Download</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <!-- Hero -->
+      <section class="hero">
+        <div class="wrap hero-grid">
+          <div class="hero-copy">
+            <p class="eyebrow">For Windows 10 and 11 · free</p>
+            <h1>Two of any app.</h1>
+            <p class="lede">
+              Alter makes separate copies of any Windows app, each with its own sign-in, settings, icon and taskbar
+              button. A work Chrome next to a personal one. A second Claude. Two Discord accounts.
+            </p>
+            <div class="cta">
+              <a class="btn btn-primary" href={download} download>
+                <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12M6 11l6 6 6-6M5 20h14"/></svg>
+                Download for Windows
+              </a>
+              <a class="btn btn-ghost" href="#how">How it works</a>
+            </div>
+            <p class="fine">Alter.zip · 750 KB · Windows 10 or 11</p>
+          </div>
+
+          <!-- Illustration of the Alter window, drawn from its design (not a screenshot) -->
+          <figure class="window" aria-label="Illustration of the Alter window with three copies: Claude 2 running, Chrome Work and Slack Client stopped">
+            <div class="win-bar" aria-hidden="true">
+              <img src="/alter/icon.svg" alt="" width="14" height="14" />
+              <span>Alter</span>
+              <span class="win-dots"><i></i><i></i><i></i></span>
+            </div>
+            <div class="win-body" aria-hidden="true">
+              <div class="win-side">
+                <svg class="wordmark" viewBox="33 72 189 112" width="70" height="42">
+                  <g fill="#FF8F7A" stroke="#FF8F7A" stroke-width="7" stroke-linejoin="round" fill-rule="evenodd">
+                    <path d="M41 176 V106 A26 26 0 0 1 67 80 H73 A26 26 0 0 1 99 106 V176 H78 V150 H62 V176 Z M62 104 H78 V128 H62 Z"/>
+                    <path d="M116 80 H138 V154 H158 V176 H116 Z"/>
+                    <path d="M156 80 H214 V102 H196 V176 H174 V102 H156 Z"/>
+                  </g>
+                </svg>
+                <span class="side-nav side-nav-on">Copies <b>3</b></span>
+                <span class="side-nav">New copy</span>
+                <span class="side-spacer"></span>
+                <span class="side-status"><i></i>1 copy running</span>
+                <span class="side-new">+ New copy</span>
+              </div>
+              <div class="win-main">
+                <p class="win-h">Your copies</p>
+                <div class="win-cards">
+                  {examples.map((c) => (
+                    <div class="mini-card">
+                      <div class="mini-top">
+                        <span class="tile tile-sm">{c.mono}</span>
+                        <span class="mini-name">
+                          <b>{c.name}</b>
+                          <code>{c.exe}</code>
+                        </span>
+                      </div>
+                      <div class="pills">
+                        <span class={c.on ? 'pill pill-on' : 'pill'}><i></i>{c.on ? 'Running' : 'Stopped'}</span>
+                        <span class="pill pill-mode">{c.mode}</span>
+                      </div>
+                      <span class={c.on ? 'mini-btn mini-btn-ghost' : 'mini-btn'}>{c.on ? 'Stop' : 'Launch'}</span>
+                    </div>
+                  ))}
+                  <div class="mini-card mini-add"><span>+</span>Copy another app</div>
+                </div>
+              </div>
+            </div>
+          </figure>
+        </div>
+      </section>
+
+      <!-- How it works -->
+      <section id="how" class="section">
+        <div class="wrap">
+          <h2>How it works</h2>
+          <p class="section-lede">Three steps, then the copy behaves like its own app.</p>
+          <ol class="steps">
+            {steps.map((s) => (
+              <li class="card step">
+                <span class="badge" aria-hidden="true">{s.n}</span>
+                <h3>{s.title}</h3>
+                <p>{s.text}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <!-- Features -->
+      <section class="section">
+        <div class="wrap">
+          <h2>What each copy gets</h2>
+          <ul class="features">
+            {features.map((f) => (
+              <li class="card feature">
+                <h3>{f.title}</h3>
+                <p>{f.text}</p>
+              </li>
+            ))}
+          </ul>
+          <div class="knows">
+            <p class="knows-label">Recognises</p>
+            <ul class="chips" aria-label="Apps Alter recognises">
+              {knows.map((k) => <li>{k}</li>)}
+            </ul>
+            <p class="fine">Other apps work too: Alter gives them their own AppData folders.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Install -->
+      <section id="install" class="section">
+        <div class="wrap install-grid">
+          <div>
+            <h2>Install</h2>
+            <ol class="install-steps">
+              <li><span class="badge" aria-hidden="true">1</span><div><b>Download Alter.zip</b> and extract it anywhere, for example to Documents.</div></li>
+              <li><span class="badge" aria-hidden="true">2</span><div><b>Double-click Start Alter.cmd.</b> After the first start, Alter is also in the Start Menu.</div></li>
+              <li><span class="badge" aria-hidden="true">3</span><div><b>If Windows warns</b> that the app is from an unknown publisher, click <b>More info</b>, then <b>Run anyway</b>. Alter isn't signed, which is why the warning appears.</div></li>
+            </ol>
+            <a class="btn btn-primary" href={download} download>Download for Windows</a>
+          </div>
+          <aside class="card limits" aria-labelledby="limits-h">
+            <h3 id="limits-h">Good to know</h3>
+            <ul>
+              <li>Needs Windows 10 or 11. Nothing else to install.</li>
+              <li>Apps with a hard "only one copy" lock, such as some games, Spotify and many game launchers, still refuse to open twice.</li>
+              <li>Copies are separate profiles, not a security sandbox: every copy can still see your files.</li>
+              <li>Deleting a copy removes its sign-ins and settings. The original app is never touched.</li>
+            </ul>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <div class="wrap foot-row">
+        <p>Made by <a href="/">frus (Nabil Luqman)</a>. Inspired by Parall on macOS.</p>
+        <p class="fine">Built with PowerShell, C# and WPF · <a href="/projects/alter/">More on the build</a></p>
+      </div>
+    </footer>
+  </body>
+</html>
+
+<style is:global>
+  @font-face { font-family: 'Rubik'; src: url('/alter/fonts/Rubik-Bold.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+  @font-face { font-family: 'Rubik'; src: url('/alter/fonts/Rubik-ExtraBold.woff2') format('woff2'); font-weight: 800; font-display: swap; }
+  @font-face { font-family: 'Inter'; src: url('/alter/fonts/Inter-Regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+  @font-face { font-family: 'Inter'; src: url('/alter/fonts/Inter-Medium.woff2') format('woff2'); font-weight: 500; font-display: swap; }
+  @font-face { font-family: 'Inter'; src: url('/alter/fonts/Inter-SemiBold.woff2') format('woff2'); font-weight: 600; font-display: swap; }
+  @font-face { font-family: 'JetBrains Mono'; src: url('/alter/fonts/JetBrainsMono-Regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+
+  /* Alter design tokens (from the UI handoff). The page is dark only, like the app. */
+  :root {
+    --ink: #0B0B0B; --side: #111111; --surface: #161616; --raised: #1E1E1E; --field: #0E0E0E;
+    --line: #242424; --line-2: #2A2A2A;
+    --text: #F4F1EE; --text-2: #C9C4BF; --muted: #A39E99;
+    --coral: #FF8F7A; --coral-hover: #FFA594; --on-pill: #3A211C;
+    --display: 'Rubik', 'Segoe UI', system-ui, sans-serif;
+    --ui: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', Consolas, ui-monospace, monospace;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--ink); color: var(--text); font: 400 16px/1.6 var(--ui); -webkit-font-smoothing: antialiased; }
+  a { color: var(--coral); }
+  a:hover { color: var(--coral-hover); }
+  :focus-visible { outline: 2px solid var(--coral); outline-offset: 3px; border-radius: 6px; }
+  img { max-width: 100%; }
+  h1, h2, h3 { font-family: var(--display); margin: 0; text-wrap: balance; }
+  p { margin: 0; }
+
+  .wrap { width: 100%; max-width: 1160px; margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+  .skip { position: absolute; left: -9999px; top: 8px; background: var(--coral); color: #141414; padding: 8px 12px; border-radius: 8px; z-index: 10; }
+  .skip:focus { left: 8px; }
+  .fine { font-size: 13px; color: var(--muted); }
+
+  /* buttons */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; height: 52px; padding: 0 24px; border-radius: 14px;
+         font: 700 16px var(--display); text-decoration: none; border: 1px solid transparent; transition: background 0.15s, border-color 0.15s; }
+  .btn-primary { background: var(--coral); color: #141414; }
+  .btn-primary:hover { background: var(--coral-hover); color: #141414; }
+  .btn-ghost { border-color: var(--line-2); color: var(--text); font-family: var(--ui); font-weight: 600; }
+  .btn-ghost:hover { background: #262626; color: var(--text); }
+  .btn-sm { height: 40px; padding: 0 16px; border-radius: 12px; font-size: 14px; }
+
+  /* top bar */
+  .top { position: sticky; top: 0; z-index: 5; background: rgba(11, 11, 11, 0.86); backdrop-filter: blur(10px); border-bottom: 1px solid #1C1C1C; }
+  .top-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 64px; }
+  .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--text); text-decoration: none; font: 800 20px var(--display); }
+  .brand:hover { color: var(--text); }
+  .top-nav { display: flex; align-items: center; gap: 22px; }
+  .top-nav a:not(.btn) { color: var(--text-2); text-decoration: none; font-size: 14px; font-weight: 500; }
+  .top-nav a:not(.btn):hover { color: var(--text); }
+
+  /* hero */
+  .hero { padding: 72px 0 88px; background: radial-gradient(900px 420px at 78% 30%, rgba(255, 143, 122, 0.08), transparent 70%); }
+  .hero-grid { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 56px; align-items: center; }
+  .eyebrow { font-size: 13px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--coral); margin-bottom: 18px; }
+  h1 { font-weight: 800; font-size: clamp(44px, 6.4vw, 76px); line-height: 1.02; letter-spacing: -1.5px; }
+  .lede { margin-top: 22px; font-size: 18px; color: var(--text-2); max-width: 34em; }
+  .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+  .hero .fine { margin-top: 14px; }
+
+  /* window illustration */
+  .window { margin: 0; min-width: 0; border-radius: 16px; background: var(--ink); border: 1px solid #262626; overflow: hidden;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.02); }
+  .win-bar { display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px; border-bottom: 1px solid #1C1C1C; font-size: 11px; color: var(--muted); }
+  .win-dots { margin-left: auto; display: flex; gap: 14px; }
+  .win-dots i { width: 9px; height: 9px; border: 1px solid #555; border-radius: 2px; }
+  .win-body { display: grid; grid-template-columns: 150px minmax(0, 1fr); min-height: 360px; }
+  .win-side { background: var(--side); border-right: 1px solid #1C1C1C; padding: 16px 12px; display: flex; flex-direction: column; gap: 6px; }
+  .wordmark { margin: 0 0 12px 4px; height: 22px; width: auto; }
+  .side-nav { display: flex; justify-content: space-between; font-size: 12px; font-weight: 500; color: var(--text-2); padding: 8px 10px; border-radius: 9px; }
+  .side-nav b { font-weight: 400; color: var(--muted); }
+  .side-nav-on { background: var(--raised); color: var(--text); }
+  .side-spacer { flex: 1; }
+  .side-status { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--text-2); background: var(--surface); border: 1px solid #222; border-radius: 10px; padding: 9px; }
+  .side-status i { width: 6px; height: 6px; border-radius: 3px; background: var(--coral); }
+  .side-new { text-align: center; font: 700 12px var(--display); background: var(--coral); color: #141414; border-radius: 10px; padding: 9px; }
+  .win-main { padding: 18px 18px 20px; min-width: 0; }
+  .win-h { font: 800 22px var(--display); margin-bottom: 14px; }
+  .win-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .mini-card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .mini-top { display: flex; gap: 10px; align-items: center; min-width: 0; }
+  .tile { display: inline-flex; align-items: center; justify-content: center; flex: none; background: var(--ink); border: 1px solid #262626;
+          color: var(--coral); font: 800 14px var(--display); letter-spacing: 0.5px; }
+  .tile-sm { width: 38px; height: 38px; border-radius: 11px; }
+  .mini-name { display: flex; flex-direction: column; min-width: 0; }
+  .mini-name b { font: 700 13px var(--display); }
+  .mini-name code { font: 10px var(--mono); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pills { display: flex; gap: 6px; flex-wrap: wrap; }
+  .pill { display: inline-flex; align-items: center; gap: 5px; height: 20px; padding: 0 8px; border-radius: 10px; font-size: 10px; font-weight: 600;
+          background: var(--raised); color: var(--muted); }
+  .pill i { width: 5px; height: 5px; border-radius: 3px; background: currentColor; }
+  .pill-on { background: var(--on-pill); color: var(--coral); }
+  .pill-mode { font-weight: 400; color: var(--text-2); }
+  .mini-btn { text-align: center; font-size: 11px; font-weight: 600; padding: 7px; border-radius: 9px; background: var(--coral); color: #141414; }
+  .mini-btn-ghost { background: transparent; border: 1px solid var(--line-2); color: var(--text); }
+  .mini-add { align-items: center; justify-content: center; background: transparent; border: 1.5px dashed #333; color: var(--muted); font-size: 12px; font-weight: 500; gap: 6px; }
+  .mini-add span { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 9px; background: var(--surface); font-size: 16px; }
+
+  /* sections */
+  .section { padding: 80px 0; border-top: 1px solid #161616; }
+  h2 { font-weight: 800; font-size: clamp(30px, 3.6vw, 40px); letter-spacing: -0.5px; line-height: 1.1; }
+  .section-lede { margin-top: 10px; color: var(--muted); }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 24px; }
+  .card h3 { font-weight: 700; font-size: 18px; }
+  .card p { margin-top: 8px; color: var(--text-2); font-size: 15px; }
+  .badge { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; flex: none; border-radius: 9px;
+           background: var(--coral); color: #141414; font: 800 14px var(--display); }
+
+  .steps { list-style: none; margin: 32px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .step .badge { margin-bottom: 16px; }
+
+  .features { list-style: none; margin: 32px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .feature { border-top: 2px solid var(--coral); }
+
+  .knows { margin-top: 40px; display: flex; flex-direction: column; gap: 12px; }
+  .knows-label { font-size: 13px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+  .chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .chips li { height: 32px; display: inline-flex; align-items: center; padding: 0 14px; border-radius: 16px; background: var(--raised); color: var(--text-2); font-size: 14px; }
+
+  .install-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr); gap: 40px; align-items: start; }
+  .install-steps { list-style: none; margin: 28px 0 32px; padding: 0; display: flex; flex-direction: column; gap: 18px; }
+  .install-steps li { display: flex; gap: 14px; color: var(--text-2); }
+  .install-steps b { color: var(--text); font-weight: 600; }
+  .limits ul { margin: 12px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 10px; color: var(--text-2); font-size: 15px; }
+
+  .foot { border-top: 1px solid #1C1C1C; padding: 28px 0 40px; }
+  .foot-row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; color: var(--text-2); font-size: 14px; }
+
+  @media (max-width: 900px) {
+    .hero { padding: 48px 0 64px; }
+    .hero-grid, .install-grid { grid-template-columns: minmax(0, 1fr); gap: 40px; }
+    .steps, .features { grid-template-columns: minmax(0, 1fr); }
+    .top-nav a:not(.btn) { display: none; }
+  }
+  @media (max-width: 520px) {
+    .win-body { grid-template-columns: minmax(0, 1fr); }
+    .win-side { display: none; }
+    .win-cards { grid-template-columns: minmax(0, 1fr); }
+    .mini-add { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .btn { transition: none; }
+  }
+</style>
