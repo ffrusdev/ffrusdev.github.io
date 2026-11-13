@@ -2,12 +2,15 @@
 // Standalone product page for Alter, in Alter's own look (black, coral, Rubik + Inter),
 // not the CRT portfolio theme. Colours and type follow the Alter UI handoff.
 // Fonts are Latin-only subsets in /alter/fonts (about 94 KB together).
-const title = 'Alter: separate copies of any Windows app';
+const title = 'Alter: separate copies of any app, for Windows and Linux';
 const description =
-  'Alter runs separate copies of any Windows app, each with its own sign-in, settings, icon and taskbar button. Free, for Windows 10 and 11.';
+  'Alter runs separate copies of any app, each with its own sign-in, settings, icon and taskbar button. Free and open source, for Windows and Linux.';
 const pageUrl = new URL(Astro.url.pathname, Astro.site).href;
 const imageUrl = new URL('/alter/og-image.jpg', Astro.site).href;
-const download = '/downloads/Alter.zip';
+// Always the newest release on GitHub (the release workflow builds and tests both).
+const repo = 'https://github.com/ffrusdev/alter';
+const winDownload = `${repo}/releases/latest/download/Alter.zip`;
+const linuxDownload = `${repo}/releases/latest/download/alter-linux.tar.gz`;
 
 // Example copies for the window illustration. Letter tiles follow Alter's rule:
 // "Claude 2" -> CL2, "Chrome Work" -> CW, "Slack Client" -> SC.
@@ -29,7 +32,7 @@ const features = [
   { title: 'Launch and Stop', text: "See which copies are running, and start or close them from one window." },
   { title: 'Store apps too', text: 'Microsoft Store apps such as the Claude desktop app work through their launch aliases.' },
   { title: 'Follows updates', text: 'Apps that move to a new folder on every update, like Discord and Slack, are found again automatically.' },
-  { title: 'Nothing to install', text: 'Runs on the PowerShell and .NET compiler that come with Windows. Unzip it and start it.' },
+  { title: 'Nothing to install', text: 'On Windows it runs on the PowerShell that comes with Windows; on Linux it is one Python 3 script. No runtimes, no admin rights.' },
 ];
 
 const knows = ['Chrome', 'Edge', 'Brave', 'Vivaldi', 'Firefox', 'VS Code', 'Cursor', 'Slack', 'Discord', 'Notion', 'Obsidian', 'Signal', 'Claude'];
@@ -70,7 +73,8 @@ const knows = ['Chrome', 'Edge', 'Brave', 'Vivaldi', 'Firefox', 'VS Code', 'Curs
         <nav class="top-nav" aria-label="Page">
           <a href="#how">How it works</a>
           <a href="#install">Install</a>
-          <a class="btn btn-primary btn-sm" href={download} download>Download</a>
+          <a href={repo}>GitHub</a>
+          <a class="btn btn-primary btn-sm" href="#install">Download</a>
         </nav>
       </div>
     </header>
@@ -80,20 +84,23 @@ const knows = ['Chrome', 'Edge', 'Brave', 'Vivaldi', 'Firefox', 'VS Code', 'Curs
       <section class="hero">
         <div class="wrap hero-grid">
           <div class="hero-copy">
-            <p class="eyebrow">For Windows 10 and 11 · free</p>
+            <p class="eyebrow">For Windows and Linux · free and open source</p>
             <h1>Two of any app.</h1>
             <p class="lede">
-              Alter makes separate copies of any Windows app, each with its own sign-in, settings, icon and taskbar
+              Alter makes separate copies of any app, each with its own sign-in, settings, icon and taskbar
               button. A work Chrome next to a personal one. A second Claude. Two Discord accounts.
             </p>
             <div class="cta">
-              <a class="btn btn-primary" href={download} download>
+              <a class="btn btn-primary" href={winDownload}>
                 <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12M6 11l6 6 6-6M5 20h14"/></svg>
                 Download for Windows
               </a>
-              <a class="btn btn-ghost" href="#how">How it works</a>
+              <a class="btn btn-ghost" href={linuxDownload}>
+                <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12M6 11l6 6 6-6M5 20h14"/></svg>
+                Download for Linux
+              </a>
             </div>
-            <p class="fine">Alter.zip · 750 KB · Windows 10 or 11</p>
+            <p class="fine">Windows: Alter.zip, 760 KB · Linux: alter-linux.tar.gz, 12 KB · <a href={`${repo}/releases`}>all releases</a></p>
           </div>
 
           <!-- Illustration of the Alter window, drawn from its design (not a screenshot) -->
@@ -179,30 +186,57 @@ const knows = ['Chrome', 'Edge', 'Brave', 'Vivaldi', 'Firefox', 'VS Code', 'Curs
             <ul class="chips" aria-label="Apps Alter recognises">
               {knows.map((k) => <li>{k}</li>)}
             </ul>
-            <p class="fine">Other apps work too: Alter gives them their own AppData folders.</p>
+            <p class="fine">Other apps work too: Alter gives them their own settings folders. On Linux it also handles Flatpak apps.</p>
           </div>
         </div>
       </section>
 
       <!-- Install -->
       <section id="install" class="section">
-        <div class="wrap install-grid">
-          <div>
-            <h2>Install</h2>
-            <ol class="install-steps">
-              <li><span class="badge" aria-hidden="true">1</span><div><b>Download Alter.zip</b> and extract it anywhere, for example to Documents.</div></li>
-              <li><span class="badge" aria-hidden="true">2</span><div><b>Double-click Start Alter.cmd.</b> After the first start, Alter is also in the Start Menu.</div></li>
-              <li><span class="badge" aria-hidden="true">3</span><div><b>If Windows warns</b> that the app is from an unknown publisher, click <b>More info</b>, then <b>Run anyway</b>. Alter isn't signed, which is why the warning appears.</div></li>
-            </ol>
-            <a class="btn btn-primary" href={download} download>Download for Windows</a>
+        <div class="wrap">
+          <h2>Install</h2>
+          <p class="section-lede">Pick your system. Both are free, open source and need no admin rights.</p>
+          <div class="os-grid">
+            <article class="card os" aria-labelledby="os-win">
+              <div class="os-head">
+                <h3 id="os-win">Windows</h3>
+                <span class="fine">Windows 10 or 11</span>
+              </div>
+              <ol class="install-steps">
+                <li><span class="badge" aria-hidden="true">1</span><div><b>Download Alter.zip</b> and extract it anywhere, for example to Documents.</div></li>
+                <li><span class="badge" aria-hidden="true">2</span><div><b>Double-click Alter.exe.</b> After the first start, Alter is also in the Start Menu.</div></li>
+                <li><span class="badge" aria-hidden="true">3</span><div><b>If Windows warns</b> that the app is from an unknown publisher, click <b>More info</b>, then <b>Run anyway</b>. Alter isn't signed, which is why the warning appears.</div></li>
+              </ol>
+              <a class="btn btn-primary" href={winDownload}>Download for Windows</a>
+            </article>
+
+            <article class="card os" aria-labelledby="os-linux">
+              <div class="os-head">
+                <h3 id="os-linux">Linux</h3>
+                <span class="fine">Any distro with Python 3</span>
+              </div>
+              <ol class="install-steps">
+                <li><span class="badge" aria-hidden="true">1</span><div><b>Download alter-linux.tar.gz</b>, then in a terminal:
+                  <pre><code>tar xzf alter-linux.tar.gz
+cd alter-linux && ./install.sh</code></pre></div></li>
+                <li><span class="badge" aria-hidden="true">2</span><div><b>Make a copy.</b> It appears in your app menu with its own name and icon:
+                  <pre><code>alter new "Chrome Work" --app google-chrome</code></pre></div></li>
+                <li><span class="badge" aria-hidden="true">3</span><div><b>Open it</b> from the app menu, or with <code class="inline">alter launch "Chrome Work"</code>. <code class="inline">alter apps</code> lists what you can copy.</div></li>
+              </ol>
+              <div class="cta-row">
+                <a class="btn btn-primary" href={linuxDownload}>Download for Linux</a>
+                <a class="btn btn-ghost" href={`${repo}/blob/main/linux/README.md`}>Linux guide</a>
+              </div>
+            </article>
           </div>
+
           <aside class="card limits" aria-labelledby="limits-h">
             <h3 id="limits-h">Good to know</h3>
             <ul>
-              <li>Needs Windows 10 or 11. Nothing else to install.</li>
               <li>Apps with a hard "only one copy" lock, such as some games, Spotify and many game launchers, still refuse to open twice.</li>
               <li>Copies are separate profiles, not a security sandbox: every copy can still see your files.</li>
               <li>Deleting a copy removes its sign-ins and settings. The original app is never touched.</li>
+              <li>On Linux, Snap apps aren't supported (use the .deb, tarball or Flatpak version), and only Chromium-based copies are guaranteed their own dock button.</li>
             </ul>
           </aside>
         </div>
@@ -212,7 +246,7 @@ const knows = ['Chrome', 'Edge', 'Brave', 'Vivaldi', 'Firefox', 'VS Code', 'Curs
     <footer class="foot">
       <div class="wrap foot-row">
         <p>Made by <a href="/">frus (Nabil Luqman)</a>. Inspired by Parall on macOS.</p>
-        <p class="fine">Built with PowerShell, C# and WPF · <a href="/projects/alter/">More on the build</a></p>
+        <p class="fine"><a href={repo}>Source on GitHub</a> · MIT license · <a href="/projects/alter/">More on the build</a></p>
       </div>
     </footer>
   </body>
@@ -338,8 +372,19 @@ const knows = ['Chrome', 'Edge', 'Brave', 'Vivaldi', 'Firefox', 'VS Code', 'Curs
   .chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
   .chips li { height: 32px; display: inline-flex; align-items: center; padding: 0 14px; border-radius: 16px; background: var(--raised); color: var(--text-2); font-size: 14px; }
 
-  .install-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr); gap: 40px; align-items: start; }
-  .install-steps { list-style: none; margin: 28px 0 32px; padding: 0; display: flex; flex-direction: column; gap: 18px; }
+  .os-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 32px; }
+  .os { display: flex; flex-direction: column; }
+  .os-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .os-head h3 { font-size: 22px; font-weight: 800; }
+  .os .btn { align-self: flex-start; }
+  .os > .btn { margin-top: auto; }
+  .os .cta-row { margin-top: auto; display: flex; flex-wrap: wrap; gap: 10px; }
+  .install-steps { list-style: none; margin: 24px 0 28px; padding: 0; display: flex; flex-direction: column; gap: 18px; }
+  .install-steps li > div { min-width: 0; }
+  .install-steps pre { margin: 10px 0 0; padding: 12px 14px; background: var(--field); border: 1px solid #222; border-radius: 12px;
+                       overflow-x: auto; font: 13px/1.55 var(--mono); color: var(--text); }
+  .inline { font: 13px var(--mono); background: var(--field); border: 1px solid #222; border-radius: 6px; padding: 1px 6px; color: var(--text); }
+  .limits { margin-top: 16px; }
   .install-steps li { display: flex; gap: 14px; color: var(--text-2); }
   .install-steps b { color: var(--text); font-weight: 600; }
   .limits ul { margin: 12px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 10px; color: var(--text-2); font-size: 15px; }
@@ -349,7 +394,8 @@ const knows = ['Chrome', 'Edge', 'Brave', 'Vivaldi', 'Firefox', 'VS Code', 'Curs
 
   @media (max-width: 900px) {
     .hero { padding: 48px 0 64px; }
-    .hero-grid, .install-grid { grid-template-columns: minmax(0, 1fr); gap: 40px; }
+    .hero-grid { grid-template-columns: minmax(0, 1fr); gap: 40px; }
+    .os-grid { grid-template-columns: minmax(0, 1fr); }
     .steps, .features { grid-template-columns: minmax(0, 1fr); }
     .top-nav a:not(.btn) { display: none; }
   }
