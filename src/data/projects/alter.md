@@ -17,6 +17,8 @@ gallery:
 
 <img src="/projects/alter/icon.webp" alt="The Alter app icon: coral block letters ALT on a black rounded tile" width="160" height="160">
 
+Alter has its own page: **[ffrusdev.github.io/alter](/alter/)**.
+
 ## What it does
 
 Most apps only let you run one copy, signed in to one account. Alter makes as many separate copies as you want. Each copy:
