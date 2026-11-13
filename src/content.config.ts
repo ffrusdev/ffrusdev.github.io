@@ -12,8 +12,8 @@ const projects = defineCollection({
     title: z.string(),
     role: z.string(),
     status: z.enum(['active', 'shipped', 'paused', 'day-job']),
-    // Which shelf it sits on in CH01: '3d' (3D + multiplayer games), '2d', or 'work' (day job)
-    section: z.enum(['3d', '2d', 'work']),
+    // Which shelf it sits on in CH01: '3d' (3D + multiplayer games), '2d', 'tools' (apps and utilities), or 'work' (day job)
+    section: z.enum(['3d', '2d', 'tools', 'work']),
     year: z.string(),
     summary: z.string(),
     tags: z.array(z.string()).default([]),
