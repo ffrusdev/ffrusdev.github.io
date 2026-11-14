@@ -38,8 +38,6 @@ Pick an app, give the copy a name, click **Create copy**. Alter works out how to
 - **Alter for Linux** is a separate command-line tool: one Python 3 script that gives each copy its own data folder and app-menu entry, and handles Flatpak apps too.
 - Every release is **built and tested on real Windows and Linux machines** by a GitHub Actions workflow, including two Chrome copies running side by side.
 
-Inspired by Parall on macOS.
-
 ## Install
 
 Downloads and install steps for both systems are on **[Alter's page](/alter/#install)**.
