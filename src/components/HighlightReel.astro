@@ -138,6 +138,9 @@ const ads: Ad[] = [
       </div>
 
     </div>
+
+    <!-- once the tape is in: a nudge to keep scrolling to the COMING SOON billboard -->
+    <a class="reel-next" href="#coming-soon" data-reel-next>▼ NEXT: COMING SOON ▼</a>
   </div>
 </section>
 
@@ -237,6 +240,13 @@ const ads: Ad[] = [
       }
     };
 
+    reel.querySelector('[data-reel-next]')?.addEventListener('click', (e) => {
+      const target = document.getElementById('coming-soon');
+      if (!target) return;
+      e.preventDefault();
+      target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+    });
+
     if (reduceMotion) {
       // No scroll animation: the tape is already in and the reel just plays.
       reel.classList.add('reel--static');
@@ -261,7 +271,9 @@ const ads: Ad[] = [
   .reel { position: relative; height: 230vh; margin-top: -44px; --t: 0; }
   .reel--static { height: auto; }
   .reel-sticky {
-    position: sticky; top: 0; height: 100vh; overflow: hidden; overflow: clip;
+    /* only as tall as its content (not a full screen): when the reel ends,
+       the next section follows right after it instead of after empty space */
+    position: sticky; top: 0; overflow: hidden; overflow: clip;
     display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 10px;
     padding: clamp(10px, 3vh, 26px) 16px 16px;
   }
@@ -271,6 +283,16 @@ const ads: Ad[] = [
     opacity: calc(1 - var(--t) * 3); animation: blink 1.1s steps(1) infinite;
   }
   .reel.is-on .reel-hint { visibility: hidden; }
+  /* "next" nudge under the strip: fades in once the tape is in and the reel is playing */
+  .reel-next {
+    font-family: var(--font-display); font-size: 13px; letter-spacing: 3px; white-space: nowrap;
+    color: var(--phosphor); text-decoration: none; padding: 4px 10px;
+    opacity: 0; pointer-events: none; transition: opacity 0.4s;
+  }
+  .reel.is-on .reel-next { opacity: 1; pointer-events: auto; animation: reel-next-blink 1.1s steps(1) infinite; }
+  @keyframes reel-next-blink { 50% { opacity: 0.45; } }
+  .reel-next:hover, .reel-next:focus-visible { color: var(--phosphor-bright); }
+  @media (prefers-reduced-motion: reduce) { .reel.is-on .reel-next { animation: none; } }
 
   .reel-set {
     /* VCR + monitor share this width: as wide as fits the screen height */
