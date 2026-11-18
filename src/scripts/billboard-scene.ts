@@ -117,7 +117,7 @@ export async function startBillboard(stage: HTMLElement, opts: { still: boolean 
   // Lamp light pools on the poster, lit from just above and in front of it.
   const lampY = pMax.y + 0.35, lampZ = front + 0.9;
   const makeLamp = (x: number) => {
-    const s = new THREE.SpotLight(0xffc56b, 3.4, 8, 0.7, 0.6, 1.2);
+    const s = new THREE.SpotLight(0xffe6c0, 4, 8, 0.7, 0.6, 1.2);
     s.position.set(x, lampY, lampZ);
     s.target.position.set(x * 0.8, pMin.y + pH * 0.35, front);
     scene.add(s, s.target);

@@ -60,7 +60,7 @@ function noise(cells) {
 }
 const big = noise(5), mid = noise(18), fine = noise(70);
 // Rust runs: streaks that drip down from the top frame, fading out.
-const runs = Array.from({ length: 26 }, () => ({ x: rnd() * W, w: 1 + rnd() * 3, len: 0.25 + rnd() * 0.6, s: 0.25 + rnd() * 0.45 }));
+const runs = Array.from({ length: 9 }, () => ({ x: rnd() * W, w: 1 + rnd() * 2, len: 0.12 + rnd() * 0.3, s: 0.15 + rnd() * 0.2 }));
 
 const px = fresh.data, ch = fresh.info.channels;
 const out = Buffer.alloc(W * H * 4);
@@ -70,11 +70,11 @@ for (let y = 0; y < H; y++) {
     let r = px[i], g = px[i + 1], b = px[i + 2];
     // sun-faded print: less colour, washed-out blacks, warmer paper tone
     const grey = 0.3 * r + 0.59 * g + 0.11 * b;
-    const fade = 0.45 + 0.25 * (1 - y / H) + 0.15 * big(x, y); // top faded most
-    r = r + (grey - r) * fade * 0.55; g = g + (grey - g) * fade * 0.55; b = b + (grey - b) * fade * 0.55;
-    r = 16 + r * 0.9; g = 12 + g * 0.84; b = 6 + b * 0.7;
+    const fade = 0.3 + 0.2 * (1 - y / H) + 0.1 * big(x, y); // top faded most
+    r = r + (grey - r) * fade * 0.35; g = g + (grey - g) * fade * 0.35; b = b + (grey - b) * fade * 0.35;
+    r = 8 + r * 0.96; g = 6 + g * 0.93; b = 3 + b * 0.86; // slightly warm, yellowed paper
     // grime: dark blotches and fine dirt
-    let dirt = 1 - 0.38 * Math.max(0, mid(x, y) - 0.35) - 0.12 * fine(x, y);
+    let dirt = 1 - 0.16 * Math.max(0, mid(x, y) - 0.45) - 0.06 * fine(x, y);
     // rust runs from the top edge
     for (const run of runs) {
       const d = Math.abs(x - run.x - Math.sin(y * 0.05) * 1.5);
@@ -85,7 +85,7 @@ for (let y = 0; y < H; y++) {
     }
     // darker edges where water collects
     const ex = Math.min(x, W - 1 - x) / W, ey = Math.min(y, H - 1 - y) / H;
-    dirt *= 0.72 + 0.28 * Math.min(1, Math.min(ex * 9, ey * 5));
+    dirt *= 0.85 + 0.15 * Math.min(1, Math.min(ex * 9, ey * 5));
     // the odd scratch / paper speck
     const speck = rnd() < 0.004 ? 1.35 : 1;
     const o = (y * W + x) * 4;
