@@ -1,0 +1,98 @@
+---
+// Home page, under the highlight reel: a "coming soon" teaser. A real-time 3D
+// billboard (src/scripts/billboard-scene.ts) at night, half covered by a sheet.
+// Nothing to click or drag: it's a moving picture, not a viewer.
+//
+// The billboard model is built by scripts/billboard.mjs from
+// "Post-Apocalyptic 60s Billboards" on Sketchfab (credit below).
+---
+
+<section class="cs" aria-labelledby="cs-title">
+  <header class="cs-head">
+    <p class="cs-kicker">NEXT BROADCAST · DATE UNKNOWN</p>
+    <h2 id="cs-title">COMING SOON</h2>
+    <p class="cs-sub">Something's cooking under the sheet.</p>
+  </header>
+
+  <div class="cs-stage" data-billboard role="img" aria-label="A rusty billboard at night showing We Are COOKED! art, half hidden under a dirty sheet. One of its lamps flickers.">
+    <p class="cs-status" data-status aria-hidden="true">TUNING IN…</p>
+    <span class="cs-rec" aria-hidden="true">● LIVE · CAM 02</span>
+  </div>
+
+  <p class="cs-credit">
+    Billboard model: <a href="https://sketchfab.com/3d-models/post-apocalyptic-60s-billboards-6d013ddc5438491daa43e46b5bde7a8d">Post-Apocalyptic 60s Billboards</a> on Sketchfab, retextured.
+  </p>
+</section>
+
+<script>
+  // Load the 3D scene (and Three.js) only when the section gets close to the screen.
+  const stage = document.querySelector<HTMLElement>('[data-billboard]');
+  if (stage) {
+    const status = stage.querySelector<HTMLElement>('[data-status]');
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const io = new IntersectionObserver(async ([e]) => {
+      if (!e.isIntersecting) return;
+      io.disconnect();
+      try {
+        const { startBillboard } = await import('../scripts/billboard-scene');
+        await startBillboard(stage, { still });
+        status?.remove();
+      } catch (err) {
+        console.error(err);
+        if (status) status.textContent = 'NO SIGNAL';
+      }
+    }, { rootMargin: '300px' });
+    io.observe(stage);
+  }
+</script>
+
+<style>
+  .cs {
+    max-width: 1180px;
+    margin: clamp(48px, 8vw, 96px) auto 0;
+    padding: 0 clamp(16px, 4vw, 40px);
+  }
+  .cs-head { text-align: center; margin-bottom: 18px; }
+  .cs-kicker {
+    margin: 0 0 8px; font-family: var(--font-display); font-size: 13px; letter-spacing: 3px; color: var(--phosphor-dim);
+  }
+  .cs-head h2 {
+    margin: 0; font-size: clamp(34px, 7vw, 72px); letter-spacing: 6px; color: var(--phosphor);
+    text-shadow: 0 0 18px rgba(184, 242, 160, 0.25);
+  }
+  .cs-sub { margin: 8px 0 0; color: var(--phosphor-dim); }
+
+  .cs-stage {
+    position: relative; overflow: hidden;
+    aspect-ratio: 16 / 9;
+    border: 2px solid #2a2722; border-radius: 6px;
+    background: #14110e;
+    box-shadow: 0 0 0 6px #0c0b09, 0 18px 40px rgba(0, 0, 0, 0.6);
+  }
+  /* the low-res render is scaled up with crisp, chunky pixels */
+  .cs-stage :global(canvas) {
+    position: absolute; inset: 0; width: 100% !important; height: 100% !important;
+    image-rendering: pixelated; display: block;
+  }
+  /* faint scanlines over the shot, like the rest of the site */
+  .cs-stage::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.18) 0 1px, transparent 1px 4px);
+  }
+  .cs-status {
+    position: absolute; inset: 0; margin: 0; display: grid; place-items: center;
+    font-family: var(--font-display); letter-spacing: 4px; color: var(--phosphor-dim);
+  }
+  .cs-rec {
+    position: absolute; z-index: 1; top: 12px; left: 14px;
+    font-family: var(--font-display); font-size: 12px; letter-spacing: 2px; color: #e05a4a;
+    text-shadow: 0 0 6px rgba(224, 90, 74, 0.6);
+  }
+  .cs-credit { margin: 10px 0 0; font-size: 18px; color: #958f82; text-align: right; }
+  .cs-credit a { color: #b3ac9e; }
+
+  @media (max-width: 640px) {
+    .cs-stage { aspect-ratio: 1 / 1; }
+    .cs-credit { text-align: left; }
+  }
+</style>
